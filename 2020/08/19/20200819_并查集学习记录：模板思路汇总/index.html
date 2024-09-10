@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="HB小咸鱼学习记录 自我对于“并查集”的理解有时候一些题，是让你判断图中一些数据是否在一个集合中。例如1和3联通，2和3联通，问你1和2是否联通。这其实问的就是1和2是否在一个联通集合里，如果用搜索进行遍历的话，就需要挨个对路径进行尝试，如果数据量大的话，消耗时间就会过多，这时候就可以用并查集来解决问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并查集学习记录：模板&#x2F;思路汇总">
+<meta property="og:url" content="https://zgg2001.github.io/2020/08/19/20200819_%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="HB小咸鱼学习记录 自我对于“并查集”的理解有时候一些题，是让你判断图中一些数据是否在一个集合中。例如1和3联通，2和3联通，问你1和2是否联通。这其实问的就是1和2是否在一个联通集合里，如果用搜索进行遍历的话，就需要挨个对路径进行尝试，如果数据量大的话，消耗时间就会过多，这时候就可以用并查集来解决问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-08-19T05:35:53.000Z">
+<meta property="article:modified_time" content="2020-08-19T05:35:53.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="数据结构与算法">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2020/08/19/20200819_%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2020/08/19/20200819_%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/","path":"2020/08/19/20200819_并查集学习记录：模板思路汇总/","title":"并查集学习记录：模板/思路汇总"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>并查集学习记录：模板/思路汇总 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E6%88%91%E5%AF%B9%E4%BA%8E%E2%80%9C%E5%B9%B6%E6%9F%A5%E9%9B%86%E2%80%9D%E7%9A%84%E7%90%86%E8%A7%A3"><span class="nav-text">自我对于“并查集”的理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E6%9F%A5%E9%9B%86%E7%9A%84%E5%A4%A7%E8%87%B4%E6%80%9D%E8%B7%AF"><span class="nav-text">并查集的大致思路</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E4%BC%98%E5%8C%96"><span class="nav-text">一些优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E6%9F%A5%E9%9B%86%E7%9A%84%E5%A4%A7%E8%87%B4%E6%A8%A1%E6%9D%BF"><span class="nav-text">并查集的大致模板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E6%9F%A5%E9%9B%86%E4%BE%8B%E9%A2%98"><span class="nav-text">并查集例题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%95%85%E9%80%9A%E5%B7%A5%E7%A8%8B"><span class="nav-text">1.畅通工程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84"><span class="nav-text">2.修改数组</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%95%8C%E4%BA%BA"><span class="nav-text">3.敌人</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E9%A3%9F%E7%89%A9%E9%93%BE"><span class="nav-text">4.食物链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%BD%91%E7%BB%9C%E5%88%86%E6%9E%90"><span class="nav-text">5. 网络分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/19/20200819_%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="并查集学习记录：模板/思路汇总 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          并查集学习记录：模板/思路汇总
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-19 13:35:53" itemprop="dateCreated datePublished" datetime="2020-08-19T13:35:53+08:00">2020-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>HB小咸鱼学习记录</strong></p>
+<h1 id="自我对于“并查集”的理解"><a href="#自我对于“并查集”的理解" class="headerlink" title="自我对于“并查集”的理解"></a>自我对于“并查集”的理解</h1><p>有时候一些题，是让你判断图中一些数据是否在一个集合中。例如1和3联通，2和3联通，问你1和2是否联通。这其实问的就是1和2是否在一个联通集合里，如果用搜索进行遍历的话，就需要挨个对路径进行尝试，如果数据量大的话，消耗时间就会过多，这时候就可以用并查集来解决问题。</p>
+<span id="more"></span>
+
+<h1 id="并查集的大致思路"><a href="#并查集的大致思路" class="headerlink" title="并查集的大致思路"></a>并查集的大致思路</h1><p>并查集的核心操作就是“并”与“查”。<br>“并”指的是将两个数据放到一个集合里，“查”就是查询一个数据在哪个集合里。<br><strong>首先</strong>，我们声明一个father数组，数组的值是指向当前下标元素的父节点。<br><strong>其次</strong>，我们对这个数组进行初始化，使得当前下标的值是他本身。代表他是自己的父节点，即他是根节点，这个情况下可以看作每个元素都是一个单独的集合。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> father[MAX];</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;MAX;now++)<span class="comment">//初始化 </span></span><br><span class="line">&#123;</span><br><span class="line">	father[now]=now;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>接着</strong>，我们建立“查”操作，查询某一数据属于哪个集合，就是查询他的根节点。<br>因为我们设定了father数组，所以我们不断查找该数据的父节点，即可知道该数据的根节点。<br>我们如果要查询两个数据是否属于一个集合，即可通过“查”操作获取两个数据的根节点，如果两个数据的根节点相同，则说明两个数属于同一个集合。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第一种写法（递归）</span></span><br><span class="line"><span class="comment">//第一种写法可以用三目运算符缩写为 return father[a]==a ? a : find(father[a]);</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(father[a]==a)</span><br><span class="line">		<span class="keyword">return</span> a;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//第二种写法</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp = father[a];</span><br><span class="line">	<span class="keyword">while</span>(father[temp]!=temp)</span><br><span class="line">		temp = father[temp];</span><br><span class="line">	<span class="keyword">return</span> temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>最后</strong>，我们建立“并”操作，可以将两个集合合并。<br>我们首先获取想要合并的数据A和数据B的根节点。如果根节点相同，则说明两个数据本来就属于一个集合，所以不用进行合并处理；如果根节点不同，则说明两个数据不属于同一个集合，此时我们需要进行合并操作。<br>合并操作很简单，让一个数据的根节点指向另一个数据的根节点即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">union_</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)</span><br><span class="line">	&#123;</span><br><span class="line">		father[temp_a]=temp_b;	</span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="一些优化"><a href="#一些优化" class="headerlink" title="一些优化"></a>一些优化</h2><p> <strong>秩优化</strong><br>我们在进行“并”操作时，如果和上面一样，规定无论如何都是数据A往数据B并，那么很有可能大树并小树，导致整个集合的深度增加，最极端的例子是形成了一条链，此时如果find链尾，则会将整个链遍历一遍，时间消耗会大大增加。所以我们在进行“并”操作时，可以获取两个数据所处集合的深度，让深度低的成为深度高的子集。而当深度一样时，则可以看你的喜好进行合并。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> deep[MAX] = &#123;<span class="number">0</span>&#125;;<span class="comment">//深度数组，初始深度都为0，储存各个集合的深度 </span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">union_</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)<span class="comment">//两个数据不在同一个集合</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(deep[temp_a]&gt;deep[temp_b])<span class="comment">//a比b深度高 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_b]=temp_a;<span class="comment">//b成为a的子集 </span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(deep[temp_a]&lt;deep[temp_b])<span class="comment">//a比b深度低 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_a]=temp_b;<span class="comment">//a成为b的子集 </span></span><br><span class="line">		&#125;	</span><br><span class="line">		<span class="keyword">else</span><span class="comment">//深度一样 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_b]=temp_a;<span class="comment">//b成为a的子集 </span></span><br><span class="line">			deep[temp_a]++;<span class="comment">//a的根节点的深度加一 </span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> <strong>路径压缩</strong><br> 在我们进行find查询时，如果我们只在乎某数据的根节点，而不在意他的各个父节点时，我们可以进行路径压缩。让这个数据的父节点直接指向根节点，这样被称作“路径压缩”。在进行路径压缩后，所有的节点都指向根节点，这样集合的深度只有1，在之后进行数据的根节点查询时的复杂度只有O(1),大大提升查询速度。 </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第一种写法（递归）</span></span><br><span class="line"><span class="comment">//第一种写法可以用三目运算符缩写为 return father[a]==a ? a : father[a] = find(father[a]);</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(father[a]==a)</span><br><span class="line">		<span class="keyword">return</span> a;</span><br><span class="line">	<span class="keyword">return</span> father[a] = <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//第二种写法</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span>   </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> temp = father[a];</span><br><span class="line">	<span class="keyword">while</span>(father[temp]!=temp)</span><br><span class="line">		temp = father[temp];</span><br><span class="line">    <span class="type">int</span> i=a,j;</span><br><span class="line">    <span class="keyword">while</span>(i!=temp) <span class="comment">//路径压缩</span></span><br><span class="line">    &#123;</span><br><span class="line">         j=father[i]; <span class="comment">// 在改变上级之前用临时变量j记录下他的值</span></span><br><span class="line">         father[i]=temp; <span class="comment">//把上级改为根节点</span></span><br><span class="line">         i=j;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> temp ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="并查集的大致模板"><a href="#并查集的大致模板" class="headerlink" title="并查集的大致模板"></a>并查集的大致模板</h1><p>这是秩优化+路径压缩的模板，<br>其余版本看上面的思路模块即可。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> father[MAX];<span class="comment">//父节点数组</span></span><br><span class="line"><span class="type">int</span> deep[MAX] = &#123;<span class="number">0</span>&#125;;<span class="comment">//深度数组，初始深度都为0，储存各个集合的深度 </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">init</span><span class="params">()</span><span class="comment">//初始化 </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;MAX;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		father[now]=now;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span><span class="comment">//查询</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(father[a]==a)</span><br><span class="line">		<span class="keyword">return</span> a;</span><br><span class="line">	<span class="keyword">return</span> father[a] = <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">union_</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span><span class="comment">//合并</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)<span class="comment">//两个数据不在同一个集合</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(deep[temp_a]&gt;deep[temp_b])<span class="comment">//a比b深度高 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_b]=temp_a;<span class="comment">//b成为a的子集 </span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(deep[temp_a]&lt;deep[temp_b])<span class="comment">//a比b深度低 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_a]=temp_b;<span class="comment">//a成为b的子集 </span></span><br><span class="line">		&#125;	</span><br><span class="line">		<span class="keyword">else</span><span class="comment">//深度一样 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[temp_b]=temp_a;<span class="comment">//b成为a的子集 </span></span><br><span class="line">			deep[temp_a]++;<span class="comment">//a的根节点的深度加一 </span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	........</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="并查集例题"><a href="#并查集例题" class="headerlink" title="并查集例题"></a>并查集例题</h1><h2 id="1-畅通工程"><a href="#1-畅通工程" class="headerlink" title="1.畅通工程"></a>1.畅通工程</h2><p>某省调查城镇交通状况，得到现有城镇道路统计表，表中列出了每条道路直接连通的城镇。省政府“畅通工程”的目标是使全省任何两个城镇间都可以实现交通（但不一定有直接的道路相连，只要互相间接通过道路可达即可）。问最少还需要建设多少条道路？</p>
+<p>Input<br>测试输入包含若干测试用例。每个测试用例的第1行给出两个正整数，分别是城镇数目N ( &lt; 1000 )和道路数目M；随后的M行对应M条道路，每行给出一对正整数，分别是该条道路直接连通的两个城镇的编号。为简单起见，城镇从1到N编号。<br>注意:两个城市之间可以有多条道路相通,也就是说<br>3 3<br>1 2<br>1 2<br>2 1<br>这种输入也是合法的<br>当N为0时，输入结束，该用例不被处理。</p>
+<p>Output<br>对每个测试用例，在1行里输出最少还需要建设的道路数目。</p>
+<p>Sample Input<br>4 2<br>1 3<br>4 3<br>3 3<br>1 2<br>1 3<br>2 3<br>5 2<br>1 2<br>3 5<br>999 0<br>0</p>
+<p>Sample Output<br>1<br>0<br>2<br>998</p>
+<p><a target="_blank" rel="noopener" href="http://acm.hdu.edu.cn/showproblem.php?pid=1232">题目地址</a></p>
+<p>思路：这题在把所有的数据接收后，运用并查集进行集合合并，最后根节点的个数就是集合的个数。而联通n个节点最少需要n-1条边，故根节点的个数减去1就是建设道路的最少值。由于题中只在乎最后根节点的个数，所有使用了路径压缩，提高代码的运算速度。</p>
+<p>AC代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> father[<span class="number">1001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> father[a]==a ? a : father[a] = <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">compose</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)</span><br><span class="line">	&#123;</span><br><span class="line">		father[temp_a]=temp_b;	</span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a,b,c,d;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">while</span>(<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;a)&amp;&amp;a)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;b);</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=a;now++)<span class="comment">//初始化 </span></span><br><span class="line">		&#123;</span><br><span class="line">			father[now]=now;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span>(b--)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">scanf</span>(<span class="string">&quot;%d %d&quot;</span>,&amp;c,&amp;d);</span><br><span class="line">			<span class="built_in">compose</span>(c,d);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="type">int</span> ans=<span class="number">0</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=a;now++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(father[now]==now)</span><br><span class="line">				ans++;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		cout&lt;&lt;ans<span class="number">-1</span>&lt;&lt;endl;</span><br><span class="line">	&#125; </span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-修改数组"><a href="#2-修改数组" class="headerlink" title="2.修改数组"></a>2.修改数组</h2><p>给定一个长度为N 的数组A &#x3D; [A1, A2,…,AN]，数组中有可能有重复出现的整数。<br>现在小明要按以下方法将其修改为没有重复整数的数组。小明会依次修改A2,A3,…, AN。<br>当修改Ai 时，小明会检查Ai 是否在A1~ Ai-1 中出现过。<br>如果出现过，则小明会给Ai 加上1 ；<br>如果新的Ai 仍在之前出现过，小明会持续给Ai 加1 ，直到Ai 没有在A1~Ai-1中出现过。<br>当AN 也经过上述修改之后，显然A数组中就没有重复的整数了。<br>现在给定初始的A 数组，请你计算出最终的A 数组。</p>
+<p>输入<br>第一行包含一个整数N(1&lt;&#x3D;N&lt;&#x3D;100000)<br>第二行包含N个整数A1,A2,…,AN(1&lt;&#x3D;Ai&lt;&#x3D;1000000)</p>
+<p>输出<br>输出N个整数，依次是最终的A1,A2,…,AN</p>
+<p>样例输入 Copy<br>5<br>2 1 1 3 4</p>
+<p>样例输出 Copy<br>2 1 3 4 5</p>
+<p><a target="_blank" rel="noopener" href="http://oj.ecustacm.cn/problem.php?id=1459">题目地址</a></p>
+<p>思路：我们可以把用过的数字放到一个集合里，而让他的父节点指向下一个可以用的数字，具体操作就是**father[a]&#x3D;find(father[a]+1)**。这样我们就会一直对使用过的数字的父节点进行加一操作，直到找到一个没有被使用过的数字。由于这题只需要知道该数字是否被使用过，即是否在“被使用过”这个集合里，所以我们可以使用路径压缩，提高运算效率。</p>
+<p>AC代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> father[<span class="number">1000001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(father[a]==<span class="number">-1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		father[a]=a;</span><br><span class="line">		<span class="keyword">return</span> a;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="keyword">return</span> father[a]=<span class="built_in">find</span>(father[a]<span class="number">+1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> input,aa;</span><br><span class="line">	cin&gt;&gt;input;</span><br><span class="line">	<span class="built_in">memset</span>(father,<span class="number">-1</span>,<span class="built_in">sizeof</span>(father));</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=input;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		cin&gt;&gt;aa;</span><br><span class="line">		aa=<span class="built_in">find</span>(aa);</span><br><span class="line">		cout&lt;&lt;aa&lt;&lt;<span class="string">&quot; &quot;</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-敌人"><a href="#3-敌人" class="headerlink" title="3.敌人"></a>3.敌人</h2><p>俗话说得好，敌人的敌人就是朋友。<br>现在有n个人，编号1至n，初始互不相识。接下来有m个操作，操作分为两种：</p>
+<p>（1）检查x号和y号是否是朋友，若不是，则变成敌人<br>（2）询问x号的朋友有多少个<br>请你针对每个操作中的询问给出回答。</p>
+<p>输入<br>第一行两个正整数n、m，表示人的数量和操作的数量。<br>接下来m行，依次描述输入。每行的第一个整数为1或2表示操作种类。对于操作（1），随后有两个正整数x，y。对于操作（2），随后一个正整数x。</p>
+<p>输出<br>输出包含m行，对于操作（1），输入’N’或”Y”，’N’表示x和y之前不是朋友，’Y’表示是朋友。对于操作（2），输出x的朋友数量。</p>
+<p>输入示例<br>5 8<br>1 1 2<br>1 1 3<br>1 2 3<br>2 3<br>1 4 5<br>2 3<br>1 1 4<br>2 3</p>
+<p>输出示例<br>N<br>N<br>Y<br>1<br>N<br>1<br>N<br>2</p>
+<p>思路：这道题相比之前的题，一个不同的特点就是我们无法直接将两个数据放进同一个集合，因为输入的数据要变为“敌人”关系，即不在同一个集合内。那么我们如何能将两个数据放进同一个集合呢？我们可以扩大father数组，使它是原来的两倍大。假如一共有N个数，则1到N代表本身，N+1到2N则代表1到N的敌人。当我们设定两个数是敌人的时候，只需要把第一个数据和第二个数据的敌人放在一个集合，第二个数据和第一个数据的敌人防在一个集合，即可完成合并的操作。因为当和一个数的敌人是朋友时，那和这个数就是敌人。当查询一个数的朋友时，遍历查询与其根节点相同的点的个数，再减去一（它本身），即为朋友的个数。本题由于也是只看根节点，所以可以使用路径压缩。</p>
+<p>AC代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> father[<span class="number">600001</span>];<span class="comment">//最大300000个数 数的敌人也有300000个 故一共600000</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span><span class="comment">//查询</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> father[a]==a ? a : father[a] = <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">compose</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span><span class="comment">//合并</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)</span><br><span class="line">	&#123;</span><br><span class="line">		father[temp_a]=temp_b;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> input1,input2,a,b,c;</span><br><span class="line">	cin&gt;&gt;input1&gt;&gt;input2;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=input1*<span class="number">2</span>;now++)<span class="comment">//初始化 </span></span><br><span class="line">	&#123;</span><br><span class="line">		father[now]=now;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;input2;now++)<span class="comment">//接收初始值 </span></span><br><span class="line">	&#123;</span><br><span class="line">		cin&gt;&gt;a;</span><br><span class="line">		<span class="keyword">if</span>(a==<span class="number">1</span>)<span class="comment">//1操作</span></span><br><span class="line">		&#123;</span><br><span class="line">			cin&gt;&gt;b&gt;&gt;c;</span><br><span class="line">			<span class="keyword">if</span>(<span class="built_in">find</span>(b)==<span class="built_in">find</span>(c))<span class="comment">//是朋友</span></span><br><span class="line">			&#123;</span><br><span class="line">				cout&lt;&lt;<span class="string">&quot;Y&quot;</span>&lt;&lt;endl;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">compose</span>(b,c+input1);<span class="comment">//将输入的第一个数据和第二个数据的敌人放在一个集合里</span></span><br><span class="line">				<span class="built_in">compose</span>(c,b+input1);<span class="comment">//将输入的第二个数据和第一个数据的敌人放在一个集合里</span></span><br><span class="line">				cout&lt;&lt;<span class="string">&quot;N&quot;</span>&lt;&lt;endl;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(a==<span class="number">2</span>)<span class="comment">//2操作</span></span><br><span class="line">		&#123;</span><br><span class="line">			cin&gt;&gt;b;</span><br><span class="line">			<span class="type">int</span> ans=<span class="number">0</span>;</span><br><span class="line">			<span class="comment">/*for(int now=1;now&lt;=input1*2;now++) </span></span><br><span class="line"><span class="comment">			&#123;</span></span><br><span class="line"><span class="comment">				cout&lt;&lt;father[now]&lt;&lt;&quot; &quot;;</span></span><br><span class="line"><span class="comment">			&#125;*/</span></span><br><span class="line">			<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=input1;now++)<span class="comment">//如果根节点相同则说明在同一集合，是朋友 </span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(<span class="built_in">find</span>(b)==<span class="built_in">find</span>(now))</span><br><span class="line">					ans++;</span><br><span class="line">			&#125;</span><br><span class="line">			cout&lt;&lt;ans<span class="number">-1</span>&lt;&lt;endl;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="4-食物链"><a href="#4-食物链" class="headerlink" title="4.食物链"></a>4.食物链</h2><p>有N只动物分别编号为1，2，……，N。所有动物都属于A，B，C中的一类。已知A能吃掉B，B能吃掉C，C能吃掉A。按顺序给出下面的两种信息共K条：<br>  第一种：x和y属于同一类；<br>  第二种：x吃y。<br>然而这些信息可能会出错，有可能有的信息和之前给出的信息矛盾，也有的信息可能给出的x和y不在1到N的范围内。求在K条信息中有多少条是不正确的。计算过程中，我们将忽视诸如此类的错误信息。</p>
+<p>输入<br>第一行两个自然数，两数间用一个空格分隔，分别表示N和K，接下来的K行，每行有三个数，第一个数为0或1，分别对应第一种或第二种，接着的两个数，分别为该条信息的x和y，三个数两两之间用一个空格分隔。</p>
+<p>输出<br>一个自然数，表示错误信息的条数。</p>
+<p>输入示例<br>100 7<br>0 101 1<br>1 1 2<br>1 2 3<br>1 3 3<br>0 1 3<br>1 3 1<br>0 5 5</p>
+<p>输出示例<br>3</p>
+<p>思路：与上一题“敌人”相似，这一题也可以通过扩展数组建立多重关系来做。这一题存在同类、吃、被吃这三个关系。所以我们把数组扩到到原来的三倍，1到N代表本身，N+1到2N代表被“本身”吃的，2N+1到3N代表吃“本身”的。当我们建立0操作的“A和B同类”关系时，只需要把三个区域同等合并即可，即A本身和B本身合并为一类，A吃的和B吃的合并为一类，吃A的和吃B的合并为一类，即可说明A和B地位相同。当我们建立1操作的“A吃B”关系时，将B和A吃的划为一类，B吃的和吃A的划为一类，A和吃B的划为一类，即可实现A吃B关系网的建立。<br>而当输入超限、在0操作时判断出A和B是吃或被吃关系、在1操作时判断出A和B是同类或被吃关系时，即为语句错误，答案数量加一。由此结束时输出即可。</p>
+<p>AC代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> father[<span class="number">150001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> father[a]==a ? a : father[a] = <span class="built_in">find</span>(father[a]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">compose</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a);</span><br><span class="line">	<span class="type">int</span> temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)</span><br><span class="line">	&#123;</span><br><span class="line">		father[temp_a]=temp_b;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> input1,input2,a,b,c,ans=<span class="number">0</span>;</span><br><span class="line">	cin&gt;&gt;input1&gt;&gt;input2;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">1</span>;now&lt;=input1*<span class="number">3</span>;now++)<span class="comment">//初始化 </span></span><br><span class="line">	&#123;</span><br><span class="line">		father[now]=now;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;input2;now++)<span class="comment">//接收初始值 </span></span><br><span class="line">	&#123;</span><br><span class="line">		cin&gt;&gt;a;</span><br><span class="line">		<span class="keyword">if</span>(a==<span class="number">0</span>)<span class="comment">//输入0 x与y同类 </span></span><br><span class="line">		&#123;</span><br><span class="line">			cin&gt;&gt;b&gt;&gt;c;</span><br><span class="line">			<span class="keyword">if</span>(b&gt;input1||b&lt;<span class="number">1</span>||c&gt;input1||c&lt;<span class="number">1</span>)<span class="comment">//输入不合法 </span></span><br><span class="line">			&#123;</span><br><span class="line">				ans++;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(<span class="built_in">find</span>(b)==<span class="built_in">find</span>(c+input1)||<span class="built_in">find</span>(b)==<span class="built_in">find</span>(c<span class="number">+2</span>*input1))<span class="comment">//如果属于吃或者被吃关系 </span></span><br><span class="line">				&#123;</span><br><span class="line">					ans++;</span><br><span class="line">					<span class="keyword">continue</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span><span class="comment">//指向平级，代表同类 </span></span><br><span class="line">				&#123;</span><br><span class="line">					<span class="built_in">compose</span>(b,c); </span><br><span class="line">					<span class="built_in">compose</span>(b+input1,c+input1);</span><br><span class="line">					<span class="built_in">compose</span>(b+input1*<span class="number">2</span>,c+input1*<span class="number">2</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span>(a==<span class="number">1</span>)<span class="comment">//输入1 x吃y </span></span><br><span class="line">		&#123;</span><br><span class="line">			cin&gt;&gt;b&gt;&gt;c;</span><br><span class="line">			<span class="keyword">if</span>(b&gt;input1||b&lt;<span class="number">1</span>||c&gt;input1||c&lt;<span class="number">1</span>)<span class="comment">//输入不合法 </span></span><br><span class="line">			&#123;</span><br><span class="line">				ans++;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(<span class="built_in">find</span>(b)==<span class="built_in">find</span>(c)||<span class="built_in">find</span>(b)==<span class="built_in">find</span>(c+input1))<span class="comment">//属于同一类或者被吃关系 </span></span><br><span class="line">				&#123;</span><br><span class="line">					ans++;</span><br><span class="line">					<span class="keyword">continue</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span></span><br><span class="line">				&#123;</span><br><span class="line">					<span class="built_in">compose</span>(b+input1,c);<span class="comment">//b吃的 和 c一类 即 b吃c </span></span><br><span class="line">					<span class="built_in">compose</span>(b+input1*<span class="number">2</span>,c+input1);<span class="comment">//吃b的 和 c吃的一类  </span></span><br><span class="line">					<span class="built_in">compose</span>(b,c+input1*<span class="number">2</span>);<span class="comment">//b 和 吃c的一类 </span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	cout&lt;&lt;ans&lt;&lt;endl;<span class="comment">//结果</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="5-网络分析"><a href="#5-网络分析" class="headerlink" title="5. 网络分析"></a>5. 网络分析</h2><p>时间限制: 1.0s 内存限制: 256.0MB 本题总分：25 分<br><strong>问题：</strong><br>小明正在做一个网络实验。<br>他设置了 n 台电脑，称为节点，用于收发和存储数据。<br>初始时，所有节点都是独立的，不存在任何连接。<br>小明可以通过网线将两个节点连接起来，连接后两个节点就可以互相了。两个节点如果存在网线连接，称为相邻。<br>小明有时会测试当时的网络，他会在某个节点发送一条信息，信息会到每个相邻的节点，之后这些节点又会转发到自己相邻的节点，直到所有或间接相邻的节点都收到了信息。所有发送和接收的节点都会将信息存储一条信息只存储一次。<br>给出小明连接和测试的过程，请计算出每个节点存储信息的大小。</p>
+<p><strong>输入：</strong><br>输入的第一行包含两个整数 n, m，分别表示节点数量和操作数量。节1 至 n 编号。<br>接下来 m 行，每行三个整数，表示一个操作。<br>如果操作为 1 a b，表示将节点 a 和节点 b 通过网线连接起来。当 时，表示连接了一个自环，对网络没有实质影响。<br>如果操作为 2 p t，表示在节点 p 上发送一条大小为 t 的信息。</p>
+<p><strong>输出：</strong><br>输出一行，包含 n 个整数，相邻整数之间用一个空格分割，依次表示完上述操作后节点 1 至节点 n 上存储信息的大小。</p>
+<p><strong>样例输入：</strong><br>4 8<br>1 1 2<br>2 1 10<br>2 3 5<br>1 4 1<br>2 2 2<br>1 1 2<br>1 2 4<br>2 2 1</p>
+<p><strong>样例输出：</strong><br>13 13 5 3</p>
+<p><strong>评测用例规模与约定：</strong><br>对于 30% 的评测用例，1 ≤ n ≤ 20，1 ≤ m ≤ 100。<br>对于 50% 的评测用例，1 ≤ n ≤ 100，1 ≤ m ≤ 1000。<br>对于 70% 的评测用例，1 ≤ n ≤ 1000，1 ≤ m ≤ 10000。<br>对于所有评测用例，1 ≤ n ≤ 10000，1 ≤ m ≤ 100000，1 ≤ t ≤ 100。</p>
+<p><strong>思路：</strong> 核心思路是并查集。一个数组用来存旧值，一个数组用来存根结点权值，一个数组是并查集的father数组。执行2操作时，查集寻找到操作值的根结点并加权。执行1操作时，若两数在一个集内则不操作；若两数不在一个集内，则对所有节点进行遍历，使他们的旧值数组加上其根节点的权值，随后进行并集操作。记得对权值数组进行清零，防止后面重复计算。</p>
+<p><strong>AC代码：</strong> <a target="_blank" rel="noopener" href="https://www.acwing.com/problem/content/description/2071/">OJ链接</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> old_[<span class="number">10001</span>],new_[<span class="number">10001</span>],father[<span class="number">10001</span>],n,m;<span class="comment">//存老值 存根节点新值 父节点数组 </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">find</span><span class="params">(<span class="type">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> father[a]==a ? a : father[a]=<span class="built_in">find</span>(father[a]);<span class="comment">//路径压缩</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">union_</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> temp_a=<span class="built_in">find</span>(a),temp_b=<span class="built_in">find</span>(b);</span><br><span class="line">	<span class="keyword">if</span>(temp_a!=temp_b)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">register</span> <span class="type">int</span> now=<span class="number">1</span>;now&lt;=n;now++)</span><br><span class="line">		&#123;</span><br><span class="line">			old_[now]+=new_[<span class="built_in">find</span>(now)];<span class="comment">//旧值数组遍历加上权值</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">memset</span>(new_,<span class="number">0</span>,<span class="built_in">sizeof</span>(new_));<span class="comment">//重置权值数组，防止重复计算</span></span><br><span class="line">		father[temp_a]=temp_b;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a,b,c;</span><br><span class="line">	<span class="built_in">memset</span>(new_,<span class="number">0</span>,<span class="built_in">sizeof</span>(new_));</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="type">int</span> now=<span class="number">1</span>;now&lt;=<span class="number">10000</span>;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		father[now]=now;<span class="comment">//father数组初始化 </span></span><br><span class="line">	&#125; </span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d %d&quot;</span>,&amp;n,&amp;m);</span><br><span class="line">	<span class="keyword">while</span>(m--)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">scanf</span>(<span class="string">&quot;%d %d %d&quot;</span>,&amp;a,&amp;b,&amp;c);</span><br><span class="line">		<span class="keyword">if</span>(a==<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">union_</span>(b,c);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			new_[<span class="built_in">find</span>(b)]+=c;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; </span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="type">int</span> now=<span class="number">1</span>;now&lt;=n;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>,old_[now]+new_[<span class="built_in">find</span>(now)]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p><strong>在使用并查集中，要根据题目数据选择合适的优化。</strong><br>一般都得用路径压缩提高效率，但是秩优化用的比较少（我感觉），因为在进行路径压缩后秩优化后的结构就不复存在的，我感觉二者是有点矛盾的。但是两者一起使用相较于只使用路径压缩也会在第一次接收数据时提高一点效率，但是为了敲代码的效率，我还是喜欢只敲路径压缩。<br><strong>使用并查集时，要选择合适的数据结构</strong><br>例如秩优化时的储存深度的数组、例题第三题“敌人”的长数组、以及涉及带权并查集的结构。<br><strong>总之，还是得多刷题，多积累经验。</strong></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"># 数据结构与算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/14/20200814_bfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/" rel="prev" title="bfs学习记录：模板/思路汇总">
+                  <i class="fa fa-angle-left"></i> bfs学习记录：模板/思路汇总
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/25/20200825_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E9%80%92%E5%A2%9E%E4%B8%89%E5%85%83%E7%BB%84sort%E6%8E%92%E5%BA%8F/" rel="next" title="2018 蓝桥杯 递增三元组 sort排序">
+                  2018 蓝桥杯 递增三元组 sort排序 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="2019 蓝桥杯 C&#x2F;C++实现 B组国赛 题目 &amp; 题解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2019 蓝桥杯 C&#x2F;C++实现 B组国赛">
+<meta property="og:url" content="https://zgg2001.github.io/2020/11/12/20201112_2019%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B0B%E7%BB%84%E5%9B%BD%E8%B5%9B/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="2019 蓝桥杯 C&#x2F;C++实现 B组国赛 题目 &amp; 题解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-11-12/1.jpg#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-11-12/2.jpg#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-11-12/3.jpg#pic_center">
+<meta property="article:published_time" content="2020-11-12T15:23:34.000Z">
+<meta property="article:modified_time" content="2020-11-12T15:23:34.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="蓝桥杯">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2020-11-12/1.jpg#pic_center">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2020/11/12/20201112_2019%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B0B%E7%BB%84%E5%9B%BD%E8%B5%9B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2020/11/12/20201112_2019%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B0B%E7%BB%84%E5%9B%BD%E8%B5%9B/","path":"2020/11/12/20201112_2019蓝桥杯C-C++实现B组国赛/","title":"2019 蓝桥杯 C/C++实现 B组国赛"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>2019 蓝桥杯 C/C++实现 B组国赛 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#A%EF%BC%9A%E5%B9%B3%E6%96%B9%E5%BA%8F%E5%88%97"><span class="nav-text">A：平方序列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#B%EF%BC%9A%E8%B4%A8%E6%95%B0%E6%8B%86%E5%88%86"><span class="nav-text">B：质数拆分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#C%EF%BC%9A%E6%8B%BC%E6%8E%A5"><span class="nav-text">C：拼接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#D%EF%BC%9A%E6%B1%82%E5%80%BC"><span class="nav-text">D：求值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#E%EF%BC%9A%E8%B7%AF%E5%BE%84%E8%AE%A1%E6%95%B0"><span class="nav-text">E：路径计数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#F%EF%BC%9A%E6%9C%80%E4%BC%98%E5%8C%85%E5%90%AB"><span class="nav-text">F：最优包含</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#G%EF%BC%9A%E6%8E%92%E5%88%97%E6%95%B0"><span class="nav-text">G：排列数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#H%EF%BC%9A%E8%A7%A3%E8%B0%9C%E6%B8%B8%E6%88%8F"><span class="nav-text">H：解谜游戏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#I%EF%BC%9A%E7%AC%AC%E5%85%AB%E5%A4%A7%E5%A5%87%E8%BF%B9"><span class="nav-text">I：第八大奇迹</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#J%EF%BC%9A%E7%87%83%E7%83%A7%E6%9D%83%E6%9D%96"><span class="nav-text">J：燃烧权杖</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/11/12/20201112_2019%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B0B%E7%BB%84%E5%9B%BD%E8%B5%9B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="2019 蓝桥杯 C/C++实现 B组国赛 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2019 蓝桥杯 C/C++实现 B组国赛
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-11-12 23:23:34" itemprop="dateCreated datePublished" datetime="2020-11-12T23:23:34+08:00">2020-11-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>2019 蓝桥杯 C&#x2F;C++实现 B组国赛 题目 &amp; 题解</strong></p>
+<span id="more"></span>
+
+<h1 id="A：平方序列"><a href="#A：平方序列" class="headerlink" title="A：平方序列"></a>A：平方序列</h1><p>请找到两个正整数X和Y满足下列条件：<br>1、2019&lt;X&lt;Y<br>2、2019^2^、X^2^、Y^2^构成等差数列<br>满足条件的X和Y可能有多种情况，请给出X+Y的值，并且令X+Y尽可能的小。</p>
+<p><strong>思路：</strong> 两层暴力循环。</p>
+<p><strong>答案：</strong> 7020</p>
+<p><strong>代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> t=<span class="number">2019</span>*<span class="number">2019</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> x=<span class="number">2020</span>;x&lt;<span class="number">10000</span>;x++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> y=x<span class="number">+1</span>;y&lt;<span class="number">10000</span>;y++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">//cout&lt;&lt;x&lt;&lt;&quot; &quot;&lt;&lt;y&lt;&lt;endl;</span></span><br><span class="line">			<span class="keyword">if</span>(y*y-x*x==x*x-t)</span><br><span class="line">			&#123;</span><br><span class="line">				cout&lt;&lt;x&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;y&lt;&lt;endl;</span><br><span class="line">				cout&lt;&lt;x+y;</span><br><span class="line">				<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="B：质数拆分"><a href="#B：质数拆分" class="headerlink" title="B：质数拆分"></a>B：质数拆分</h1><p>2019可以被分解成若干个两两不同的素数，请问不同的分解方案有多少种？<br>注意：分解方案不考虑顺序，如2+2017&#x3D;2019和2017+2&#x3D;2019属于同一种方案。</p>
+<p><strong>思路：</strong> 动态规划。dp[a][b]表示数字a拆成若干份，最大值为b的方法数。<br>可知，状态转移方程为</p>
+<ul>
+<li>dp[a][b] &#x3D; (dp[a-b][2]+dp[a-b][3]+dp[a-b][5]+…+dp[a-b][b下的最大素数]);</li>
+</ul>
+<p>用双层循环对a和b进行遍历，其中b均为素数，最后对dp[2019]进行统计即可。</p>
+<p><strong>答案：</strong> 55965365465060</p>
+<p><strong>代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> M = <span class="number">2020</span>;</span><br><span class="line">vector&lt;<span class="type">int</span>&gt;ps;</span><br><span class="line"><span class="type">long</span> <span class="type">long</span> dp[M][M];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">shai</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">bool</span> kg=<span class="literal">true</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">2</span>;now&lt;M;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		kg=<span class="literal">true</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> t=<span class="number">2</span>;t&lt;=<span class="built_in">sqrt</span>(now);t++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(now%t==<span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				kg=<span class="literal">false</span>;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span>(kg==<span class="literal">true</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			ps.<span class="built_in">push_back</span>(now);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">shai</span>();</span><br><span class="line">	<span class="built_in">memset</span>(dp,<span class="number">0</span>,<span class="built_in">sizeof</span>(dp));</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;ps.<span class="built_in">size</span>();now++)</span><br><span class="line">	&#123;</span><br><span class="line">		dp[ps[now]][ps[now]] = <span class="number">1</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">2</span>;now&lt;M;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> count=<span class="number">0</span>;ps[count]&lt;now;count++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">for</span>(<span class="type">int</span> t=<span class="number">0</span>;t&lt;count&amp;&amp;ps[t]&lt;=now-ps[count];t++)</span><br><span class="line">			&#123;</span><br><span class="line">				dp[now][ps[count]] += dp[now-ps[count]][ps[t]];</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="type">long</span> <span class="type">long</span> ans=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;ps.<span class="built_in">size</span>();now++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%lld &quot;</span>,dp[M<span class="number">-1</span>][ps[now]]);</span><br><span class="line">		ans+=dp[M<span class="number">-1</span>][ps[now]];	</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;\n最终答案：%lld&quot;</span>,ans);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="C：拼接"><a href="#C：拼接" class="headerlink" title="C：拼接"></a>C：拼接</h1><p>小明要把一根木头切成两段，然后拼接成一个直角。</p>
+<p>如下图所示，他把中间部分分成了 n × n 的小正方形，他标记了每个小正方形属于左边还是右边。<br><img src="/images/2020-11-12/1.jpg#pic_center" alt="1"></p>
+<p>然后沿两边的分界线将木头切断，将右边旋转向上后拼接在一起。<br>要求每个小正方形都正好属于左边或右边，而且同一边的必须是连通的。<br>在拼接时，拼接的部位必须保持在原来大正方形里面。<br>请问，对于 7 × 7 的小正方形，有多少种合法的划分小正方形的方式。</p>
+<h1 id="D：求值"><a href="#D：求值" class="headerlink" title="D：求值"></a>D：求值</h1><p>有一个7X7的方格。方格左上角顶点坐标为(0,0)，右下角坐标为(7,7)。<br>求满足下列条件的路径条数：<br>1、起点和终点都是(0,0)<br>2、路径不自交<br>3、路径长度不大于12<br>4、对于每一个顶点，有上下左右四个方向可以走，但是不能越界。<br>例如，图中路线，左上角顶点（0，0），路线长度为10<br><img src="/images/2020-11-12/2.jpg#pic_center" alt="图1"><br><strong>思路：</strong> dfs暴力搜索，为了防止路径重复，即(0,0) &gt; (0,1) &gt; (0,0)，(0,0) &gt; (1,0) &gt; (0,0)，我把初始点(0,0)进行标记，在坐标即将改变时进行判定。</p>
+<p><strong>答案：</strong> 206</p>
+<p><strong>代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> m[<span class="number">8</span>][<span class="number">8</span>];</span><br><span class="line"><span class="type">int</span> fx[<span class="number">4</span>][<span class="number">2</span>] = &#123;&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;&#125;;</span><br><span class="line"><span class="type">int</span> ans=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> nnn)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(nnn&gt;=<span class="number">12</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;<span class="number">4</span>;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="type">int</span> tx = x + fx[now][<span class="number">0</span>];</span><br><span class="line">		<span class="type">int</span> ty = y + fx[now][<span class="number">1</span>];</span><br><span class="line">		<span class="keyword">if</span>(tx&lt;<span class="number">0</span>||ty&lt;<span class="number">0</span>||tx&gt;<span class="number">7</span>||ty&gt;<span class="number">7</span>)</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="keyword">if</span>(tx==<span class="number">0</span>&amp;&amp;ty==<span class="number">0</span>&amp;&amp;nnn!=<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			ans++;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span>(m[tx][ty]==<span class="literal">true</span>)</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		m[tx][ty]=<span class="literal">true</span>;</span><br><span class="line">		<span class="built_in">dfs</span>(tx,ty,nnn<span class="number">+1</span>);</span><br><span class="line">		m[tx][ty]=<span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">memset</span>(m,<span class="literal">false</span>,<span class="built_in">sizeof</span>(m));</span><br><span class="line">	m[<span class="number">0</span>][<span class="number">0</span>]=<span class="literal">true</span>;</span><br><span class="line">	<span class="built_in">dfs</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">	cout&lt;&lt;ans;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="E：路径计数"><a href="#E：路径计数" class="headerlink" title="E：路径计数"></a>E：路径计数</h1><p>有1个约数的最小数为1（1），有两个约数的最小数为2（1，2）……<br>有n个约数的最小数为Sn<br>S1&#x3D;1 （1）<br>S2&#x3D;2 （1 2）<br>S3&#x3D;4 （1 2 4）<br>S4&#x3D;6 （1 2 3 6）<br>求S100</p>
+<p><strong>思路：</strong> 两层暴力循环。</p>
+<p><strong>答案：</strong> 45360</p>
+<p><strong>代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> ans;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">100</span>;;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		ans=<span class="number">1</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> t=<span class="number">2</span>;t&lt;=now;t++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(now%t==<span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				ans++;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span>(ans==<span class="number">100</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			cout&lt;&lt;now;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="F：最优包含"><a href="#F：最优包含" class="headerlink" title="F：最优包含"></a>F：最优包含</h1><p>我们称一个字符串 S 包含字符串 T 是指 T 是 S 的一个子序列，即可以从字符串 S 中抽出若干个字符，它们按原来的顺序组合成一个新的字符串与 T 完全一样。</p>
+<p>给定两个字符串 S 和 T，请问最少修改 S 中的多少个字符，能使 S 包含 T？</p>
+<p><strong>输入格式：</strong><br>输入两行，每行一个字符串。<br>第一行的字符串为 S，第二行的字符串为 T。<br>两个字符串均非空而且只包含大写英文字母。</p>
+<p><strong>输出格式：</strong><br>输出一个整数，表示答案。</p>
+<p><strong>数据范围：</strong><br>1≤|T|≤|S|≤1000</p>
+<p><strong>输入样例：</strong><br>ABCDEABCD<br>XAABZ</p>
+<p><strong>输出样例：</strong><br>3</p>
+<p><a target="_blank" rel="noopener" href="https://www.acwing.com/problem/content/2555/">OJ链接</a></p>
+<p><strong>AC代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span> </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> dp[<span class="number">1001</span>][<span class="number">1001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">memset</span>(dp,<span class="number">0</span>,<span class="built_in">sizeof</span>(dp));</span><br><span class="line">	string s1,s2;</span><br><span class="line">	cin&gt;&gt;s1&gt;&gt;s2;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> x=<span class="number">1</span>;x&lt;=s<span class="number">2.</span><span class="built_in">size</span>();x++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> y=x;y&lt;=s<span class="number">1.</span><span class="built_in">size</span>();y++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(s1[y<span class="number">-1</span>]!=s2[x<span class="number">-1</span>])</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">if</span>(y&gt;x)</span><br><span class="line">					dp[x][y] = <span class="built_in">min</span>(dp[x<span class="number">-1</span>][y<span class="number">-1</span>]<span class="number">+1</span>,dp[x][y<span class="number">-1</span>]);</span><br><span class="line">				<span class="keyword">else</span></span><br><span class="line">					dp[x][y] = dp[x<span class="number">-1</span>][y<span class="number">-1</span>]<span class="number">+1</span>; </span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				dp[x][y] = dp[x<span class="number">-1</span>][y<span class="number">-1</span>];</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	cout&lt;&lt;dp[s<span class="number">2.</span><span class="built_in">size</span>()][s<span class="number">1.</span><span class="built_in">size</span>()];</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="G：排列数"><a href="#G：排列数" class="headerlink" title="G：排列数"></a>G：排列数</h1><p>在一个排列中，一个折点是指排列中的一个元素，它同时小于两边的元素，或者同时大于两边的元素。<br>对于一个 1 ∼ n 的排列，如果可以将这个排列中包含 t 个折点，则它称为一个 t + 1 单调序列。<br>例如，排列 (1, 4, 2, 3) 是一个 3 单调序列，其中 4 和 2 都是折点。</p>
+<p>给定 n 和 k，请问 1 ∼ n 的所有排列中有多少个 k 单调队列？</p>
+<p><strong>输入格式：</strong><br>输入一行包含两个整数 n, k。</p>
+<p><strong>输出格式：</strong><br>输出一个整数，表示答案。答案可能很大，你可需要输出满足条件的排列数量除以 123456 的余数即可。</p>
+<p><strong>样例输入：</strong><br>4 2</p>
+<p><strong>样例输出：</strong><br>12</p>
+<p><strong>数据范围：</strong><br>对于 20% 的评测用例，1 ≤ k ≤ n ≤ 10；<br>对于 40% 的评测用例，1 ≤ k ≤ n ≤ 20；<br>对于 60% 的评测用例，1 ≤ k ≤ n ≤ 100；<br>对于所有评测用例，1 ≤ k ≤ n ≤ 500。</p>
+<h1 id="H：解谜游戏"><a href="#H：解谜游戏" class="headerlink" title="H：解谜游戏"></a>H：解谜游戏</h1><p><img src="/images/2020-11-12/3.jpg#pic_center" alt="2"></p>
+<p>小明正在玩一款解谜游戏，谜题由 24 根塑料棒组成，</p>
+<p>其中黄色塑料棒 4 根，红色 8 根，绿色 12 根 (后面用 Y 表示黄色、R 表示红色、G 表示绿色)。</p>
+<p>初始时这些塑料棒排成三圈，如上图所示，外圈 12 根，中圈 8 根，内圈 4 根。</p>
+<p>小明可以进行三种操作：</p>
+<p>将三圈塑料棒都顺时针旋转一个单位。<br>例如当前外圈从 0 点位置开始，顺时针依次是 YRYGRYGRGGGG，中圈是 RGRGGRRY，内圈是 GGGR。<br>那么顺时针旋转一次之后，外圈、中圈、内圈依次变为：GYRYGRYGRGGG、YRGRGGRR 和 RGGG。<br>将三圈塑料棒都逆时针旋转一个单位。<br>例如当前外圈从 0 点位置开始，顺时针依次是 YRYGRYGRGGGG，中圈是 RGRGGRRY，内圈是 GGGR。<br>那么逆时针旋转一次之后，外圈、中圈、内圈依次变为：RYGRYGRGGGGY、GRGGRRYR 和 GGRG<br>将三圈 0 点位置的塑料棒做一个轮换。<br>具体来说：外圈 0 点塑料棒移动到内圈 0 点，内圈 0 点移动到中圈 0 点，中圈 0 点移动到外圈 0 点。<br>例如当前外圈从 0 点位置开始顺时针依次是 YRYGRYGRGGGG，中圈是RGRGGRRY，内圈是 GGGR。<br>那么轮换一次之后，外圈、中圈、内圈依次变为：RRYGRYGRGGGG、GGRGGRRY 和 YGGR。<br>小明的目标是把所有绿色移动到外圈、所有红色移动中圈、所有黄色移动到内圈。给定初始状态，请你判断小明是否可以达成目标？</p>
+<p><strong>输入格式：</strong><br>第一行包含一个整数 T，代表询问的组数。(1 ≤ T ≤ 100)。<br>每组询问包含 3 行：<br>第一行包含 12 个大写字母，代表外圈从 0 点位置开始顺时针每个塑料棒的颜色。<br>第二行包含 8 个大写字母，代表中圈从 0 点位置开始顺时针每个塑料棒的颜色。<br>第三行包含 4 个大写字母，代表内圈从 0 点位置开始顺时针每个塑料棒的颜色。</p>
+<p><strong>输出格式：</strong><br>对于每组询问，输出一行 YES 或者 NO，代表小明是否可以达成目标。</p>
+<p><strong>样例输入：</strong><br>2<br>GYGGGGGGGGGG<br>RGRRRRRR<br>YRYY<br>YGGGRRRRGGGY<br>YGGGRRRR<br>YGGG</p>
+<p><strong>样例输出：</strong><br>YES<br>NO</p>
+<h1 id="I：第八大奇迹"><a href="#I：第八大奇迹" class="headerlink" title="I：第八大奇迹"></a>I：第八大奇迹</h1><p>在一条 R 河流域，繁衍着一个古老的名族 Z，他们世代沿河而居，也在河边发展出了璀璨的文明。</p>
+<p>Z 族在 R 河沿岸修建了很多建筑，最近，他们热衷攀比起来，他们总是在比谁的建筑建得最奇特。</p>
+<p>幸好 Z 族人对奇特的理解都差不多，他们很快给每栋建筑都打了分，这样评选谁最奇特就轻而易举了。</p>
+<p>于是，根据分值，大家很快评出了最奇特的建筑，称为大奇迹。</p>
+<p>后来他们又陆续评选了第二奇特、第二奇特、……、第七奇特的建筑，依次称为第二大奇迹、第三大奇迹、……、第七大奇迹。</p>
+<p>最近，他们开始评选第八奇特的建筑，准备命名为第八大奇迹，在评选中，他们遇到了一些问题。</p>
+<p>首先，Z 族一直在发展，有的建筑被拆除又建了新的建筑，新建筑的奇特值和原建筑不一样，这使得评选不那么容易了。</p>
+<p>其次，Z 族的每个人所生活的范围可能不一样，他们见过的建筑并不是所有的建筑，他们坚持他们自己所看到的第八奇特的建筑就是第八大奇迹。</p>
+<p>Z 族首领最近很头疼这个问题，他害怕因为意见不一致导致 Z 族发生分歧。他找到你，他想先了解一下，民众自己认为的奇迹是怎样的。</p>
+<p>现在告诉在 R 河周边的建筑的变化情况，以及在变化过程中一些人的生活范围，请编程求出每个人认为的第八大奇迹的奇特值是多少。</p>
+<p><strong>输入格式：</strong><br>输入的第一行包含两个整数 L, N，分别表示河流的长度和要你处理的信息的数量。开始时河流沿岸没有建筑，或者说所有的奇特值为 0。<br>接下来 N 行，每行一条你要处理的信息。<br>如果信息为 C p x，表示流域中第 p 个位置 (1 ≤ p ≤ L) 建立了一个建筑，其奇特值为 x。如果这个位置原来有建筑，原来的建筑会被拆除。<br>如果信息为 Q a b，表示有个人生活的范围是河流的第 a 到 b 个位置（包含 a 和 b，a ≤ b），这时你要算出这个区间的第八大奇迹的奇特值，并输出。如果找不到第八大奇迹，输出 0。</p>
+<p><strong>输出格式：</strong><br>对于每个为 Q 的信息，你需要输出一个整数，表示区间中第八大奇迹的奇特值。</p>
+<p><strong>样例输入：</strong><br>10 15<br>C 1 10<br>C 2 20<br>C 3 30<br>C 4 40<br>C 5 50<br>C 6 60<br>C 7 70<br>C 8 80<br>C 9 90<br>C 10 100<br>Q 1 2<br>Q 1 10<br>Q 1 8<br>C 10 1<br>Q 1 10</p>
+<p><strong>样例输出：</strong><br>0<br>30<br>10<br>20</p>
+<p><strong>数据范围：</strong><br>对于 20% 的评测用例，1 ≤ L ≤ 1000, 1 ≤ N ≤ 1000。<br>对于 40% 的评测用例，1 ≤ L ≤ 10000, 1 ≤ N ≤ 10000。<br>对于 100% 的评测用例，1 ≤ L ≤ 100000，1 ≤ N ≤ 100000。<br>所有奇特值为不超过 10^9^ 的非负整数。</p>
+<h1 id="J：燃烧权杖"><a href="#J：燃烧权杖" class="headerlink" title="J：燃烧权杖"></a>J：燃烧权杖</h1><p>小 C 最近迷上了一款游戏。现在，在游戏中，小 C 有一个英雄，生命值为 x；敌人也有一个英雄，生命值为 y。</p>
+<p>除此以外，还有 k 个士兵，生命值分别为a1 、a2 、……、ak，现在小 C 打算使用一个叫做“燃烧权杖”的技能。</p>
+<p>“燃烧权杖”会每次等概率随机选择一个活着的角色（英雄或士兵），扣减其 10 点生命值，</p>
+<p>然后如果该角色的生命值小于或等于 0，则该角色死亡，不会再被“燃烧权杖”选中。</p>
+<p>“燃烧权杖”会重复做上述操作，直至任意一名英雄死亡。</p>
+<p>小 C 想知道使用“燃烧权杖”后敌方英雄死亡（即，小 C 的英雄存活）的概率。</p>
+<p>为了避免精度误差，你只需要输出答案模一个质数 p 的结果，具体见输出格式。</p>
+<p><strong>输入格式：</strong><br>输入包含多组数据。<br>输入第一行包含一个正整数 T，表示数据组数。<br>接下来 T 组，每组数据第一行包含四个非负整数 x, y, p, k，分别表示小C的英雄的生命值、敌方英雄的生命值，模数和士兵个数。<br>第二行包含 k 个正整数 a1 、a2 、……、ak ，分别表示每个士兵的生命值。</p>
+<p><strong>输出格式：</strong><br>对于每组数据，输出一行一个非负整数，表示答案模质数 p 的余数。可以证明，答案一定为有理数。<br>设答案为 a &#x2F; b（a 和 b 为互质的正整数），你输出的数为 x，则你需要保证 a 与 bx 模 p 同余；<br>也即，x &#x3D; (a·b−1 ) mod p，其中 b−1 表示 b 模 p 的逆元， mod 为取模运算。</p>
+<p><strong>样例输入：</strong><br>6<br>1 10 101 0<br>100 1 101 0<br>50 30 4903 2<br>1 1<br>987 654 233 1<br>321<br>1000000000 999999999 233 3<br>1 2 3<br>1000000000 999999999 3 3<br>1 2 3</p>
+<p><strong>样例输出：</strong><br>51<br>37<br>1035<br>118<br>117<br>2</p>
+<p><strong>样例说明：</strong><br>对于第一组数据，所求概率即为“燃烧权杖”第一次就扣减敌方英雄 10 点生命值的概率，即 1&#x2F;2。2 × 51 模 101 余 1。<br>对于第二组数据，答案为 1023&#x2F;1024，1024 × 37 与 1023 模 101 同余。<br>对于第三组数据，答案为 99&#x2F;128。</p>
+<p><strong>数据范围：</strong><br>对于 10% 的评测用例，x, y, a1 ,··· , ak ≤ 10。<br>对于 20% 的评测用例，x, y, a1,··· , ak ≤ 100。<br>对于 50% 的评测用例，x, y, a1 ,··· , ak ≤ 1000。<br>另有 10% 的评测用例，p &#x3D; 3。<br>另有 20% 的评测用例，p ≤ 100。<br>对于全部评测用例，1 ≤ x, y, a1 ,··· , ak ≤ 10^9^ ，3 ≤ p ≤ 10000 且 p 为质数，0 ≤ k ≤ 10。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"># 数据结构与算法</a>
+              <a href="/tags/%E8%93%9D%E6%A1%A5%E6%9D%AF/" rel="tag"># 蓝桥杯</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/05/20201105_%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E9%A2%98%E5%9E%8B%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/" rel="prev" title="动态规划学习记录：题型/思路汇总">
+                  <i class="fa fa-angle-left"></i> 动态规划学习记录：题型/思路汇总
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/" rel="next" title="使用g++创建动态库和静态库及其相关探索">
+                  使用g++创建动态库和静态库及其相关探索 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="HB小咸鱼学习记录  初中的时候曾经学过一点java，算是程序的敲门砖，但是没想到上了大学最先深入学习的是C语言和C++。21年初这个寒假决定在家系统学习Java和网络编程，发个帖子记录过程，方便今后查看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java学习记录：基于C++的快速学习">
+<meta property="og:url" content="https://zgg2001.github.io/2021/01/08/20210108_Java%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%9F%BA%E4%BA%8EC++%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="HB小咸鱼学习记录  初中的时候曾经学过一点java，算是程序的敲门砖，但是没想到上了大学最先深入学习的是C语言和C++。21年初这个寒假决定在家系统学习Java和网络编程，发个帖子记录过程，方便今后查看。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-01-08T15:17:16.000Z">
+<meta property="article:modified_time" content="2021-01-08T15:17:16.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/01/08/20210108_Java%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%9F%BA%E4%BA%8EC++%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AD%A6%E4%B9%A0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/01/08/20210108_Java%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%9F%BA%E4%BA%8EC++%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AD%A6%E4%B9%A0/","path":"2021/01/08/20210108_Java学习记录：基于C++的快速学习/","title":"Java学习记录：基于C++的快速学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Java学习记录：基于C++的快速学习 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87%E3%80%91"><span class="nav-text">【前期准备】</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%B8%80%E3%80%91-1-%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-text">【笔记一】 1- 基本语法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%BA%8C%E3%80%91-115-118P-Scanner%E6%8E%A5%E6%94%B6%E7%B1%BB"><span class="nav-text">【笔记二】 115-118P  Scanner接收类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%B8%89%E3%80%91-121-124P-Random%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%B1%BB"><span class="nav-text">【笔记三】 121-124P  Random随机数类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%9B%9B%E3%80%91-133-142P-String%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB"><span class="nav-text">【笔记四】 133-142P  String字符串类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%BA%94%E3%80%91-143-147P-static%E9%9D%99%E6%80%81%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-text">【笔记五】 143-147P  static静态关键字</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%85%AD%E3%80%91-148-149P-Arrays%E6%95%B0%E7%BB%84%E5%B7%A5%E5%85%B7%E7%B1%BB"><span class="nav-text">【笔记六】 148-149P  Arrays数组工具类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%B8%83%E3%80%91-150-151P-Math%E6%95%B0%E5%AD%A6%E5%B7%A5%E5%85%B7%E7%B1%BB"><span class="nav-text">【笔记七】 150-151P  Math数学工具类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%85%AB%E3%80%91-171-184P-%E6%8E%A5%E5%8F%A3%E7%9B%B8%E5%85%B3"><span class="nav-text">【笔记八】  171-184P  接口相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E4%B9%9D%E3%80%91-185-194P-%E7%BB%A7%E6%89%BF%E4%B8%8E%E5%A4%9A%E6%80%81%E7%9B%B8%E5%85%B3"><span class="nav-text">【笔记九】  185-194P  继承与多态相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%8D%81%E3%80%91-215-218P-Object-Objects%E6%A0%B9%E7%B1%BB"><span class="nav-text">【笔记十】  215-218P  Object&#x2F;Objects根类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%8D%81%E4%B8%80%E3%80%91-219-225P-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E7%B1%BB"><span class="nav-text">【笔记十一】  219-225P  日期时间类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%8D%81%E4%BA%8C%E3%80%91-226-226P-System%E7%B3%BB%E7%BB%9F%E7%B1%BB"><span class="nav-text">【笔记十二】 226-226P  System系统类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%8D%81%E4%B8%89%E3%80%91-227-229P-StringBuilder%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%BC%93%E5%86%B2%E5%8C%BA%E7%B1%BB"><span class="nav-text">【笔记十三】  227-229P  StringBuilder字符串缓冲区类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E3%80%90%E7%AC%94%E8%AE%B0%E5%8D%81%E5%9B%9B%E3%80%91-234-281P-%E5%AE%B9%E5%99%A8%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3"><span class="nav-text">【笔记十四】  234-281P  容器及其相关*</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/01/08/20210108_Java%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%9F%BA%E4%BA%8EC++%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Java学习记录：基于C++的快速学习 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java学习记录：基于C++的快速学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-01-08 23:17:16" itemprop="dateCreated datePublished" datetime="2021-01-08T23:17:16+08:00">2021-01-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>HB小咸鱼学习记录</strong></p>
+<ul>
+<li>初中的时候曾经学过一点java，算是程序的敲门砖，但是没想到上了大学最先深入学习的是C语言和C++。21年初这个寒假决定在家系统学习Java和网络编程，发个帖子记录过程，方便今后查看。</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="【前期准备】"><a href="#【前期准备】" class="headerlink" title="【前期准备】"></a>【前期准备】</h1><ul>
+<li>Java JDK版本选择的是： <strong>“1.8.0_181”</strong></li>
+<li>编译器我选择的是： <strong>Eclipse</strong></li>
+<li>具体环境搭建方法由网络上查询得知，不多说了。</li>
+<li>学习地址：（B站永远滴神）<br>[video(video-zPI8bhtB-1610116863147)(type-bilibili)(url-<a target="_blank" rel="noopener" href="https://player.bilibili.com/player.html?aid=797299458)(image-https://ss.csdn.net/p?http://i2.hdslb.com/bfs/archive/73b9c56133cf2defc06255ca50a219156917272e.png)(title-%E9%BB%91%E9%A9%AC%E7%A8%8B%E5%BA%8F%E5%91%98Java%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A-%E3%80%90%E5%9F%BA%E7%A1%80+%E9%AB%98%E7%BA%A7%E3%80%91-%E9%99%84%E5%85%A8%E5%A5%97%E8%B5%84%E6%96%99(IDEA%E7%89%88))%5D">https://player.bilibili.com/player.html?aid=797299458)(image-https://ss.csdn.net/p?http://i2.hdslb.com/bfs/archive/73b9c56133cf2defc06255ca50a219156917272e.png)(title-黑马程序员Java语言入门到精通-【基础+高级】-附全套资料(IDEA版))]</a></li>
+</ul>
+<h1 id="【笔记一】-1-基本语法"><a href="#【笔记一】-1-基本语法" class="headerlink" title="【笔记一】 1- 基本语法"></a>【笔记一】 1- 基本语法</h1><ol>
+<li>C++里的include头文件和Java里的import包机制相似。</li>
+<li>C++和Java代码执行的起点都是main函数。</li>
+<li>变量关键字与C++基本一致。<strong>值得一提的是，由于Java里没有指针，所以Java中的字符串由字符串变量String储存。使用方法与C++&#x2F;STL里的string大同小异，记得Java里的String首字母要大写。</strong></li>
+<li><strong>Java中申请数组时，分为动态分配和静态分配。动态分配为new申请内存后不设置各初始值，静态分配为new申请内存后直接设置各初始值。</strong><br> <code>int[] array1 = new int[3];//动态分配  int[] array2 = new int[]&#123;1,2,3&#125;;//静态分配</code></li>
+<li><strong>Java中的数组和字符串都自带类似C++&#x2F;STL里的方法，例如length()就是获取长度。</strong></li>
+<li>变量类型强制转换和C++一致都可以使用(int)double这样的格式进行转换。</li>
+<li>字符类型与C++一致也是用的ASCII码。</li>
+<li>if&#x2F;else条件判定语句与C++一致。</li>
+<li>switch关键字的使用方法与C++一致。</li>
+<li>for循环、while循环、do…while循环的使用方法与C++一致。</li>
+<li>break和continue的使用方法与C++一致。</li>
+<li><strong>Java中类的思路与C++中基本一致。注意Java类中的公&#x2F;私有标识符不用加 ‘:’ 。</strong></li>
+<li>Java中类和方法的声明&#x2F;使用方法与C++基本一致。</li>
+<li>对于只使用一次的对象，可以使用匿名对象，直接new就行。</li>
+<li><strong>final</strong>关键字代表最终的，不可改变的。</li>
+<li><strong>外部类名称.内部类名称 对象名 &#x3D; new 外部类名称().new 内部类名称();</strong> 直接声明内部类。</li>
+<li>现在的编译器支持自动装箱和自动拆箱。</li>
+<li>包装类除了<strong>int–Integer</strong>，<strong>char–Character</strong>，其余都是首字母大写。</li>
+<li><strong>泛型省去了类型转换的麻烦，更加安全，但是只能储存一种数据。</strong></li>
+<li><strong>native</strong>关键字，代表该方法调用的是本地操作系统的方法。</li>
+<li>当方法的参数类型已经确定，但是参数个数不确定时，可以使用可变参数。<br><strong>修饰符 返回值类型 方法名(数据类型…变量名){}</strong> 底层为一个数组。</li>
+</ol>
+<h1 id="【笔记二】-115-118P-Scanner接收类"><a href="#【笔记二】-115-118P-Scanner接收类" class="headerlink" title="【笔记二】 115-118P  Scanner接收类"></a>【笔记二】 115-118P  Scanner接收类</h1><ol>
+<li>Java接收输入的方式为调用Scanner类。需要导包：import java.util.Scanner;</li>
+<li>接收数据的方法为:<br>字符串-<strong>Scanner.next()&#x2F;Scanner.nextLine();</strong><br>其余类型-<strong>Scanner.next类型();</strong>  如：int-Scanner.nextInt(); double-Scanner.nextDouble();</li>
+</ol>
+<h1 id="【笔记三】-121-124P-Random随机数类"><a href="#【笔记三】-121-124P-Random随机数类" class="headerlink" title="【笔记三】 121-124P  Random随机数类"></a>【笔记三】 121-124P  Random随机数类</h1><ol>
+<li>Java生成随机数的方式为调用Random类。需要导包：import java.util.Random;</li>
+<li>Random类生成随机数的方法和Scanner的方法类似，如<strong>Random.nextInt(100);</strong> 范围左闭右开，即[0,100)，0~99。</li>
+</ol>
+<h1 id="【笔记四】-133-142P-String字符串类"><a href="#【笔记四】-133-142P-String字符串类" class="headerlink" title="【笔记四】 133-142P  String字符串类"></a>【笔记四】 133-142P  String字符串类</h1><ol>
+<li>不需要导包。</li>
+<li>字符串比较方法：<strong>str1.equals(str2);</strong> 相同返回true。**.equalsIgnoreCase()** 忽略大小写。</li>
+<li>字符串长度：<strong>str1.length();</strong> 返回字符串长度。</li>
+<li>拼接字符串：<strong>str3 &#x3D; str1.concat(str2);</strong> 返回值为新的字符串地址。</li>
+<li>获取字符串指定位置字符：<strong>char ch &#x3D; str1.charAt(1);</strong> 返回值为一个char。 </li>
+<li>查找子串在主串中第一次出现的位置：<strong>int a &#x3D; str1.indexOf(“abc”);</strong> 返回值为第一次出现的索引位置。没有的话返回-1。</li>
+<li>字符串截取方法：<br><strong>str2 &#x3D; str1.substring(5);</strong>&#x2F;&#x2F;从第5号截取到末尾<br><strong>str2 &#x3D; str1.substring(4,7);</strong>&#x2F;&#x2F;从4号截取到6号，左闭右开[4,7)</li>
+<li>字符串转为char数组：<strong>char[] chars &#x3D; “hello”.toCharArray();</strong></li>
+<li>字符串转为byte数组：<strong>byte[] bytes &#x3D; “hello”.getBytes();</strong></li>
+<li>替换字符串内指定内容：<strong>String str1 &#x3D; “how do you do?”.replace(“o”,”*”);</strong>&#x2F;&#x2F;h*w d* y*u d*?</li>
+<li>分割字符串：<strong>String[] array1 &#x3D; “aaa.bbb.ccc”.split(“\\.”);</strong>&#x2F;&#x2F;切成aaa,bbb,ccc三个字符串</li>
+</ol>
+<h1 id="【笔记五】-143-147P-static静态关键字"><a href="#【笔记五】-143-147P-static静态关键字" class="headerlink" title="【笔记五】 143-147P  static静态关键字"></a>【笔记五】 143-147P  static静态关键字</h1><ol>
+<li><strong>当使用static进行修饰后，被修饰的方法&#x2F;变量不再属于对象，而是属于类。</strong></li>
+<li>由于不再属于对象，所以带static的方法&#x2F;变量可以<strong>直接被调用</strong>。<br>静态方法：类名称.静态方法();<br>静态变量：类名称.静态变量;</li>
+<li>静态不能直接访问非静态，例如静态方法访问非静态变量。</li>
+<li>静态方法里也不能用this。</li>
+<li><strong>对于静态变量初始化，我们可以使用静态代码块。静态代码块只在类第一次被声明时，执行一次。</strong></li>
+<li>静态内容总是优先于非静态。</li>
+</ol>
+<h1 id="【笔记六】-148-149P-Arrays数组工具类"><a href="#【笔记六】-148-149P-Arrays数组工具类" class="headerlink" title="【笔记六】 148-149P  Arrays数组工具类"></a>【笔记六】 148-149P  Arrays数组工具类</h1><ol>
+<li>需要导包：import java.util.Arrays;</li>
+<li>将数组变为字符串：<strong>Arrays.toString();</strong><br>int[] a1 &#x3D; {10,20,30};<br>String s1 &#x3D; Arrays.toString(a1);&#x2F;&#x2F;[10, 20, 30]</li>
+<li>数组排序：<strong>Arrays.sort();</strong><br>int[] a1 &#x3D; {20,10,30};<br>Arrays.sort(a1);&#x2F;&#x2F;10,20,30 默认为升序</li>
+</ol>
+<h1 id="【笔记七】-150-151P-Math数学工具类"><a href="#【笔记七】-150-151P-Math数学工具类" class="headerlink" title="【笔记七】 150-151P  Math数学工具类"></a>【笔记七】 150-151P  Math数学工具类</h1><ol>
+<li>不需要导包。</li>
+<li>取绝对值：<strong>Math.abs();</strong> 与C++一致，但是浮点数类型也是abs()，不是fabs()。</li>
+<li>取平方根：<strong>Math.sqrt();</strong> 与C++一致。</li>
+<li>求n次方：<strong>Math.pow(a,b);</strong> 求a的b次方，与C++一致。</li>
+<li>比大小：<strong>Math.max(a,b) &#x2F; Math.min(a,b);</strong> a和b比大小，与C++一致。</li>
+<li>向上取整：<strong>Math.ceil();</strong></li>
+<li>向下取整：<strong>Math.floor();</strong></li>
+<li>四舍五入：<strong>Math.round();</strong></li>
+<li>Math包里还有常见的数学值，比如<strong>Math.PI</strong>是圆周率，<strong>Math.E</strong>是e值。</li>
+</ol>
+<h1 id="【笔记八】-171-184P-接口相关"><a href="#【笔记八】-171-184P-接口相关" class="headerlink" title="【笔记八】  171-184P  接口相关"></a>【笔记八】  171-184P  接口相关</h1><ol>
+<li>接口<strong>没有</strong>静态代码块和构造方法。</li>
+<li>一个类的父类只有一个，但是一个类可以同时实现<strong>多个</strong>接口。<br>当父类的方法与接口的默认方法冲突，<strong>优先父类</strong>。<br>当实现多个接口时存在<strong>默认方法冲突</strong>，需要对默认方法进行重写。<br>当实现多个接口时存在<strong>抽象方法冲突</strong>，只需要覆盖重写一次即可。</li>
+<li>使用接口首先要定义接口类。<br><strong>定义接口类</strong>的格式如：<strong>public interface 接口名称 { 接口内容 }</strong></li>
+<li>使用接口需要创建接口实现类对接口进行实现。<br><strong>接口实现类</strong>的格式如：<strong>public class 实现类名称 implements 接口名称 { … }</strong></li>
+<li>接口中定义的变量均为常量。<br><strong>常量</strong>格式如：<strong>public static final 数据类型 常量名称 &#x3D; 数值;</strong> 前方三个关键词可省略。</li>
+<li>接口中均为抽象方法，且实现类必须覆盖重写接口所有的抽象方法，除非实现类也是抽象类。(必须覆盖)<br><strong>抽象方法</strong>格式如：<strong>public abstract 返回值类型 方法名称(参数列表);</strong></li>
+<li>Java8后，接口中可以定义默认方法。(可覆盖可不覆盖)<br><strong>默认方法</strong>格式如：<strong>public default 返回值类型 方法名称(参数列表) { 方法体 }</strong></li>
+<li>Java8后，接口中可以定义静态方法。<br><strong>静态方法</strong>格式如：<strong>public static 返回值类型 方法名称(参数列表) { 方法体 }</strong></li>
+<li>Java9后，接口中可以定义私有方法。(我的Java版本是1.8.0也就是Java8，所以不支持)<br><strong>普通私有方法</strong>格式如：<strong>private 返回值类型 方法名称(参数列表) { 方法体 }</strong><br><strong>静态私有方法</strong>格式如：<strong>private static 返回值类型 方法名称(参数列表) { 方法体 }</strong></li>
+</ol>
+<h1 id="【笔记九】-185-194P-继承与多态相关"><a href="#【笔记九】-185-194P-继承与多态相关" class="headerlink" title="【笔记九】  185-194P  继承与多态相关"></a>【笔记九】  185-194P  继承与多态相关</h1><ol>
+<li><strong>C++继承用冒号，Java继承用关键字extends。</strong></li>
+<li>@Override检测是否重写，总体来说，Java的类继承与C++的类继承很相似。</li>
+<li><strong>Java不支持多重继承，所以有super关键字，用来找父类。</strong></li>
+<li><strong>abstract为抽象关键字。抽象类&#x2F;抽象方法。</strong></li>
+<li>访问成员变量的规则：<br>通过<strong>对象名称</strong>访问：看声明对象时对象的类型(等号左边)，没有就向上找。<br>通过<strong>成员方法</strong>访问：看方法属于谁，就优先用谁的成员变量，没有就向上找。</li>
+<li>实现多态性：父类引用指向子类对象。<br>多态格式：<br><strong>父类名称 对象名 &#x3D; new 子类名称();<br>接口名称 对象名 &#x3D; new 实现类名称();</strong></li>
+<li>根据第6条和第7条可知，多态中成员方法优先用子类的成员方法；通过对象名称访问成员变量，优先用父类的成员变量。</li>
+<li><strong>“编译看左，运行看右”，即编译前把对象看为父类类型(左边)，运行时成员变量看左边，成员方法看右边。</strong></li>
+<li>个人感觉，多态的存在使代码更加有逻辑性。</li>
+<li><strong>向上转型</strong>：右侧new一个子类对象，把它当父类来看待。 (无法调用子类特有方法)</li>
+<li><strong>向下转型</strong>：将父类对象，<strong>还原</strong>成为本来的子类对象。<br>格式：子类名称 对象名 &#x3D; (子类名称)父类对象；（有点像强制类型转换）</li>
+<li><strong>对象 instanceof 类名称</strong> ：如果对象属于该类，则返回true。使用这个即可根据对象类型，来进行向下转型，使用子类特有方法。</li>
+</ol>
+<h1 id="【笔记十】-215-218P-Object-Objects根类"><a href="#【笔记十】-215-218P-Object-Objects根类" class="headerlink" title="【笔记十】  215-218P  Object&#x2F;Objects根类"></a>【笔记十】  215-218P  Object&#x2F;Objects根类</h1><ol>
+<li>不需要导包。</li>
+<li>**Object.toString()**：转换为字符串，默认转换对象的地址值，需重写。</li>
+<li>**Object.equals(对象)**：比较对象是否相等，默认比较对象的地址值，需重写。</li>
+<li>**Objects.equals(对象1,对象2)**：第二条的equals方法存在空指针异常可能，Objects的equals方法更加完善。</li>
+</ol>
+<h1 id="【笔记十一】-219-225P-日期时间类"><a href="#【笔记十一】-219-225P-日期时间类" class="headerlink" title="【笔记十一】  219-225P  日期时间类"></a>【笔记十一】  219-225P  日期时间类</h1><ul>
+<li>Date类</li>
+</ul>
+<ol>
+<li>需要导包：import java.util.Date;</li>
+<li>Date类的空参构造函数为获取当前日期。</li>
+<li>Date类的带参构造函数为传入一个long类型的毫秒值，根据毫秒值计算日期。0L为1970年1月1日0点。(中国是东八区加8个小时)</li>
+<li>**Date.getTime()**：将日期转换为毫秒值，返回值为long类型。</li>
+</ol>
+<ul>
+<li>DateFormat类</li>
+</ul>
+<ol start="5">
+<li>需要导包：import java.text.DateFormat;</li>
+<li>DateFomat类是一个抽象类，无法直接创建对象，可以使用其子类<strong>SimpleDateFormat(String pattern)</strong> </li>
+<li>SimpleDateFormat类需要导包：import java.text.SimpleDateFormat;</li>
+<li><strong>SimpleDateFormat s1 &#x3D; new SimpleDateFormat(“yyyy年MM月dd日 HH时mm分ss秒”);</strong> 构造函数传参按这个格式即可，字母不能变，其余可变。</li>
+<li><strong>String str1 &#x3D; s1.format(Date对象);</strong> 将一个Date对象转换为SimpleDateFormat对象中指定格式的字符串。</li>
+<li><strong>Date date &#x3D; s1.parse(“2020年01月04日 20时00分00秒”);</strong> 按照SimpleDateFormat对象的格式，转换为一个Date格式对象。</li>
+</ol>
+<ul>
+<li>Calendar类</li>
+</ul>
+<ol start="11">
+<li>需要导包：import java.util.Calendar; </li>
+<li>Calendar类为抽象类，无法直接创建对象。</li>
+<li><strong>Calendar c1 &#x3D; Calendar.getInstance();</strong> 使用多态方法，获取一个Calendar的子类。等号右边方法为获取Calendar的子类。</li>
+<li>**Calendar.get(字段)**：返回日历指定字段的数值。例：c1.get(Calendar.YEAR);</li>
+<li>**Calendar.set(字段,值)**：设置日历指定字段的数值。例：c1.set(Calendar.YEAR, 2020);</li>
+<li>**Calendar.add(字段,值)**：使指定字段增加给定值，可以为负数。例：c1.add(Calendar.YEAR, -2);</li>
+<li>**Calendar.getTime()**：将Calendar类转为Date类。例：Date date &#x3D; c1.getTime();</li>
+</ol>
+<h1 id="【笔记十二】-226-226P-System系统类"><a href="#【笔记十二】-226-226P-System系统类" class="headerlink" title="【笔记十二】 226-226P  System系统类"></a>【笔记十二】 226-226P  System系统类</h1><ol>
+<li>不需要导包。 </li>
+<li><strong>System.currentTimeMillis()：</strong> 返回以毫秒为单位的当前时间，可以用来计算程序的运行时间。</li>
+<li><strong>System.arraycopy(参数1,参数2,参数3,参数4,参数5)：</strong> 将数组中指定的数据copy到另一个数组。<br><strong>参数1 &#x2F; 参数3</strong>：源数组 <strong>&#x2F;</strong> 目标数组。<br><strong>参数2 &#x2F; 参数4</strong>：源数组中的起始位置 <strong>&#x2F;</strong> 目标数组中的起始位置。<br><strong>参数5</strong>：要复制的数组元素的数量。</li>
+</ol>
+<h1 id="【笔记十三】-227-229P-StringBuilder字符串缓冲区类"><a href="#【笔记十三】-227-229P-StringBuilder字符串缓冲区类" class="headerlink" title="【笔记十三】  227-229P  StringBuilder字符串缓冲区类"></a>【笔记十三】  227-229P  StringBuilder字符串缓冲区类</h1><ol>
+<li>不需要导包。</li>
+<li><strong>字符串缓冲区，可以提高字符串的操作效率。</strong></li>
+<li>String底层为final修饰的数组，而StringBuilder底层是没有被final修饰的数组，可以改变长度。</li>
+<li><strong>StringBuilder()：</strong> 无参构造函数，默认建议一个空字符串。</li>
+<li><strong>StringBuilder(String str)：</strong> 带参构造函数，建立一个内容为str的字符串。</li>
+<li><strong>append(参数)：</strong> 向对象里添加指定参数内容。返回值为”this”，故不用接收返回值。</li>
+<li><strong>toString()：</strong> 将一个StringBuilder对象转为String对象，返回一个String对象，需要接收。</li>
+</ol>
+<h1 id="【笔记十四】-234-281P-容器及其相关"><a href="#【笔记十四】-234-281P-容器及其相关" class="headerlink" title="【笔记十四】  234-281P  容器及其相关*"></a>【笔记十四】  234-281P  容器及其相关*</h1><p> &emsp;<strong>详情请看我的另一篇文章</strong>：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/112799775">链接点我</a><br> &emsp;<strong>其中介绍了Java容器及其相关内容。</strong></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/" rel="prev" title="使用g++创建动态库和静态库及其相关探索">
+                  <i class="fa fa-angle-left"></i> 使用g++创建动态库和静态库及其相关探索
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/01/19/20210119_Java%E5%AE%B9%E5%99%A8%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/" rel="next" title="Java容器及其相关学习记录">
+                  Java容器及其相关学习记录 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

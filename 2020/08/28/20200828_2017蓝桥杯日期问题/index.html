@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是2017年蓝桥杯C语言省赛B组的第七题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2017 蓝桥杯 日期问题">
+<meta property="og:url" content="https://zgg2001.github.io/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="这是2017年蓝桥杯C语言省赛B组的第七题">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-08-28T15:17:42.000Z">
+<meta property="article:modified_time" content="2020-08-28T15:17:42.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="蓝桥杯">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/","path":"2020/08/28/20200828_2017蓝桥杯日期问题/","title":"2017 蓝桥杯 日期问题"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>2017 蓝桥杯 日期问题 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="2017 蓝桥杯 日期问题 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2017 蓝桥杯 日期问题
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-28 23:17:42" itemprop="dateCreated datePublished" datetime="2020-08-28T23:17:42+08:00">2020-08-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>这是2017年蓝桥杯C语言省赛B组的第七题</strong></p>
+<span id="more"></span>
+
+<p><strong>题目描述</strong><br>小明正在整理一批历史文献。这些历史文献中出现了很多日期。<br>小明知道这些日期都在1960年1月1日至2059年12月31日。<br>令小明头疼的是，这些日期采用的格式非常不统一，有采用年&#x2F;月&#x2F;日的，有采用月&#x2F;日&#x2F;年的，还有采用日&#x2F;月&#x2F;年的。<br>更加麻烦的是，年份也都省略了前两位，使得文献上的一个日期，存在很多可能的日期与其对应。<br>比如02&#x2F;03&#x2F;04，可能是2002年03月04日、2004年02月03日或2004年03月02日。<br>给出一个文献上的日期，你能帮助小明判断有哪些可能的日期对其对应吗？</p>
+<p><strong>输入</strong><br>一个日期，格式是”AA&#x2F;BB&#x2F;CC”。  (0 &lt;&#x3D; A, B, C &lt;&#x3D; 9)  </p>
+<p><strong>输出</strong><br>输出若干个不相同的日期，每个日期一行，格式是”yyyy-MM-dd”。<br>多个日期按从早到晚排列。</p>
+<p><strong>样例输入</strong><br>02&#x2F;03&#x2F;04</p>
+<p><strong>样例输出</strong><br>2002-03-04<br>2004-02-03<br>2004-03-02</p>
+<p><a target="_blank" rel="noopener" href="http://oj.ecustacm.cn/problem.php?id=1328">OJ链接</a></p>
+<p><strong>思路：</strong> </p>
+<ul>
+<li>本来刚看见这道题，我还觉得很简单。。。但是一写发现情况很复杂，需要判定的东西很多，果然好歹也是偏后面的题，不会太简单。</li>
+<li>我的思路就是主函数进行接收数据，然后在主函数里数据排序后，利用一个judge函数进行判定日期是否合法，如果合法就输出。</li>
+<li>judge函数判定主要为：<strong>月是否合理</strong>、根据月份判断<strong>日是否合理</strong>（首先要判断是不是30&#x2F;31天的月，如果是2月则要判定是不是闰年，随后看日期是否超限）。</li>
+<li>随后需要注意的是，<strong>相同日期只用输出一次</strong>，所以在主函数里我们需要判定judge函数的传参是否相同，如果相同就说明是相同日期，输出一次即可。</li>
+</ul>
+<p><strong>AC代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">judge</span><span class="params">(<span class="type">int</span> a,<span class="type">int</span> b,<span class="type">int</span> c)</span><span class="comment">//判断是否合理 合理即输出 </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(b&lt;<span class="number">1</span>||b&gt;<span class="number">12</span>)<span class="comment">//月超标 pass</span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span>(c&lt;<span class="number">1</span>||c&gt;<span class="number">31</span>)<span class="comment">//日超标 pass </span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span>((b==<span class="number">1</span>||b==<span class="number">3</span>||b==<span class="number">5</span>||b==<span class="number">7</span>||b==<span class="number">8</span>||b==<span class="number">10</span>||b==<span class="number">12</span>)&amp;&amp;c&gt;<span class="number">31</span>)<span class="comment">//如果是 1 3 5 7 8 10 12月 并且日期大于31 pass </span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span>((b==<span class="number">4</span>||b==<span class="number">6</span>||b==<span class="number">9</span>||b==<span class="number">11</span>)&amp;&amp;c&gt;<span class="number">30</span>)<span class="comment">//如果是 4 6 9 11 月 并且日期大于30 pass </span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span>(b==<span class="number">2</span>)<span class="comment">//如果是2月就判断是不是闰年 </span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(a%<span class="number">400</span>==<span class="number">0</span>||(a%<span class="number">4</span>==<span class="number">0</span>&amp;&amp;a%<span class="number">100</span>!=<span class="number">0</span>))<span class="comment">//是闰年</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(c&gt;<span class="number">29</span>)<span class="comment">//大于29天 pass </span></span><br><span class="line">				<span class="keyword">return</span>; </span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(c&gt;<span class="number">28</span>)<span class="comment">//大于28天 pass</span></span><br><span class="line">				<span class="keyword">return</span>; </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d-%02d-%02d\n&quot;</span>,a,b,c);<span class="comment">//成功输出 </span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a,b,c,a1,c1;</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d/%d/%d&quot;</span>,&amp;a,&amp;b,&amp;c);</span><br><span class="line">	a1=a;</span><br><span class="line">	c1=c;</span><br><span class="line">	<span class="keyword">if</span>(a&lt;=<span class="number">59</span>)<span class="comment">//加100方便比较 </span></span><br><span class="line">		a1+=<span class="number">100</span>;</span><br><span class="line">	<span class="keyword">if</span>(c&lt;=<span class="number">59</span>)</span><br><span class="line">		c1+=<span class="number">100</span>;	</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	三种情况 </span></span><br><span class="line"><span class="comment">	 a  b  c</span></span><br><span class="line"><span class="comment">	年 月 日 （1） </span></span><br><span class="line"><span class="comment">	月 日 年 （2) </span></span><br><span class="line"><span class="comment">	日 月 年  (3)</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="keyword">if</span>(a1&lt;c1)<span class="comment">//a小于c的话  先输出（1） 再（2）（3） </span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">judge</span>(<span class="number">1900</span>+a1,b,c);<span class="comment">//判断是否合理 合理即输出 </span></span><br><span class="line">		<span class="type">int</span> max_temp = <span class="built_in">max</span>(a,b);<span class="comment">//取b,c最大值和最小值 </span></span><br><span class="line">		<span class="type">int</span> min_temp = <span class="built_in">min</span>(a,b);</span><br><span class="line">		<span class="built_in">judge</span>(<span class="number">1900</span>+c1,min_temp,max_temp);<span class="comment">//按从小到大 输出（2）（3） </span></span><br><span class="line">		<span class="keyword">if</span>(max_temp!=min_temp)<span class="comment">//防止重复输出 </span></span><br><span class="line">			<span class="built_in">judge</span>(<span class="number">1900</span>+c1,max_temp,min_temp); </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(a1==c1)<span class="comment">//只有一个年份 </span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(a==b)<span class="comment">//三数相等就只输出一次 </span></span><br><span class="line">			<span class="built_in">judge</span>(<span class="number">1900</span>+a1,b,c);</span><br><span class="line">		<span class="keyword">else</span><span class="comment">//否则按顺序输出 </span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="type">int</span> max_temp = <span class="built_in">max</span>(a,b);<span class="comment">//取b,c最大值和最小值 </span></span><br><span class="line">			<span class="type">int</span> min_temp = <span class="built_in">min</span>(a,b);</span><br><span class="line">			<span class="built_in">judge</span>(<span class="number">1900</span>+a1,min_temp,max_temp);</span><br><span class="line">			<span class="built_in">judge</span>(<span class="number">1900</span>+c1,max_temp,min_temp); </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span><span class="comment">//先输出（2）（3）再（1） </span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="type">int</span> max_temp = <span class="built_in">max</span>(a,b);<span class="comment">//取b,c最大值和最小值 </span></span><br><span class="line">		<span class="type">int</span> min_temp = <span class="built_in">min</span>(a,b);</span><br><span class="line">		<span class="built_in">judge</span>(<span class="number">1900</span>+c1,min_temp,max_temp);<span class="comment">//按从小到大 输出（2）（3） </span></span><br><span class="line">		<span class="keyword">if</span>(max_temp!=min_temp)<span class="comment">//防止重复输出</span></span><br><span class="line">			<span class="built_in">judge</span>(<span class="number">1900</span>+c1,max_temp,min_temp); </span><br><span class="line">		<span class="built_in">judge</span>(<span class="number">1900</span>+a1,b,c);<span class="comment">//判断是否合理 合理即输出 （1） </span></span><br><span class="line">	&#125; 	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"># 数据结构与算法</a>
+              <a href="/tags/%E8%93%9D%E6%A1%A5%E6%9D%AF/" rel="tag"># 蓝桥杯</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/27/20200827_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E5%BF%97%E7%BB%9F%E8%AE%A1%E5%B0%BA%E5%8F%96%E6%B3%95/" rel="prev" title="2018 蓝桥杯 日志统计 尺取法">
+                  <i class="fa fa-angle-left"></i> 2018 蓝桥杯 日志统计 尺取法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/31/20200831_2016%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%89%AA%E9%82%AE%E7%A5%A8dfs/" rel="next" title="2016 蓝桥杯 剪邮票 dfs">
+                  2016 蓝桥杯 剪邮票 dfs <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="HB小咸鱼学习记录 因为疫情，大一在校半年便草草结束了，大二转眼将至。疫情期间在家没事便抽空预习了预习大二要学的数据结构。思来想去还是决定把学习的过程记录下来，方便自己以后查阅或者总结。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dfs学习记录：模板&#x2F;思路汇总">
+<meta property="og:url" content="https://zgg2001.github.io/2020/08/13/20200813_dfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="HB小咸鱼学习记录 因为疫情，大一在校半年便草草结束了，大二转眼将至。疫情期间在家没事便抽空预习了预习大二要学的数据结构。思来想去还是决定把学习的过程记录下来，方便自己以后查阅或者总结。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-08-13/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-08-13/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-08-13/3.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-08-13/4.jpg">
+<meta property="article:published_time" content="2020-08-13T10:37:50.000Z">
+<meta property="article:modified_time" content="2020-08-13T10:37:50.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="数据结构与算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2020-08-13/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2020/08/13/20200813_dfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2020/08/13/20200813_dfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/","path":"2020/08/13/20200813_dfs学习记录：模板思路汇总/","title":"dfs学习记录：模板/思路汇总"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>dfs学习记录：模板/思路汇总 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E7%82%B9%E7%9C%8B%E6%B3%95"><span class="nav-text">一点看法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E6%88%91%E5%AF%B9%E4%BA%8E%E2%80%9C%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2%E2%80%9D%E7%9A%84%E7%90%86%E8%A7%A3"><span class="nav-text">自我对于“深度优先搜索”的理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dfs%E7%9A%84%E5%A4%A7%E8%87%B4%E6%80%9D%E8%B7%AF"><span class="nav-text">dfs的大致思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dfs%E7%9A%84%E5%A4%A7%E8%87%B4%E6%A8%A1%E6%9D%BF"><span class="nav-text">dfs的大致模板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dfs%E7%9A%84%E7%9B%B8%E5%85%B3%E4%BE%8B%E9%A2%98"><span class="nav-text">dfs的相关例题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%93%9D%E6%A1%A5%E6%9D%AF-%E8%BF%B7%E5%AE%AB"><span class="nav-text">1.蓝桥杯 迷宫</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%93%9D%E6%A1%A5%E6%9D%AF-%E5%85%A8%E7%90%83%E5%8F%98%E6%9A%96"><span class="nav-text">2.蓝桥杯 全球变暖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-leetcode-%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8C"><span class="nav-text">3.leetcode 路径总和</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-leetcode-%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8CII"><span class="nav-text">4.leetcode 路径总和II</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/13/20200813_dfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="dfs学习记录：模板/思路汇总 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          dfs学习记录：模板/思路汇总
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-08-13 18:37:50" itemprop="dateCreated datePublished" datetime="2020-08-13T18:37:50+08:00">2020-08-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>HB小咸鱼学习记录</strong></p>
+<p><strong>因为疫情</strong>，大一在校半年便草草结束了，大二转眼将至。<br>疫情期间在家没事便抽空预习了预习大二要学的数据结构。<br>思来想去还是决定把学习的过程记录下来，方便自己以后查阅或者总结。</p>
+<span id="more"></span>
+
+<h1 id="一点看法"><a href="#一点看法" class="headerlink" title="一点看法"></a>一点看法</h1><p>在我看来，计算机的一大优势便是计算速度快。由此，人们在对某些问题的计算方面上，就不用像高斯找到1加到100的特殊技巧那样费力寻找技巧，直接依靠着计算机的计算力从1直接加到100就好。这种不需要技巧的运算方式就是暴力运算。而当你需要对图进行搜索的时候，最基础的就是暴力搜索。<br>就我目前的接触而言，常见的暴力搜索方式便是深度优先遍历与广度优先遍历了。</p>
+<h1 id="自我对于“深度优先搜索”的理解"><a href="#自我对于“深度优先搜索”的理解" class="headerlink" title="自我对于“深度优先搜索”的理解"></a>自我对于“深度优先搜索”的理解</h1><p>dfs,字面来看就是以深度为优先的搜索方式。用通俗点来讲就是一条道走到黑。<br>就像我们规定以“前左右”的顺序走迷宫，而在寻找迷宫的出口时就可以看成进行了一次搜索。这样首先便是一直向前走下去。直到前面没有路了，我们就按照“前左右”再向左走，要是左边还走不通就再向右走直到走到死胡同里。当走到死胡同里的时候说明我们走完了一条迷宫的支线，此时我们可以认为自己单刀直入了这条支线的最深处。此时我们还需要找迷宫的出口，于是我们后退到上一个交叉路口的位置，按照“前左右”的顺序寻找一个没有进入过的支线。如果这个路口的支线已经全部走过，则再次后退到上一个交叉路口进行搜索	……直到找到出口。<br>由此看来，如果运气好，我们第一次走便可能直接走到出口；但是运气差的话，可能把整个迷宫走完才能找到出口。</p>
+<h1 id="dfs的大致思路"><a href="#dfs的大致思路" class="headerlink" title="dfs的大致思路"></a>dfs的大致思路</h1><p><strong>首先</strong>，如上个片段所说，我们首先需要一个二维数组，来储存迷宫的大致情况，包括可以走的路、障碍物、入口、出口……<br><strong>其次</strong>，我们对于已经走过的分叉路口要进行标记，防止进入已经进入过的路口，就像在走迷宫时你会主动避开走过的路线一样。这个通常用一个与上面地图大小相同的二维数组来储存坐标的状态。例如<strong>false</strong>代表没走过，<strong>true</strong>代表走过。<br><strong>接着</strong>，我们需要对移动的规则进行规定。例如上文的例子规定的“上左右”，我们可以用一个二维数组来储存移动后坐标的变化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> direction[<span class="number">4</span>][<span class="number">2</span>] = &#123;&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;,&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;&#125;; </span><br></pre></td></tr></table></figure>
+<p>这个数组里面的四组数据就分别代表“上左右下”，在对坐标变换时进行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x1=x+direction[a][<span class="number">0</span>];</span><br><span class="line"><span class="type">int</span> y1=y+direction[a][<span class="number">1</span>]; </span><br></pre></td></tr></table></figure>
+<p>即可实现对坐标的变化。且在变化后将x1,y1的点的状态进行更改，代表你已经来过这里了。<br>而当你到达死路进行后退且前往别的点的时候，记得把刚来过的点的状态进行更改，使下一次也能前往。<br><strong>最后</strong>，我们需要进行判定，从而在找到出口时停止或者返回一些信息。</p>
+<h1 id="dfs的大致模板"><a href="#dfs的大致模板" class="headerlink" title="dfs的大致模板"></a>dfs的大致模板</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(当前点位的信息)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(到达中止条件)</span><br><span class="line">	&#123;</span><br><span class="line">		执行一些东西;</span><br><span class="line">		<span class="keyword">return</span>; </span><br><span class="line">	&#125; </span><br><span class="line">	<span class="keyword">if</span>(当前点位越界或者不符合规定)<span class="comment">//即进行剪枝</span></span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">for</span>(按照搜索的方向进行循环)</span><br><span class="line">	&#123;</span><br><span class="line">		根据当前点位进行修改得到新点位;</span><br><span class="line">		<span class="keyword">if</span>(新点位可以前往)</span><br><span class="line">		&#123;</span><br><span class="line">			执行一些东西;</span><br><span class="line">			把新点位标记;</span><br><span class="line">			<span class="built_in">dfs</span>(新点位的信息);</span><br><span class="line">			取消新点位的标记; </span><br><span class="line">		&#125; </span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>按照上面的思路大致可写以下代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> map[<span class="number">100</span>][<span class="number">100</span>];		<span class="comment">//地图 其中值为0则代表可走 </span></span><br><span class="line"><span class="type">bool</span> b_map[<span class="number">100</span>][<span class="number">100</span>];		<span class="comment">//点状态集	值为false代表没被走过 true代表被走过 </span></span><br><span class="line"><span class="type">int</span> direction[<span class="number">4</span>][<span class="number">2</span>] = &#123;&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;,&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;&#125;; 		<span class="comment">//搜索方向坐标变化集 </span></span><br><span class="line"><span class="type">int</span> X,Y;	<span class="comment">//终点坐标 </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> times)</span>		<span class="comment">//传入当前点的x,y坐标以及走的次数 </span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(x==X&amp;&amp;y==Y)		<span class="comment">//当走到出口时 </span></span><br><span class="line">	&#123;</span><br><span class="line">		std::cout&lt;&lt;times&lt;&lt;<span class="string">&quot;\n&quot;</span>;		<span class="comment">//输出走的步数 </span></span><br><span class="line">		<span class="keyword">return</span>; </span><br><span class="line">	&#125; </span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">0</span>;a&lt;<span class="number">4</span>;a++)   	 <span class="comment">//对搜索方向进行遍历  </span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="type">int</span> x1=x+direction[a][<span class="number">0</span>];	 <span class="comment">//x加上当前搜索方向的变化 </span></span><br><span class="line">		<span class="type">int</span> y1=y+direction[a][<span class="number">1</span>]; 	 <span class="comment">//y加上当前搜索方向的变化 </span></span><br><span class="line">		<span class="keyword">if</span>(!map[x1][y1]&amp;&amp;!b_map[x1][y1])	<span class="comment">//判定x1,y1点是否可走 </span></span><br><span class="line">		&#123;</span><br><span class="line">			b_map[x1][y1] = <span class="literal">true</span>;	 <span class="comment">//可走的话就标记以走过 </span></span><br><span class="line">			<span class="built_in">dfs</span>(x1,y1,time<span class="number">+1</span>);		<span class="comment">//递归 传入新点位的坐标 以及走的次数加一 进行下一个坐标点的判定 </span></span><br><span class="line">			b_map[x1][y1] = <span class="literal">false</span>;	  <span class="comment">//取消标记 表示该线路以及搜索完毕 </span></span><br><span class="line">		&#125; </span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="dfs的相关例题"><a href="#dfs的相关例题" class="headerlink" title="dfs的相关例题"></a>dfs的相关例题</h1><p>dfs虽然搜索细致，但是在搜索过程中会进行大量的无意义运算，浪费时间，于是在运算中就要进行“剪枝”，即根据所求信息增加判定要求，从而最大限度的减少递归的调用次数，加快运算时间。</p>
+<h2 id="1-蓝桥杯-迷宫"><a href="#1-蓝桥杯-迷宫" class="headerlink" title="1.蓝桥杯 迷宫"></a>1.蓝桥杯 迷宫</h2><p><img src="/images/2020-08-13/1.jpg" alt="蓝桥杯 迷宫"><br><a target="_blank" rel="noopener" href="http://oj.ecustacm.cn/problem.php?id=1455">OJ链接</a></p>
+<p><strong>思路：</strong> 在这道蓝桥杯的题目里，由于是求最短路径，所以用<strong>bfs</strong>来写比较简单。用<strong>dfs</strong>来写的话由于数据过大，不剪枝或者剪的不够的话稳稳的超时。<br>但是我们可以引入一个与图一样大小的二维数组，该数组用来储存到达该点的最小步数。则如果在递归中，当前步数大于当前点的最小步数，说明到达当前点多走歪路了，则中止递归。<br>在该条件的约束下，该dfs的运算效率得到了极大的提升。</p>
+<p><strong>AC代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> X 30</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> Y 50 </span></span><br><span class="line"><span class="type">int</span> a_map[<span class="number">31</span>][<span class="number">51</span>],ans=<span class="number">100000000</span>,zhj=<span class="number">100000000</span>;</span><br><span class="line"><span class="type">bool</span> b_map[<span class="number">31</span>][<span class="number">51</span>];</span><br><span class="line"><span class="type">char</span> fx[<span class="number">10000</span>];</span><br><span class="line"><span class="type">char</span> t_fx[<span class="number">10000</span>];</span><br><span class="line"><span class="type">int</span> z_4[<span class="number">4</span>][<span class="number">2</span>] = &#123;&#123;<span class="number">1</span>,<span class="number">0</span>&#125;,&#123;<span class="number">0</span>,<span class="number">-1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">1</span>&#125;,&#123;<span class="number">-1</span>,<span class="number">0</span>&#125;&#125;; </span><br><span class="line"><span class="type">char</span> z[<span class="number">4</span>] = &#123;<span class="string">&#x27;D&#x27;</span>,<span class="string">&#x27;L&#x27;</span>,<span class="string">&#x27;R&#x27;</span>,<span class="string">&#x27;U&#x27;</span>&#125;;</span><br><span class="line"><span class="type">int</span> dp[<span class="number">31</span>][<span class="number">51</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y,<span class="type">int</span> time,<span class="type">int</span> he)</span><span class="comment">//当前点的x,y坐标 走的步数 当前的路程权值</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(x==X&amp;&amp;y==Y)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(time&lt;zhj&amp;&amp;he&lt;ans)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;time;now++)</span><br><span class="line">				fx[now]=t_fx[now];</span><br><span class="line">			zhj=time<span class="number">-1</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">0</span>;a&lt;<span class="number">4</span>;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(he+z[a]&gt;ans)<span class="comment">//条件判定</span></span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="type">int</span> x1=x+z_4[a][<span class="number">0</span>];</span><br><span class="line">		<span class="type">int</span> y1=y+z_4[a][<span class="number">1</span>];</span><br><span class="line">		<span class="keyword">if</span>(x1&lt;<span class="number">1</span> || y1&lt;<span class="number">1</span> || x1&gt;X || y1&gt;Y)<span class="comment">//条件判定</span></span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="keyword">if</span>(b_map[x1][y1])<span class="comment">//条件判定</span></span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="keyword">if</span>(time<span class="number">+1</span>&gt;dp[x1][y1])<span class="comment">//条件判定</span></span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		dp[x1][y1]=time<span class="number">+1</span>;<span class="comment">//当前点的最小步数更新</span></span><br><span class="line">		b_map[x1][y1]=<span class="literal">true</span>;</span><br><span class="line">		t_fx[time] = z[a];</span><br><span class="line">		<span class="built_in">dfs</span>(x1,y1,time<span class="number">+1</span>,he+z[a]);</span><br><span class="line">		b_map[x1][y1]=<span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">memset</span>(fx,<span class="number">0</span>,<span class="built_in">sizeof</span>(fx));</span><br><span class="line">	<span class="built_in">memset</span>(a_map,<span class="number">0</span>,<span class="built_in">sizeof</span>(a_map));</span><br><span class="line">	<span class="built_in">memset</span>(b_map,<span class="literal">false</span>,<span class="built_in">sizeof</span>(b_map));</span><br><span class="line">	<span class="built_in">memset</span>(dp,<span class="number">999999</span>,<span class="built_in">sizeof</span>(dp));</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">1</span>;a&lt;=X;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> b=<span class="number">1</span>;b&lt;=Y;b++)</span><br><span class="line">		&#123;</span><br><span class="line">			a_map[a][b] = <span class="built_in">getchar</span>()-<span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">			<span class="keyword">if</span>(a_map[a][b]==<span class="number">1</span>)</span><br><span class="line">				b_map[a][b]=<span class="literal">true</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">getchar</span>();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	b_map[<span class="number">1</span>][<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">	<span class="built_in">dfs</span>(<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> now=<span class="number">0</span>;now&lt;=zhj;now++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%c&quot;</span>,fx[now]);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jziwjxjd/article/details/104078653">该思路原地址</a></p>
+<h2 id="2-蓝桥杯-全球变暖"><a href="#2-蓝桥杯-全球变暖" class="headerlink" title="2.蓝桥杯 全球变暖"></a>2.蓝桥杯 全球变暖</h2><p><strong>题目</strong><br>你有一张某海域NxN像素的照片，”.”表示海洋、”#”表示陆地，如下所示：<br><img src="/images/2020-08-13/2.jpg" alt="1"></p>
+<p>其中”上下左右”四个方向上连在一起的一片陆地组成一座岛屿。例如上图就有2座岛屿。<br>由于全球变暖导致了海面上升，科学家预测未来几十年，岛屿边缘一个像素的范围会被海水淹没。<br>具体来说如果一块陆地像素与海洋相邻(上下左右四个相邻像素中有海洋)，它就会被淹没。<br>例如上图中的海域未来会变成如下样子：<br><img src="/images/2020-08-13/3.jpg" alt="2"></p>
+<p>请你计算：依照科学家的预测，照片中有多少岛屿会被完全淹没。</p>
+<p><strong>输入</strong><br>第一行包含一个整数N。  (1 &lt;&#x3D; N &lt;&#x3D; 1000)<br>以下N行N列代表一张海域照片。<br>照片保证第1行、第1列、第N行、第N列的像素都是海洋。  </p>
+<p><strong>输出</strong><br>一个整数表示答案。</p>
+<p><strong>样例输入</strong><br><img src="/images/2020-08-13/4.jpg" alt="3"><br><strong>样例输出</strong><br>1</p>
+<p><a target="_blank" rel="noopener" href="http://oj.ecustacm.cn/problem.php?id=1365">OJ链接</a></p>
+<p><strong>思路</strong>：在接收初始图之后，<strong>首先</strong>搜索查找初始岛屿数，在找到一个岛屿后，对整个岛屿进行标记，防止重复计数。<strong>随后</strong>再次进行搜索，如果有四周均为陆地的坐标，则标记此坐标未被淹没。<strong>最后</strong>查找所有未被淹没的坐标，并将坐标所处的整个岛标记，防止重复计数。初始岛屿数量减去未被淹没岛的数量，即为被淹没的岛的数量。</p>
+<p><strong>AC代码</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> maps[<span class="number">1001</span>][<span class="number">1001</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs1</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(maps[x][y]!=<span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	maps[x][y]=<span class="string">&#x27;1&#x27;</span>;<span class="comment">//将#标记为1 </span></span><br><span class="line">	<span class="built_in">dfs1</span>(x<span class="number">+1</span>,y);<span class="comment">//把整个岛都进行标记 防止重复计算 </span></span><br><span class="line">	<span class="built_in">dfs1</span>(x<span class="number">-1</span>,y);</span><br><span class="line">	<span class="built_in">dfs1</span>(x,y<span class="number">+1</span>);</span><br><span class="line">	<span class="built_in">dfs1</span>(x,y<span class="number">-1</span>);</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs2</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(maps[x][y]==<span class="string">&#x27;.&#x27;</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">if</span>(maps[x<span class="number">+1</span>][y]==<span class="string">&#x27;1&#x27;</span>&amp;&amp;maps[x<span class="number">-1</span>][y]==<span class="string">&#x27;1&#x27;</span>&amp;&amp;maps[x][y<span class="number">+1</span>]==<span class="string">&#x27;1&#x27;</span>&amp;&amp;maps[x][y<span class="number">-1</span>]==<span class="string">&#x27;1&#x27;</span>)<span class="comment">//四周都是陆地 则标记为2</span></span><br><span class="line">	&#123;	</span><br><span class="line">		maps[x][y]=<span class="string">&#x27;2&#x27;</span>; </span><br><span class="line">	&#125; </span><br><span class="line">	<span class="built_in">dfs1</span>(x<span class="number">+1</span>,y);<span class="comment">//找4个方向 </span></span><br><span class="line">	<span class="built_in">dfs1</span>(x<span class="number">-1</span>,y);</span><br><span class="line">	<span class="built_in">dfs1</span>(x,y<span class="number">+1</span>);</span><br><span class="line">	<span class="built_in">dfs1</span>(x,y<span class="number">-1</span>);</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">dfs3</span><span class="params">(<span class="type">int</span> x,<span class="type">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(maps[x][y]==<span class="string">&#x27;.&#x27;</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	maps[x][y]=<span class="string">&#x27;.&#x27;</span>;<span class="comment">//将#标记为 . </span></span><br><span class="line">	<span class="built_in">dfs3</span>(x<span class="number">+1</span>,y);<span class="comment">//把整个岛都进行沉没操作 防止重复计算 </span></span><br><span class="line">	<span class="built_in">dfs3</span>(x<span class="number">-1</span>,y);</span><br><span class="line">	<span class="built_in">dfs3</span>(x,y<span class="number">+1</span>);</span><br><span class="line">	<span class="built_in">dfs3</span>(x,y<span class="number">-1</span>);</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> n,first_num=<span class="number">0</span>,end_num=<span class="number">0</span>;<span class="comment">//层数 初始岛屿数量 末尾岛屿数量 </span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>,&amp;n); </span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">1</span>;a&lt;=n;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> b=<span class="number">1</span>;b&lt;=n;b++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">scanf</span>(<span class="string">&quot;%c&quot;</span>,&amp;maps[a][b]);</span><br><span class="line">				<span class="keyword">if</span>(maps[a][b]==<span class="string">&#x27;.&#x27;</span>||maps[a][b]==<span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//先查找有多少个岛屿 </span></span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">1</span>;a&lt;=n;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> b=<span class="number">1</span>;b&lt;=n;b++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(maps[a][b]==<span class="string">&#x27;#&#x27;</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">dfs1</span>(a,b);</span><br><span class="line">				first_num++;<span class="comment">//初始岛屿+1 </span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//再对整个岛屿进行变化</span></span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">1</span>;a&lt;=n;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> b=<span class="number">1</span>;b&lt;=n;b++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(maps[a][b]==<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">dfs2</span>(a,b);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//最后查找剩余多少个岛屿 </span></span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> a=<span class="number">1</span>;a&lt;=n;a++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> b=<span class="number">1</span>;b&lt;=n;b++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span>(maps[a][b]==<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">dfs3</span>(a,b);</span><br><span class="line">				end_num++;<span class="comment">//最终岛屿+1 </span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	cout&lt;&lt;first_num-end_num;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3-leetcode-路径总和"><a href="#3-leetcode-路径总和" class="headerlink" title="3.leetcode 路径总和"></a>3.leetcode 路径总和</h2><p>给定一个二叉树和一个目标和，判断该树中是否存在根节点到叶子节点的路径，这条路径上所有节点值相加等于目标和。<br>说明: 叶子节点是指没有子节点的节点。</p>
+<p><strong>示例:</strong><br>给定如下二叉树，以及目标和 sum &#x3D; 22，</p>
+<pre><code>          5
+         / \
+        4   8
+       /   / \
+      11  13  4
+     /  \      \
+    7    2      1
+</code></pre>
+<p>返回 true, 因为存在目标和为 22 的根节点到叶子节点的路径 5-&gt;4-&gt;11-&gt;2。</p>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/path-sum">https://leetcode-cn.com/problems/path-sum</a> <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/path-sum/">OJ链接</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<p><strong>AC代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">hasPathSum</span><span class="params">(TreeNode* root, <span class="type">int</span> sum)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        kg=<span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span>(root!=<span class="literal">NULL</span>)</span><br><span class="line">            <span class="built_in">dfs</span>(root,root-&gt;val,sum);</span><br><span class="line">        <span class="keyword">return</span> kg;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(TreeNode* root,<span class="type">int</span> now,<span class="type">int</span> end)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(now==end&amp;&amp;root-&gt;left==<span class="literal">NULL</span>&amp;&amp;root-&gt;right==<span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            kg = <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;left==<span class="literal">NULL</span>&amp;&amp;root-&gt;right==<span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;left!=<span class="literal">NULL</span>)</span><br><span class="line">            <span class="built_in">dfs</span>(root-&gt;left,now+root-&gt;left-&gt;val,end);</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;right!=<span class="literal">NULL</span>)</span><br><span class="line">            <span class="built_in">dfs</span>(root-&gt;right,now+root-&gt;right-&gt;val,end);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">bool</span> kg;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="4-leetcode-路径总和II"><a href="#4-leetcode-路径总和II" class="headerlink" title="4.leetcode 路径总和II"></a>4.leetcode 路径总和II</h2><p>给定一个二叉树和一个目标和，找到所有从根节点到叶子节点路径总和等于给定目标和的路径。<br>说明: 叶子节点是指没有子节点的节点。</p>
+<p><strong>示例:</strong><br>给定如下二叉树，以及目标和 sum &#x3D; 22，</p>
+<pre><code>          5
+         / \
+        4   8
+       /   / \
+      11  13  4
+     /  \    / \
+    7    2  5   1
+</code></pre>
+<p>返回:</p>
+<p>[<br>   [5,4,11,2],<br>   [5,8,4,5]<br>]</p>
+<p>来源：力扣（LeetCode）<br>链接：<a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/path-sum-ii">https://leetcode-cn.com/problems/path-sum-ii</a> <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/path-sum-ii/">OJ链接</a><br>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p>
+<p><strong>AC代码：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;vector&lt;<span class="type">int</span>&gt;&gt; <span class="built_in">pathSum</span>(TreeNode* root, <span class="type">int</span> sum) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(root)</span><br><span class="line">        &#123;</span><br><span class="line">            temp.<span class="built_in">push_back</span>(root-&gt;val);</span><br><span class="line">            <span class="built_in">dfs</span>(root,sum-root-&gt;val);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ps;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;ps;</span><br><span class="line">    vector&lt;<span class="type">int</span>&gt;temp;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">dfs</span><span class="params">(TreeNode* root,<span class="type">int</span> end)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(end==<span class="number">0</span>&amp;&amp;!root-&gt;left&amp;&amp;!root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            vector&lt;<span class="type">int</span>&gt;t=temp;</span><br><span class="line">            ps.<span class="built_in">push_back</span>(t);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!root-&gt;left&amp;&amp;!root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;left)</span><br><span class="line">        &#123;</span><br><span class="line">            temp.<span class="built_in">push_back</span>(root-&gt;left-&gt;val);</span><br><span class="line">            <span class="built_in">dfs</span>(root-&gt;left,end-root-&gt;left-&gt;val);</span><br><span class="line">            temp.<span class="built_in">pop_back</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root-&gt;right)</span><br><span class="line">        &#123;</span><br><span class="line">            temp.<span class="built_in">push_back</span>(root-&gt;right-&gt;val);</span><br><span class="line">            <span class="built_in">dfs</span>(root-&gt;right,end-root-&gt;right-&gt;val);</span><br><span class="line">            temp.<span class="built_in">pop_back</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p><strong>在使用dfs中，要根据题目数据选择合适的数据类型。</strong><br>比如在题目数据过大时，申请较大的二维数组很容易失败。即使申请成功也会造成极大的内存浪费，循环时也很不方便。<br>这时就可以使用stl里的vector来储存数据，可以很好的提高的数据获取效率。<br><strong>要尽量多的进行筛选，增加效率</strong><br>好多题不止考的是dfs，甚至会考一点dp，所以要多想多做，寻找搜索中的共同点并对症下药。<br><strong>dfs的常用环境</strong><br>找最长路，特殊路等等等等。一般对带权图的搜索都用dfs。<br>在刷蓝桥杯的题的途中发现好多题都可以用dfs进行暴力，但是往往会超时。要想ac还得换题目想让你用的方法。但是往往能过几个检测点，所以不会的题都可以dfs一下混点分哈哈哈哈哈。<br><strong>总之，还是得多刷题，多积累经验。</strong></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"># 数据结构与算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/14/20200814_bfs%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A8%A1%E6%9D%BF%E6%80%9D%E8%B7%AF%E6%B1%87%E6%80%BB/" rel="next" title="bfs学习记录：模板/思路汇总">
+                  bfs学习记录：模板/思路汇总 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

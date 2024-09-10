@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="使用g++创建动态库和静态库及其相关探索">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用g++创建动态库和静态库及其相关探索">
+<meta property="og:url" content="https://zgg2001.github.io/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="使用g++创建动态库和静态库及其相关探索">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/1.jpg#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/2.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/3.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/4.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/5.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/6.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/7.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/8.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/9.png#pic_center">
+<meta property="og:image" content="https://zgg2001.github.io/images/2020-12-07/2.png#pic_center">
+<meta property="article:published_time" content="2020-12-07T15:39:51.000Z">
+<meta property="article:modified_time" content="2020-12-07T15:39:51.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2020-12-07/1.jpg#pic_center">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/","path":"2020/12/07/20201207_使用g++创建动态库和静态库及其相关探索/","title":"使用g++创建动态库和静态库及其相关探索"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>使用g++创建动态库和静态库及其相关探索 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="nav-text">0.前期准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%9D%99%E6%80%81%E5%BA%93%E5%88%9B%E5%BB%BA%E5%8F%8A%E9%93%BE%E6%8E%A5"><span class="nav-text">1.静态库创建及链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%8A%A8%E6%80%81%E5%BA%93%E5%88%9B%E5%BB%BA%E5%8F%8A%E9%93%BE%E6%8E%A5"><span class="nav-text">2.动态库创建及链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="nav-text">3.相关问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E5%8A%A8%E6%80%81%E5%BA%93%E5%90%8E%E4%BB%8D%E4%B8%8D%E8%83%BD%E8%BF%90%E8%A1%8C"><span class="nav-text">移动动态库后仍不能运行</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/12/07/20201207_%E4%BD%BF%E7%94%A8g++%E5%88%9B%E5%BB%BA%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93%E5%8F%8A%E5%85%B6%E7%9B%B8%E5%85%B3%E6%8E%A2%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="使用g++创建动态库和静态库及其相关探索 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用g++创建动态库和静态库及其相关探索
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-12-07 23:39:51" itemprop="dateCreated datePublished" datetime="2020-12-07T23:39:51+08:00">2020-12-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>使用g++创建动态库和静态库及其相关探索</strong></p>
+<span id="more"></span>
+
+<h2 id="0-前期准备"><a href="#0-前期准备" class="headerlink" title="0.前期准备"></a>0.前期准备</h2><ul>
+<li><p><strong>首先我们建立头文件 “hello.h”</strong></p>
+</li>
+<li><p>内容如图：<img src="/images/2020-12-07/1.jpg#pic_center" alt="hello.h"></p>
+</li>
+<li><p><strong>随后我们建立源文件 “hello.cpp”</strong></p>
+</li>
+<li><p>内容如图：<img src="/images/2020-12-07/2.png#pic_center" alt="hello.cpp"></p>
+</li>
+<li><p><strong>最后我们建立源文件 “main.cpp”</strong></p>
+</li>
+<li><p>内容如图：<img src="/images/2020-12-07/3.png#pic_center" alt="main.cpp"></p>
+</li>
+<li><p><strong>我们使用 g++ -c 编译出.o文件。<br>无论是动态库还是静态库，都得由.o文件创建，所以我们先编译出.o文件。</strong></p>
+</li>
+<li><p>结果如图：可以看到有 hello.o 文件<img src="/images/2020-12-07/4.png#pic_center" alt="图1"></p>
+</li>
+</ul>
+<h2 id="1-静态库创建及链接"><a href="#1-静态库创建及链接" class="headerlink" title="1.静态库创建及链接"></a>1.静态库创建及链接</h2><ul>
+<li><strong>使用 ar crv 命令创立静态库。</strong></li>
+<li>结果如图：建立出了静态库文件 libmyhello.a ，静态库文件后缀为.a 。<img src="/images/2020-12-07/5.png#pic_center" alt="图2"></li>
+<li><strong>使用 g++ 命令链接静态库</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ main.cpp libmyhello.a -o main</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>结果如图：生成了可执行文件main，且可以正常运行。<img src="/images/2020-12-07/6.png#pic_center" alt="图3"></li>
+<li><strong>删除静态库libmyhello.a，程序仍能运行，说明链接成功。</strong></li>
+<li>结果如图：<br><img src="/images/2020-12-07/7.png#pic_center" alt="图4"></li>
+</ul>
+<h2 id="2-动态库创建及链接"><a href="#2-动态库创建及链接" class="headerlink" title="2.动态库创建及链接"></a>2.动态库创建及链接</h2><ul>
+<li><strong>使用 -shared -fPCI 命令创立动态库。</strong></li>
+<li>结果如图：建立出了动态库文件 libtest.so ，动态库文件后缀为.so 。<br><img src="/images/2020-12-07/8.png#pic_center" alt="图1"></li>
+<li><strong>使用 g++ 命令链接动态库</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">g++ main.cpp -L. -ltest -o main</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">-L代表so库目录，“-L.” 是当前目录， -I代表引用文件目录。main即为可执行文件</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>结果如图： 生成可执行文件main<br> <img src="/images/2020-12-07/9.png#pic_center" alt="图2"></li>
+<li><strong>运行程序</strong></li>
+<li>直接运行会报错：缺少文件。我们将动态库移动到&#x2F;usr&#x2F;lib 中即可</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv libtest.so /usr/lib</span><br></pre></td></tr></table></figure>
+<ul>
+<li>随后即可正常运行（如果移动后仍不能运行，请看下文）<img src="/images/2020-12-07/2.png#pic_center" alt="图3"></li>
+</ul>
+<h2 id="3-相关问题"><a href="#3-相关问题" class="headerlink" title="3.相关问题"></a>3.相关问题</h2><h3 id="移动动态库后仍不能运行"><a href="#移动动态库后仍不能运行" class="headerlink" title="移动动态库后仍不能运行"></a>移动动态库后仍不能运行</h3><p>1.首先进入 &#x2F;etc&#x2F;ld.so.conf 文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ld.so.conf</span><br></pre></td></tr></table></figure>
+<p>2.修改内容为如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include /etc/ld.so.conf.d/*.conf</span><br></pre></td></tr></table></figure>
+<p>3.进入目录，创建任意*.conf文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/ld.so.conf.d</span><br><span class="line">vim mylib.conf</span><br></pre></td></tr></table></figure>
+<p>4.在其中添加so的路径即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib</span><br></pre></td></tr></table></figure>
+<p>5.执行命令使其生效</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ldconfig</span><br></pre></td></tr></table></figure>
+<p>随后程序即可正常运行</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/11/12/20201112_2019%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B0B%E7%BB%84%E5%9B%BD%E8%B5%9B/" rel="prev" title="2019 蓝桥杯 C/C++实现 B组国赛">
+                  <i class="fa fa-angle-left"></i> 2019 蓝桥杯 C/C++实现 B组国赛
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/01/08/20210108_Java%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%9F%BA%E4%BA%8EC++%E7%9A%84%E5%BF%AB%E9%80%9F%E5%AD%A6%E4%B9%A0/" rel="next" title="Java学习记录：基于C++的快速学习">
+                  Java学习记录：基于C++的快速学习 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>
