@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="&emsp;&emsp;之前学习了Redis数据库相关的内容，但是并没有在编写C++代码中用到Redis相关内容。&emsp;&emsp;本篇笔记记录了个人在 Linux 环境下使用 C++ 连接 Redis 数据库的过程。实现了一个简单的排行榜功能。&emsp;&emsp;由于现在的主流是使用 java 连接 redis，所以在网上查询 C语言 的API消耗了一部分时间，在本篇笔记中，我将记录相">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++学习记录：C++连接Redis数据库">
+<meta property="og:url" content="https://zgg2001.github.io/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="&emsp;&emsp;之前学习了Redis数据库相关的内容，但是并没有在编写C++代码中用到Redis相关内容。&emsp;&emsp;本篇笔记记录了个人在 Linux 环境下使用 C++ 连接 Redis 数据库的过程。实现了一个简单的排行榜功能。&emsp;&emsp;由于现在的主流是使用 java 连接 redis，所以在网上查询 C语言 的API消耗了一部分时间，在本篇笔记中，我将记录相">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-05-23/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-05-23/2.jpg">
+<meta property="article:published_time" content="2021-05-23T04:01:02.000Z">
+<meta property="article:modified_time" content="2021-05-23T04:01:02.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-05-23/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/","path":"2021/05/23/20210523_C++学习记录：C++连接Redis数据库/","title":"C++学习记录：C++连接Redis数据库"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++学习记录：C++连接Redis数据库 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E5%87%86%E5%A4%87"><span class="nav-text">一、基础准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%89%BE%E5%88%B0hiredis-h"><span class="nav-text">1. 找到hiredis.h</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BC%96%E8%AF%91%E5%B9%B6%E4%B8%94%E8%BF%9E%E6%8E%A5%E5%BA%93"><span class="nav-text">2. 编译并且连接库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%BF%90%E8%A1%8C"><span class="nav-text">3. 运行</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BB%A3%E7%A0%81%E7%9B%B8%E5%85%B3"><span class="nav-text">二、代码相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%B8%B8%E7%94%A8"><span class="nav-text">1. 常用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-redisReply%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-text">2. redisReply结构体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E6%8E%92%E8%A1%8C%E6%A6%9Cdemo"><span class="nav-text">三、一个简单的排行榜demo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="nav-text">1. 思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BB%A3%E7%A0%81"><span class="nav-text">2. 代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-text">3. 执行结果</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++学习记录：C++连接Redis数据库 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++学习记录：C++连接Redis数据库
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-23 12:01:02" itemprop="dateCreated datePublished" datetime="2021-05-23T12:01:02+08:00">2021-05-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>&emsp;&emsp;之前学习了Redis数据库相关的内容，但是并没有在编写C++代码中用到Redis相关内容。<br>&emsp;&emsp;本篇笔记记录了个人在 <strong>Linux</strong> 环境下使用 <strong>C++</strong> 连接 <strong>Redis</strong> 数据库的过程。实现了一个简单的排行榜功能。<br>&emsp;&emsp;由于现在的主流是使用 <strong>java</strong> 连接 <strong>redis</strong>，所以在网上查询 <strong>C语言</strong> 的API消耗了一部分时间，在本篇笔记中，我将记录相关数据结构和API的使用方法。</p>
+<span id="more"></span>
+
+<h1 id="一、基础准备"><a href="#一、基础准备" class="headerlink" title="一、基础准备"></a>一、基础准备</h1><h2 id="1-找到hiredis-h"><a href="#1-找到hiredis-h" class="headerlink" title="1. 找到hiredis.h"></a>1. 找到<code>hiredis.h</code></h2><p>&emsp;&emsp;一般来讲，这个文件在你的redis文件夹下<code>deps/hiredis</code>目录中。将其<code>include</code>到源码中即可使用redis的API。<br><img src="/images/2021-05-23/1.jpg" alt="在这里插入图片描述"></p>
+<h2 id="2-编译并且连接库"><a href="#2-编译并且连接库" class="headerlink" title="2. 编译并且连接库"></a>2. 编译并且连接库</h2><p>&emsp;&emsp;此时可以尝试写一个基础代码，随后编译。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*此文件位于redis文件夹下 test.cpp*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&quot;deps/hiredis/hiredis.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;随后编译：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ test.cpp -o test -l hiredis</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;若可以正常编译，则说明没问题。若是提示找不到hiredis库文件，则按下面进行操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//首先进入redis文件夹中，安装</span></span><br><span class="line"><span class="meta"># cd redis-x.x.xx</span></span><br><span class="line"><span class="meta"># make</span></span><br><span class="line"><span class="meta"># make install</span></span><br><span class="line"><span class="comment">//随后进入 redis/deps/hiredis 文件夹中，安装</span></span><br><span class="line"><span class="meta"># cd deps/hiredis/</span></span><br><span class="line"><span class="meta"># make</span></span><br><span class="line"><span class="meta"># make install</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;随后即可正常编译。</p>
+<h2 id="3-运行"><a href="#3-运行" class="headerlink" title="3. 运行"></a>3. 运行</h2><p>&emsp;&emsp;找到上面编译生成的文件，运行，若成功执行即可跳过本节内容。<br>&emsp;&emsp;若提示找不到链接文件，则说明动态库无法被正确连接。则按下面步骤操作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//进入动态库链接文件</span></span><br><span class="line"><span class="meta"># vim /etc/ld.so.conf</span></span><br><span class="line"><span class="comment">//在新的一行中加入库文件所在目录</span></span><br><span class="line">添加： .../redis-x.x.x/deps/hiredis</span><br><span class="line"><span class="comment">//更新/etc/ld.so.cache文件</span></span><br><span class="line"><span class="meta"># ldconfig</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;随后即可正常运行编译生成的文件。</p>
+<h1 id="二、代码相关"><a href="#二、代码相关" class="headerlink" title="二、代码相关"></a>二、代码相关</h1><h2 id="1-常用"><a href="#1-常用" class="headerlink" title="1. 常用"></a>1. 常用</h2><ul>
+<li>建立redis连接<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redisContext* myredis = <span class="built_in">redisConnect</span>(<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">6379</span>);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">如果 myredis-&gt;err = true，则说明连接失败</span></span><br><span class="line"><span class="comment">字符串 myredis-&gt;errstr 即为失败原因</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure></li>
+<li>执行redis语句并接收结果<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">redisReply* reply = (redisReply*)<span class="built_in">redisCommand</span>(myredis, <span class="string">&quot;set zzz 1&quot;</span>);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">语句执行的结果，储存在 redisReply结构体类型 的 reply 中</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure></li>
+<li>释放reply结构体<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">freeReplyObject</span>(reply);</span><br></pre></td></tr></table></figure></li>
+<li>断开redis连接<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">redisFree</span>(myredis);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2-redisReply结构体"><a href="#2-redisReply结构体" class="headerlink" title="2. redisReply结构体"></a>2. <code>redisReply</code>结构体</h2><p>&emsp;&emsp;我感觉这算是redis相关内容中比较重要的内容了，语句执行的结果全在这个结构体中。</p>
+<ul>
+<li>下面是这个结构体的定义：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">redisReply</span> &#123;</span><br><span class="line">    <span class="type">int</span> type; <span class="comment">/* 返回值类型 */</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> integer; <span class="comment">/* 当返回类型为 REDIS_REPLY_INTEGER 时 */</span></span><br><span class="line">    <span class="type">size_t</span> len; <span class="comment">/* 返回的字符串长度 */</span></span><br><span class="line">    <span class="type">char</span> *str; <span class="comment">/* 当返回值类型为 REDIS_REPLY_ERROR 和 REDIS_REPLY_STRING */</span></span><br><span class="line">    <span class="type">size_t</span> elements; <span class="comment">/* 返回的数组长度 */</span></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">redisReply</span> **element; <span class="comment">/* 当返回值类型为 REDIS_REPLY_ARRAY */</span></span><br><span class="line">&#125; redisReply;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>type的类型</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">REDIS_REPLY_STRING： <span class="number">1</span> </span><br><span class="line">REDIS_REPLY_ARRAY： <span class="number">2</span></span><br><span class="line">REDIS_REPLY_INTEGER：<span class="number">3</span> </span><br><span class="line">REDIS_REPLY_NIL： <span class="number">4</span></span><br><span class="line">REDIS_REPLY_STATUS： <span class="number">5</span></span><br><span class="line">REDIS_REPLY_ERROR： <span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>我们首先通过<code>type</code>来确认返回值的类型：</p>
+<ol>
+<li>返回值为1即为字符串，通过<code>reply-&gt;str</code>获取。</li>
+<li>返回值为2即为数组，通过<code>reply-&gt;element</code>获取到redisReply数组，再遍历该数组，通过<code>type</code>正确获取其中信息。</li>
+<li>返回值为3即为数字，通过<code>reply-&gt;integer</code>获取。</li>
+<li>返回值为4即为空。</li>
+<li>返回值为5即为执行语句的状态，通过<code>reply-&gt;str</code>获取，若结果为”OK”即为成功执行。</li>
+<li>返回值为6即为执行错误。</li>
+</ol>
+<p>&emsp;&emsp;返回值的类型和执行语句的类型是相关的，例如我执行<code>get</code>命令，则<code>type</code>应该为1；若我执行<code>zrevrange</code>命令，则<code>type</code>应该为2。在下文中，我简单实现了一个排行榜功能，其中使用的结构为<code>sorted_set</code>，则其返回的排行榜结果<code>type</code>应为2，通过遍历其<code>element</code>数组，即可获取排行榜信息。</p>
+<h1 id="三、一个简单的排行榜demo"><a href="#三、一个简单的排行榜demo" class="headerlink" title="三、一个简单的排行榜demo"></a>三、一个简单的排行榜demo</h1><h2 id="1-思路"><a href="#1-思路" class="headerlink" title="1. 思路"></a>1. 思路</h2><p>&emsp;&emsp;简单来说就是获取key和范围，使用<code>sprintf</code>拼接redis查询语句，通过返回的<code>redisReply</code>结构体输出结果。</p>
+<h2 id="2-代码"><a href="#2-代码" class="headerlink" title="2. 代码"></a>2. 代码</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&quot;deps/hiredis/hiredis.h&quot;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line">redisContext* myredis = <span class="keyword">new</span> redisContext;</span><br><span class="line">redisReply* reply = <span class="keyword">new</span> redisReply;</span><br><span class="line"><span class="type">char</span> query[<span class="number">150</span>];<span class="comment">//查询语句  </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">get_rank</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key_name, <span class="type">int</span> start, <span class="type">int</span> stop)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">sprintf</span>(query, <span class="string">&quot;zrevrange %s %d %d&quot;</span>, key_name, start, stop);</span><br><span class="line">    reply = (redisReply *)<span class="built_in">redisCommand</span>(myredis, query);</span><br><span class="line">    <span class="comment">//printf(&quot;命令执行结果 reply type: %d\n&quot;, reply-&gt;type);</span></span><br><span class="line">    <span class="keyword">if</span> (reply-&gt;type == <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;reply-&gt;elements;i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(reply-&gt;element[i]-&gt;type != <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Error-Please check that the input is correct\n&quot;</span>);</span><br><span class="line">                <span class="built_in">freeReplyObject</span>(reply);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\nRANK:\n|----------|\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;| %2d -- %2s |\n&quot;</span>, i<span class="number">+1</span>, reply-&gt;element[i]-&gt;str);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;|----------|\n\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error-Please check that the input is correct\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">freeReplyObject</span>(reply);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">get_rank_withscores</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key_name, <span class="type">int</span> start, <span class="type">int</span> stop)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   	<span class="built_in">sprintf</span>(query, <span class="string">&quot;zrevrange %s %d %d withscores&quot;</span>, key_name, start, stop);</span><br><span class="line">    reply = (redisReply *)<span class="built_in">redisCommand</span>(myredis, query);</span><br><span class="line">    <span class="comment">//printf(&quot;命令执行结果 reply type: %d\n&quot;, reply-&gt;type);</span></span><br><span class="line">    <span class="keyword">if</span> (reply-&gt;type == <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;reply-&gt;elements;i+=<span class="number">2</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span>(reply-&gt;element[i]-&gt;type != <span class="number">1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Error-Please check that the input is correct\n&quot;</span>,reply-&gt;element[i]-&gt;type);</span><br><span class="line">                <span class="built_in">freeReplyObject</span>(reply);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\nRANK:\n|-----------------|\n&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;| %2d -- %2s -- %3s |\n&quot;</span>, i/<span class="number">2</span><span class="number">+1</span>, reply-&gt;element[i]-&gt;str, reply-&gt;element[i<span class="number">+1</span>]-&gt;str);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;|-----------------|\n\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Error-Please check that the input is correct\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="built_in">freeReplyObject</span>(reply);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    myredis = <span class="built_in">redisConnect</span>(<span class="string">&quot;127.0.0.1&quot;</span>,<span class="number">6379</span>);</span><br><span class="line">    <span class="keyword">if</span>(myredis-&gt;err)<span class="comment">//if error</span></span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Connection Error:&quot;</span> &lt;&lt; myredis-&gt;errstr &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">//查询key:score的前十名</span></span><br><span class="line">    <span class="built_in">get_rank</span>(<span class="string">&quot;score&quot;</span>, <span class="number">0</span>, <span class="number">9</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//查询key:score的前十名 并且带上分数</span></span><br><span class="line">    <span class="built_in">get_rank_withscores</span>(<span class="string">&quot;score&quot;</span>, <span class="number">0</span> ,<span class="number">9</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">redisFree</span>(myredis);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-执行结果"><a href="#3-执行结果" class="headerlink" title="3. 执行结果"></a>3. 执行结果</h2><p>（上为不带分数 下为带分数）<br><img src="/images/2021-05-23/2.jpg" alt="在这里插入图片描述"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/05/22/20210522_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5MySql%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="prev" title="C++学习记录：C++连接MySql数据库">
+                  <i class="fa fa-angle-left"></i> C++学习记录：C++连接MySql数据库
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/05/28/20210528_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BA%BF%E7%A8%8B%E9%80%80%E5%87%BA%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96/" rel="next" title="C++网络编程学习：线程退出安全优化">
+                  C++网络编程学习：线程退出安全优化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

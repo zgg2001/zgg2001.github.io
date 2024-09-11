@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在实习中接触到了系统安全相关的内容，其中一个重点就是对sudo权限的控制。正好我对这块东西不太熟悉，于是对相关的内容做了笔记汇总。 这篇笔记中重点放在sudo的配置文件&#x2F;etc&#x2F;sudoers上，下面的关键字(或其他)基本都是这个配置文件里的内容。关于这个配置文件，它是仅可读的，使用管理员账号修改时直接使用w!强制修改即可。 正好了解完相关的内容把我的那台阿里云服务器完善下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux学习记录：sudo相关">
+<meta property="og:url" content="https://zgg2001.github.io/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="在实习中接触到了系统安全相关的内容，其中一个重点就是对sudo权限的控制。正好我对这块东西不太熟悉，于是对相关的内容做了笔记汇总。 这篇笔记中重点放在sudo的配置文件&#x2F;etc&#x2F;sudoers上，下面的关键字(或其他)基本都是这个配置文件里的内容。关于这个配置文件，它是仅可读的，使用管理员账号修改时直接使用w!强制修改即可。 正好了解完相关的内容把我的那台阿里云服务器完善下">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-12T14:04:14.000Z">
+<meta property="article:modified_time" content="2021-08-12T14:04:14.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/","path":"2021/08/12/20210812_Linux学习记录：sudo相关/","title":"Linux学习记录：sudo相关"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Linux学习记录：sudo相关 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#targetpw"><span class="nav-text">targetpw</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#always-set-home"><span class="nav-text">always_set_home</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#env-reset"><span class="nav-text">env_reset</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#authenticate"><span class="nav-text">authenticate</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#fast-glob"><span class="nav-text">fast_glob</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#passwd-tries"><span class="nav-text">passwd_tries</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#timestamp-timeout"><span class="nav-text">timestamp_timeout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#passwd-timeout"><span class="nav-text">passwd_timeout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#runas-default"><span class="nav-text">runas_default</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#logfile"><span class="nav-text">logfile</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE"><span class="nav-text">标签</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E8%A7%84%E5%88%99"><span class="nav-text">用户规则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E8%A7%84%E5%88%99%E4%B8%AD%E7%9A%84%E5%91%BD%E4%BB%A4%E6%8C%87%E5%AE%9A"><span class="nav-text">用户规则中的命令指定</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Linux学习记录：sudo相关 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux学习记录：sudo相关
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-12 22:04:14" itemprop="dateCreated datePublished" datetime="2021-08-12T22:04:14+08:00">2021-08-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>在实习中接触到了系统安全相关的内容，其中一个重点就是对sudo权限的控制。正好我对这块东西不太熟悉，于是对相关的内容做了笔记汇总。</li>
+<li>这篇笔记中重点放在sudo的配置文件<code>/etc/sudoers</code>上，下面的关键字(或其他)基本都是这个配置文件里的内容。关于这个配置文件，它是仅可读的，使用管理员账号修改时直接使用<code>w!</code>强制修改即可。</li>
+<li><del>正好了解完相关的内容把我的那台阿里云服务器完善下</del></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="targetpw"><a href="#targetpw" class="headerlink" title="targetpw"></a>targetpw</h1><p>使能后，让普通用户需要用root密码使用sudo</p>
+<p>默认off</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    targetpw</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="always-set-home"><a href="#always-set-home" class="headerlink" title="always_set_home"></a>always_set_home</h1><p>使能后，sudo将HOME环境变量设置为目标用户（默认为root，除非使用-u指定）的home目录。效果相当于每次执行包含-H选项。</p>
+<p>默认off</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    always_set_home</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="env-reset"><a href="#env-reset" class="headerlink" title="env_reset"></a>env_reset</h1><p>使能后，sudo将在一个最小集的环境变量中运行命令，此时环境变量包括：</p>
+<p>a)TERM, PATH, HOME, MAIL, SHELL, LOGNAME, USER, USERNAME and SUDO_*变量；</p>
+<p>b)与env_keep和env_check匹配的所有调用者的环境变量；</p>
+<p>c)env_file选项指定的文件中的变量。</p>
+<p><strong>在关闭此命令后 使用sudo后环境变量不会被重置为默认</strong></p>
+<p>默认on</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    env_reset</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="authenticate"><a href="#authenticate" class="headerlink" title="authenticate"></a>authenticate</h1><p>布尔类型，如果设置(为on)的话，用户在用sudo执行命令之前必须通过口令(或者通过其他的方式)来验证身分。<br>这个默认选项可以通过设置PASSWD和NOPASSWD标签来覆盖。</p>
+<p>默认on</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    authenticate</span><br></pre></td></tr></table></figure>
+
+<h1 id="fast-glob"><a href="#fast-glob" class="headerlink" title="fast_glob"></a>fast_glob</h1><p>fast_glob控制sudo在进行路径匹配时使用的匹配函数。<br>在进行路径名匹配时，Sudo一般使用glob(3)函数做shell-style globbing，因为它会访问文件系统，<br>因此对于某些模式glob(3)可能需要很长时间才能完成，特别是当模式引用按需安装的网络文件系统（自动挂载）时。</p>
+<p>fast_glob选项导致sudo使用fnmatch(3)函数，该函数不访问文件系统进行匹配。<br>fast_glob的缺点是它无法匹配相对路径名，例如.&#x2F;ls或..&#x2F;bin&#x2F;ls。<br>当包含通配符的路径名与否定运算符“!”一起使用时，会产生安全隐患，这样的规则可以被轻易绕过。</p>
+<p>默认off</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    fast_glob</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="passwd-tries"><a href="#passwd-tries" class="headerlink" title="passwd_tries"></a>passwd_tries</h1><p>整数类型，sudo向日志中写入一个登录失败记录并退出之前允许用户输入口令的次数。</p>
+<p>默认值为3</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    passwd_tries=3</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="timestamp-timeout"><a href="#timestamp-timeout" class="headerlink" title="timestamp_timeout"></a>timestamp_timeout</h1><p>整数类型，sudo再次询问口令之前的时间(以分钟记)。如果想要总是询问口令的话请把此值设置为0。如果设置为负数的话，用户的时间戳永远不会过期，这可以用来允许用户分别使用sudo -v和sudo -k来建立或者删除他们自己的时间戳。</p>
+<p>默认值为5</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    timestamp_timeout=5</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="passwd-timeout"><a href="#passwd-timeout" class="headerlink" title="passwd_timeout"></a>passwd_timeout</h1><p>整数类型，sudo询问口令的超时时间(分钟记)。设置为0可以取消口令超时。</p>
+<p>默认值为5</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults    passwd_timeout=5</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="runas-default"><a href="#runas-default" class="headerlink" title="runas_default"></a>runas_default</h1><p>字符串类型，使用sudo但没有指定-u标志时使用的默认用户。</p>
+<p>默认值为root</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults:zhj runas_default=root</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="logfile"><a href="#logfile" class="headerlink" title="logfile"></a>logfile</h1><p>字符串类型，sudo日志的存放位置。设置一个路径来打开日志功能，取消设置将关闭日志功能。默认情况sudo通过syslog记录日志。</p>
+<p>说明：如果启用syslog，则无需开启此选项，否则建议设置为&#x2F;var&#x2F;log&#x2F;sudo.log。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Defaults logfile=/var/log/sudo.log</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h1><p>一个命令可以具有与它相关联的零个或多个标签。<br>有十个可能的标记值：<br>EXEC, NOEXEC, FOLLOW, NOFOLLOW, LOG_INPUT,<br>NOLOG_INPUT, LOG_OUTPUT, NOLOG_OUTPUT, MAIL, NOMAIL, PASSWD, NOPASSWD, SETENV, NOSETENV。</p>
+<p>一旦标签被设置在某个命令上，在该命令列表中随后的所有命令将继承该标记，<br>直到由相反的标记项覆盖（例如PASSWD覆盖NOPASSWD，NOEXEC覆盖EXEC），这里需要重点关注的是NOPASSWD和SETENV选项。</p>
+<p>1）NOPASSWD标签：<br>默认情况下，sudo要求用户运行一个命令之前对目标用户进行验证，这种行为可以通过NOPASSWD标签进行修改，<br>使用NOPASSWD后表示此后的命令都不需要进行验证。</p>
+<p>2）SETENV标签：<br>为命令设置SETENV标签后，用户可以通过-E选项从命令行禁用env_reset选项，<br>同时，在命令行上设置的环境变量不受env_check，env_delete或env_keep的限制，用户就可以使用自己的环境变量。<br>因此，只允许受信任的用户以这种方式设置变量。</p>
+<h1 id="用户规则"><a href="#用户规则" class="headerlink" title="用户规则"></a>用户规则</h1><p>用户可以在#User  privilege  specification下配置用户规则，用户规则确定用户可以在指定主机上运行哪些命令（以及作为哪个用户）。<br>默认情况下，命令以root身份运行，但可以基于每个命令进行更改。<br>用户规范的基本结构是“who where &#x3D; (as_whom) what”，通常的配置格式为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">user host = run_as [option:] command</span><br><span class="line"></span><br><span class="line">user：一位或几位用户，组对象的名称用百分号%开头；</span><br><span class="line">host：一个或几个主机名，ALL表示所有主机；</span><br><span class="line">run_as：命令运行的目标用户，常见选项是root和ALL，ALL表示所有用户；</span><br><span class="line">option：影响命令运行的选项；</span><br><span class="line">command：可执行一个或几个命令，ALL表示所有命令；</span><br><span class="line">比如：jack ALL= (root) NOPASSWD: /usr/bin/cat</span><br><span class="line">表示用户jack可以在所有主机上已root用户执行/usr/bin/cat命令，且不需要root密码。</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="用户规则中的命令指定"><a href="#用户规则中的命令指定" class="headerlink" title="用户规则中的命令指定"></a>用户规则中的命令指定</h1><p>用户规则中，可配置的命令包括命令名和目录。命令名称是完全限定的文件名，比如系统命令(&#x2F;bin&#x2F;ls)、自定义的命令（&#x2F;opt&#x2F;sudobin&#x2F;test）、任意脚本（&#x2F;opt&#x2F;sudobin&#x2F;a.sh），这些命令可以包含shell样式的通配符。目录是以’&#x2F;‘结尾的完全限定路径名，当指定目录时，用户将能够运行该目录中的任何文件（但不能在其中的任何子目录中）。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/08/20210808_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AMakefile/" rel="prev" title="Linux学习记录：Makefile">
+                  <i class="fa fa-angle-left"></i> Linux学习记录：Makefile
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/18/20210818_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%94%A8%E6%88%B7%E4%B8%8Epasswd/" rel="next" title="linux学习记录：用户与/etc/passwd与/etc/shadow">
+                  linux学习记录：用户与/etc/passwd与/etc/shadow <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="抽空扣一点感兴趣的标准库源码，这里总结一下 std::forward() 相关的分析 本文中 gcc version: 8.4.1 20200928 (Red Hat 8.4.1-1) (GCC) 其中c++库安装路径为 &#x2F;usr&#x2F;include&#x2F;c++&#x2F;8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++学习记录：std::forward 源码分析 &#x2F; 完美转发的作用">
+<meta property="og:url" content="https://zgg2001.github.io/2021/10/11/20211011_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::forward%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91%E7%9A%84%E4%BD%9C%E7%94%A8/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="抽空扣一点感兴趣的标准库源码，这里总结一下 std::forward() 相关的分析 本文中 gcc version: 8.4.1 20200928 (Red Hat 8.4.1-1) (GCC) 其中c++库安装路径为 &#x2F;usr&#x2F;include&#x2F;c++&#x2F;8">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-11/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-11/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-11/3.jpg">
+<meta property="article:published_time" content="2021-10-11T01:55:44.000Z">
+<meta property="article:modified_time" content="2021-10-11T01:55:44.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++标准库学习">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-10-11/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/10/11/20211011_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::forward%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91%E7%9A%84%E4%BD%9C%E7%94%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/10/11/20211011_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::forward%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91%E7%9A%84%E4%BD%9C%E7%94%A8/","path":"2021/10/11/20211011_C-C++学习记录：std::forward源码分析-完美转发的作用/","title":"C/C++学习记录：std::forward 源码分析 / 完美转发的作用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++学习记录：std::forward 源码分析 / 完美转发的作用 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E4%B8%8E%E5%88%86%E6%9E%90"><span class="nav-text">二、源码与分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-std-forward-%E6%BA%90%E7%A0%81%E6%80%BB%E8%A7%88"><span class="nav-text">1. std::forward 源码总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-std-forward-%E5%88%86%E6%9E%90"><span class="nav-text">2. std::forward 分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91"><span class="nav-text">三、完美转发</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">四、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/10/11/20211011_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::forward%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91%E7%9A%84%E4%BD%9C%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C/C++学习记录：std::forward 源码分析 / 完美转发的作用 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++学习记录：std::forward 源码分析 / 完美转发的作用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-11 09:55:44" itemprop="dateCreated datePublished" datetime="2021-10-11T09:55:44+08:00">2021-10-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>抽空扣一点感兴趣的标准库源码，这里总结一下 <code>std::forward()</code> 相关的分析</li>
+<li>本文中 gcc version: <strong>8.4.1 20200928 (Red Hat 8.4.1-1) (GCC)</strong></li>
+<li>其中c++库安装路径为 <code>/usr/include/c++/8</code></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;本文是基于前文 <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/120680378?spm=1001.2014.3001.5501">C&#x2F;C++学习记录：std::move 源码分析</a> 进行的。前文中分析了 <code>std::move</code> 的源码，其中涉及到的一些东西，比如说：</p>
+<ol>
+<li>类型提取结构体 <code>std::remove_reference </code></li>
+<li>C++标准转换运算符 <code>static_cast</code></li>
+<li>引用折叠的概念</li>
+</ol>
+<p>&emsp;&emsp;上面这三个东西在 <code>std::forward()</code> 中也有应用，因此在本文中也就不过多分析，这些东西的分析在上文中均可找到。<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/120680378?spm=1001.2014.3001.5501">点我跳转</a></p>
+<p>&emsp;&emsp;本文中仅记录上文中未提及的关于 <code>std::forward()</code> 的思路和写法，以及个人对完美转发这一概念的理解。<br>&emsp;</p>
+<h1 id="二、源码与分析"><a href="#二、源码与分析" class="headerlink" title="二、源码与分析"></a>二、源码与分析</h1><h2 id="1-std-forward-源码总览"><a href="#1-std-forward-源码总览" class="headerlink" title="1. std::forward 源码总览"></a>1. std::forward 源码总览</h2><p>&emsp;&emsp;<code>std::forward()</code> 的定义位于 <code>/usr/include/c++/8/bits/move.h</code> 中，详细内容如下：<br><img src="/images/2021-10-11/1.jpg" alt="std::forward"><br>&emsp;&emsp;可以看到在源码中，函数 <code>std::forward</code> 有两种实现，差别在于传参的类型，前者接收的传参是一个左值，而后者接收的传参是一个右值。另外在传右值的版本中存在一个静态断言，这也算是两者的区别之一吧。<br>&emsp;</p>
+<h2 id="2-std-forward-分析"><a href="#2-std-forward-分析" class="headerlink" title="2. std::forward 分析"></a>2. std::forward 分析</h2><p>&emsp;&emsp;还是先代入不同的类型来化简 <code>std::forward</code> 函数。<br>&emsp;&emsp;当模板类型 <code>_Tp</code> 为 <code>string&amp;</code> 时，即 string 的左值引用时，<code>std::forward</code> 可以化简为如下形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//string&amp; &amp;&amp; 引用折叠为 string&amp;</span></span><br><span class="line"><span class="comment">//std::remove_reference 提取出的类型为string</span></span><br><span class="line"><span class="function">string&amp;</span></span><br><span class="line"><span class="function"><span class="title">forward</span><span class="params">(string&amp; <span class="type">__t</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;string&amp;&gt;(<span class="type">__t</span>); &#125;</span><br><span class="line"></span><br><span class="line"><span class="function">string&amp;</span></span><br><span class="line"><span class="function"><span class="title">forward</span><span class="params">(string&amp;&amp; <span class="type">__t</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//此处静态断言忽略</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;string&amp;&gt;(<span class="type">__t</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;而当模板类型 <code>_Tp</code> 为 <code>string&amp;&amp;</code> 时，即 string 的右值引用时，<code>std::forward</code> 可以化简为如下形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//string&amp;&amp; &amp;&amp; 引用折叠为 string&amp;&amp;</span></span><br><span class="line"><span class="comment">//std::remove_reference 提取出的类型为string</span></span><br><span class="line"><span class="function">string&amp;&amp;</span></span><br><span class="line"><span class="function"><span class="title">forward</span><span class="params">(string&amp; <span class="type">__t</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123; <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;string&amp;&amp;&gt;(<span class="type">__t</span>); &#125;</span><br><span class="line"></span><br><span class="line"><span class="function">string&amp;&amp;</span></span><br><span class="line"><span class="function"><span class="title">forward</span><span class="params">(string&amp;&amp; <span class="type">__t</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//此处静态断言忽略</span></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">static_cast</span>&lt;string&amp;&amp;&gt;(<span class="type">__t</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;可以看到，当传入类型为左值引用时，返回值为 <code>string&amp; : return static_cast&lt;string&amp;&gt;(__t);</code>；当传入类型为右值引用时，返回值为 <code>string&amp;&amp; : return static_cast&lt;string&amp;&amp;&gt;(__t);</code>。这就实现了 <code>std::forward</code> 的功能，即<strong>完美转发</strong>。简单点来讲就是传入左值返回还是左值，传入右值返回还是右值，保持原来的值属性不变。<code>std::forward</code> <strong>就相当于一个转发点，可以将类型原封不动的转发走。</strong><br>&emsp;</p>
+<h1 id="三、完美转发"><a href="#三、完美转发" class="headerlink" title="三、完美转发"></a>三、完美转发</h1><p>&emsp;&emsp;上文中说到 <code>std::forward</code> 的功能，即<strong>完美转发</strong>。那么，何时需要它的存在呢？</p>
+<p>通过下面这个例子我觉得可以很好的说明：<br><img src="/images/2021-10-11/2.jpg" alt="测试"><br>执行结果如下：<br><img src="/images/2021-10-11/3.jpg" alt="结果"></p>
+<p>&emsp;&emsp;可以看到，当传参为左值时，直接转发和完美转发的结果都是左值，是正确的。但是当传参是右值时，直接转发和完美转发的结果却不同了。<br>&emsp;&emsp;<strong>分析其原因，当一个右值作为传参被传入后，函数内便会分配栈空间来保存传参。此时的右值已经被传参中的变量名所指向，所以再次传入此右值时，实际传入的是指向它的变量名，即一个左值。所以会出现上图中传参为右值但是直接转发却为左值的情况。</strong><br>&emsp;&emsp;<code>std::forward</code> 完美转发的大致应用场景便是上面那种，当存在中间转发点时，如果想要保持原来类型，则可以使用 <code>std::forward</code> 来实现。比如写一个筛选站，符合条件放 <code>vector1</code> 里，不符合放 <code>vector2</code> 里，总所周知 <code>vector</code> 在 <code>push_back</code> 右值的时候会调用 <code>emplace_back</code>，它可以直接拿走右值，提高效率。所以为了可以正确的把右值push进去，就得使用<code>std::forward</code> 来进行完美转发。<br>&emsp;</p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>&emsp;&emsp;总的来说，<code>std::forward</code> 可以说是对模板、引用折叠特性的一个巧妙利用。它和 <code>std::move</code> 的思路上有很大的相似之处，实现上也可以说是很相似。<br>&emsp;&emsp;之前说实话，对模板用的并不算太多，仅仅实现了一些小东西。但是目前管中窥豹，了解了自己对于模板方面的不足，之后应该会写一些东西来熟悉，比如说尽力按STL标准写个跳表之类的。总之在模板方面还是有很大的进步空间。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/C-%E6%A0%87%E5%87%86%E5%BA%93%E5%AD%A6%E4%B9%A0/" rel="tag"># C++标准库学习</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/10/20211010_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::move%20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="C/C++学习记录：std::move 源码分析">
+                  <i class="fa fa-angle-left"></i> C/C++学习记录：std::move 源码分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/" rel="next" title="dpdk源码分析：交互式命令行的实现(一) 命令添加">
+                  dpdk源码分析：交互式命令行的实现(一) 命令添加 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

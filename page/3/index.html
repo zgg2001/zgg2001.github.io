@@ -152,18 +152,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">65</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -197,7 +197,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/10/13/20201013_C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%A4%A7%E6%95%B4%E6%95%B0%E5%8A%A0%E5%87%8F%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0/">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/hbxxy.jpg">
@@ -215,7 +215,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/10/13/20201013_C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%A4%A7%E6%95%B4%E6%95%B0%E5%8A%A0%E5%87%8F%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">C语言实现大整数加减 数组实现</a>
+          <a href="/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/" class="post-title-link" itemprop="url">Linux学习记录：sudo相关</a>
         </h2>
 
         <div class="post-meta-container">
@@ -226,7 +226,361 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-10-13 23:25:06" itemprop="dateCreated datePublished" datetime="2020-10-13T23:25:06+08:00">2020-10-13</time>
+      <time title="创建时间：2021-08-12 22:04:14" itemprop="dateCreated datePublished" datetime="2021-08-12T22:04:14+08:00">2021-08-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li>在实习中接触到了系统安全相关的内容，其中一个重点就是对sudo权限的控制。正好我对这块东西不太熟悉，于是对相关的内容做了笔记汇总。</li>
+<li>这篇笔记中重点放在sudo的配置文件<code>/etc/sudoers</code>上，下面的关键字(或其他)基本都是这个配置文件里的内容。关于这个配置文件，它是仅可读的，使用管理员账号修改时直接使用<code>w!</code>强制修改即可。</li>
+<li><del>正好了解完相关的内容把我的那台阿里云服务器完善下</del></li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/08/20210808_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AMakefile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/08/20210808_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AMakefile/" class="post-title-link" itemprop="url">Linux学习记录：Makefile</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-08 23:33:05" itemprop="dateCreated datePublished" datetime="2021-08-08T23:33:05+08:00">2021-08-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li>这是本人在学习makefile时的记录，方便日后查询。</li>
+<li>所有我遇到的makefile相关的内容都会被记录在这篇笔记中，所以在之后接触到makefile相关的新内容后，会对这篇笔记的内容进行更新。</li>
+<li>相关内容学习主要在<strong>B站</strong>和<strong>C语言中文网</strong>上进行。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/08/20210808_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AMakefile/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/02/20210802_%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%AE%9E%E6%93%8D%EF%BC%9ASTL%E6%A0%87%E5%87%86%E7%BA%A2%E9%BB%91%E6%A0%91(%E4%B8%80)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/08/02/20210802_%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%AE%9E%E6%93%8D%EF%BC%9ASTL%E6%A0%87%E5%87%86%E7%BA%A2%E9%BB%91%E6%A0%91(%E4%B8%80)/" class="post-title-link" itemprop="url">数据结构实操：STL标准红黑树(一)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-02 22:49:11" itemprop="dateCreated datePublished" datetime="2021-08-02T22:49:11+08:00">2021-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li>之前一直在看侯捷大佬的《STL源码剖析》，透过标准库里的代码学到了许多。随后便想着按照STL标准来<strong>简单</strong>重写一个红黑树。当然，这里的简单是指对空间配置器结构的一些省略。</li>
+<li>代码部分本来在6月底就基本完成了，但是因为7月忙着吸收总结实习中学习的内容，所以一直搁置了红黑树的总结。由于《STL源码剖析》中并没有红黑树节点删除相关以及一些小细节的讲解，所以相关的内容是我在别的地方学习后根据STL标准自己补全的代码，如有纰漏，还请提醒。</li>
+<li>本次总结预计分为三篇，(一)中主要记录相关的代码<strong>思路结构</strong>，(二)中重点分析<strong>添加红黑树节点</strong>相关的内容，(三)中重点分析<strong>删除红黑树节点</strong>相关的内容。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/02/20210802_%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%AE%9E%E6%93%8D%EF%BC%9ASTL%E6%A0%87%E5%87%86%E7%BA%A2%E9%BB%91%E6%A0%91(%E4%B8%80)/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/07/18/20210718_%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E7%8E%AF%E8%B7%AF%E7%9B%B8%E5%85%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/07/18/20210718_%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E7%8E%AF%E8%B7%AF%E7%9B%B8%E5%85%B3/" class="post-title-link" itemprop="url">学习记录：二层网络环路相关</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-07-18 21:52:01" itemprop="dateCreated datePublished" datetime="2021-07-18T21:52:01+08:00">2021-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li>上周实习过程中由于对此相关内容不熟悉，造成了事故。由此对相关内容加强学习，特此记录。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/18/20210718_%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E5%B1%82%E7%BD%91%E7%BB%9C%E7%8E%AF%E8%B7%AF%E7%9B%B8%E5%85%B3/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/05/28/20210528_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BA%BF%E7%A8%8B%E9%80%80%E5%87%BA%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/05/28/20210528_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BA%BF%E7%A8%8B%E9%80%80%E5%87%BA%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">C++网络编程学习：线程退出安全优化</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-28 13:18:42" itemprop="dateCreated datePublished" datetime="2021-05-28T13:18:42+08:00">2021-05-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -248,10 +602,18 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>C语言通过数组实现大整数加减法</strong></p>
+          <ul>
+<li>使用的语言为C&#x2F;C++</li>
+<li>源码支持的平台为：Windows（本文中内容使用windows平台下vs2019开发，故本文项目不完全支持linux平台）</li>
+</ul>
+<p>C++网络编程学习：心跳机制与定时发送数据 &emsp;<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/116487836">点我查看之前的代码开发记录</a></p>
+<h1 id="0：本次增改方向"><a href="#0：本次增改方向" class="headerlink" title="0：本次增改方向"></a>0：本次增改方向</h1><ol>
+<li>封装自己的线程类，使其可以控制线程及时关闭</li>
+<li>使得程序可以按合适的顺序正常退出，避免因退出顺序问题引发崩溃</li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/10/13/20201013_C%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%A4%A7%E6%95%B4%E6%95%B0%E5%8A%A0%E5%87%8F%E6%95%B0%E7%BB%84%E5%AE%9E%E7%8E%B0/#more" rel="contents">
+              <a class="btn" href="/2021/05/28/20210528_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E7%BA%BF%E7%A8%8B%E9%80%80%E5%87%BA%E5%AE%89%E5%85%A8%E4%BC%98%E5%8C%96/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -282,7 +644,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/09/11/20200911_C%E8%AF%AD%E8%A8%80%E8%AF%BB%E5%8F%96csv%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%B9%B6%E5%88%86%E7%BB%84/">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/hbxxy.jpg">
@@ -300,7 +662,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/09/11/20200911_C%E8%AF%AD%E8%A8%80%E8%AF%BB%E5%8F%96csv%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%B9%B6%E5%88%86%E7%BB%84/" class="post-title-link" itemprop="url">C语言读取csv文件数据并分组</a>
+          <a href="/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-title-link" itemprop="url">C++学习记录：C++连接Redis数据库</a>
         </h2>
 
         <div class="post-meta-container">
@@ -311,7 +673,177 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-09-11 22:34:12" itemprop="dateCreated datePublished" datetime="2020-09-11T22:34:12+08:00">2020-09-11</time>
+      <time title="创建时间：2021-05-23 12:01:02" itemprop="dateCreated datePublished" datetime="2021-05-23T12:01:02+08:00">2021-05-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>&emsp;&emsp;之前学习了Redis数据库相关的内容，但是并没有在编写C++代码中用到Redis相关内容。<br>&emsp;&emsp;本篇笔记记录了个人在 <strong>Linux</strong> 环境下使用 <strong>C++</strong> 连接 <strong>Redis</strong> 数据库的过程。实现了一个简单的排行榜功能。<br>&emsp;&emsp;由于现在的主流是使用 <strong>java</strong> 连接 <strong>redis</strong>，所以在网上查询 <strong>C语言</strong> 的API消耗了一部分时间，在本篇笔记中，我将记录相关数据结构和API的使用方法。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/05/23/20210523_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5Redis%E6%95%B0%E6%8D%AE%E5%BA%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/05/22/20210522_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5MySql%E6%95%B0%E6%8D%AE%E5%BA%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/05/22/20210522_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5MySql%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-title-link" itemprop="url">C++学习记录：C++连接MySql数据库</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-22 12:28:17" itemprop="dateCreated datePublished" datetime="2021-05-22T12:28:17+08:00">2021-05-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>&emsp;&emsp;之前学习了MySql数据库相关的内容，但是并没有在编写C++代码中用到MySql相关内容。<br>&emsp;&emsp;本篇笔记记录了个人在 <strong>VS2019</strong> 中使用 <strong>C++</strong> 连接 <strong>MySql</strong> 数据库的过程。使C++代码中可以实现连接数据库、执行语句、显示查询结果等基础功能。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/05/22/20210522_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9AC++%E8%BF%9E%E6%8E%A5MySql%E6%95%B0%E6%8D%AE%E5%BA%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/05/08/20210508_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/05/08/20210508_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE/" class="post-title-link" itemprop="url">C++网络编程学习：心跳机制与定时发送数据</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-05-08 19:29:13" itemprop="dateCreated datePublished" datetime="2021-05-08T19:29:13+08:00">2021-05-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -333,10 +865,21 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>核心就是.csv文件各组数据之间用‘,’逗号来分割，我们使用C语言的strtok函数对.csv文件的每一行数据进行分割即可。</strong></p>
+          <h1 id="网络编程学习记录"><a href="#网络编程学习记录" class="headerlink" title="网络编程学习记录"></a>网络编程学习记录</h1><ul>
+<li>使用的语言为C&#x2F;C++</li>
+<li>源码支持的平台为：Windows（本文中内容使用windows平台下vs2019开发，故本文项目不完全支持linux平台）</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/116137196">点我查看之前的代码开发记录</a></p>
+<h1 id="0：本次增改内容"><a href="#0：本次增改内容" class="headerlink" title="0：本次增改内容"></a>0：本次增改内容</h1><ol>
+<li>更改服务端中，客户端对象储存的方式，由vector改为map。</li>
+<li>改变任务队列中任务储存方式，由任务基类改为匿名函数。</li>
+<li>加入心跳检测机制，及时剔除未响应客户端。</li>
+<li>加入定时发送消息检测机制，及时发送缓冲区内的内容。</li>
+<li>将内存池静态库分离，使客户端源码也可以引用。</li>
+</ol>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/09/11/20200911_C%E8%AF%AD%E8%A8%80%E8%AF%BB%E5%8F%96csv%E6%96%87%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%B9%B6%E5%88%86%E7%BB%84/#more" rel="contents">
+              <a class="btn" href="/2021/05/08/20210508_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%BF%83%E8%B7%B3%E6%9C%BA%E5%88%B6%E4%B8%8E%E5%AE%9A%E6%97%B6%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -367,7 +910,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/09/07/20200907_2020%E7%AC%AC%E5%8D%81%E4%B8%80%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%95%B4%E6%95%B0%E6%8B%BC%E6%8E%A5/">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/04/26/20210426_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E9%A1%B9%E7%9B%AE%E5%8C%96(%E5%8A%A0%E5%85%A5%E5%86%85%E5%AD%98%E6%B1%A0%E9%9D%99%E6%80%81%E5%BA%93-%E6%8A%A5%E6%96%87%E5%8A%A8%E6%80%81%E5%BA%93)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/hbxxy.jpg">
@@ -385,7 +928,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/09/07/20200907_2020%E7%AC%AC%E5%8D%81%E4%B8%80%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%95%B4%E6%95%B0%E6%8B%BC%E6%8E%A5/" class="post-title-link" itemprop="url">2020 第十一届 蓝桥杯 整数拼接</a>
+          <a href="/2021/04/26/20210426_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E9%A1%B9%E7%9B%AE%E5%8C%96(%E5%8A%A0%E5%85%A5%E5%86%85%E5%AD%98%E6%B1%A0%E9%9D%99%E6%80%81%E5%BA%93-%E6%8A%A5%E6%96%87%E5%8A%A8%E6%80%81%E5%BA%93)/" class="post-title-link" itemprop="url">C++网络编程学习：项目化 (加入内存池静态库 / 报文动态库)</a>
         </h2>
 
         <div class="post-meta-container">
@@ -396,7 +939,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-09-07 11:41:04" itemprop="dateCreated datePublished" datetime="2020-09-07T11:41:04+08:00">2020-09-07</time>
+      <time title="创建时间：2021-04-26 23:09:03" itemprop="dateCreated datePublished" datetime="2021-04-26T23:09:03+08:00">2021-04-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -404,7 +947,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
         </span>
     </span>
 
@@ -418,10 +961,20 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>此题为2020年第十一届蓝桥杯省赛第一场B组第九题</strong></p>
+          <ul>
+<li>使用的语言为C&#x2F;C++</li>
+<li>源码支持的平台为：Windows（本文项目全部使用windows平台下vs2019开发，故本文项目不支持linux平台）</li>
+</ul>
+<h1 id="一、思路与准备"><a href="#一、思路与准备" class="headerlink" title="一、思路与准备"></a>一、思路与准备</h1><p>&emsp;&emsp;之前的客户端虽然可以跑起来，但是声明和实现全写于一个hpp文件中，随着代码日渐增多，增删改变得越发困难。所以我决定尝试将其实现的更加标准。本次我准备的内容如下：</p>
+<ul>
+<li>服务端源码 —— <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/113899184">C++网络编程学习：消息接收与发送分离</a>（即笔记九版本的源码）</li>
+<li>内存池源码 —— <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/114239346?spm=1001.2014.3001.5501">C++学习记录：内存池设计与实现 及其详细代码 </a></li>
+<li>计时器类 —— <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/113702354?spm=1001.2014.3001.5501">C++学习记录：基于chrono库的高精度计时器</a></li>
+<li>报文CMD文件 —— 即报文类型定义，在之前的网络编程笔记中可以找到</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/09/07/20200907_2020%E7%AC%AC%E5%8D%81%E4%B8%80%E5%B1%8A%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%95%B4%E6%95%B0%E6%8B%BC%E6%8E%A5/#more" rel="contents">
+              <a class="btn" href="/2021/04/26/20210426_C++%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%AD%A6%E4%B9%A0%EF%BC%9A%E9%A1%B9%E7%9B%AE%E5%8C%96(%E5%8A%A0%E5%85%A5%E5%86%85%E5%AD%98%E6%B1%A0%E9%9D%99%E6%80%81%E5%BA%93-%E6%8A%A5%E6%96%87%E5%8A%A8%E6%80%81%E5%BA%93)/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -452,7 +1005,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/09/06/20200906_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88B%E7%BB%84%E7%9C%81%E8%B5%9B/">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/03/29/20210329_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E6%89%A9%E5%B1%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/hbxxy.jpg">
@@ -470,7 +1023,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/09/06/20200906_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88B%E7%BB%84%E7%9C%81%E8%B5%9B/" class="post-title-link" itemprop="url">2020 蓝桥杯 C/C++实现 7月B组省赛</a>
+          <a href="/2021/03/29/20210329_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E6%89%A9%E5%B1%95/" class="post-title-link" itemprop="url">Redis学习记录：总结与扩展</a>
         </h2>
 
         <div class="post-meta-container">
@@ -481,7 +1034,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-09-06 17:52:31" itemprop="dateCreated datePublished" datetime="2020-09-06T17:52:31+08:00">2020-09-06</time>
+      <time title="创建时间：2021-03-29 17:20:12" itemprop="dateCreated datePublished" datetime="2021-03-29T17:20:12+08:00">2021-03-29</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -489,7 +1042,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
         </span>
     </span>
 
@@ -503,520 +1056,10 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p><strong>2020蓝桥杯 C&#x2F;C++ 7月B组省赛原题 &amp; 题解</strong></p>
+          <p>&emsp;&emsp;本文将个人在Redis数据库学习中记录的知识点进行了总结，方便日后的复习以及对明年春招实习的准备。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/09/06/20200906_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88B%E7%BB%84%E7%9C%81%E8%B5%9B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/09/03/20200903_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88C%E7%BB%84%E7%9C%81%E8%B5%9B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/09/03/20200903_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88C%E7%BB%84%E7%9C%81%E8%B5%9B/" class="post-title-link" itemprop="url">2020 蓝桥杯 C/C++实现 7月C组省赛</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-09-03 22:54:29" itemprop="dateCreated datePublished" datetime="2020-09-03T22:54:29+08:00">2020-09-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>2020蓝桥杯 C&#x2F;C++ 7月C组省赛原题 &amp; 题解</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/09/03/20200903_2020%E8%93%9D%E6%A1%A5%E6%9D%AFC-C++%E5%AE%9E%E7%8E%B07%E6%9C%88C%E7%BB%84%E7%9C%81%E8%B5%9B/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/09/02/20200902_c++%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80%E9%A2%98%E7%BB%83%E6%89%8B%E6%B1%87%E6%80%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/09/02/20200902_c++%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80%E9%A2%98%E7%BB%83%E6%89%8B%E6%B1%87%E6%80%BB/" class="post-title-link" itemprop="url">c/c++算法 基础题 练手汇总</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-09-02 18:40:16" itemprop="dateCreated datePublished" datetime="2020-09-02T18:40:16+08:00">2020-09-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>因为是基础题所以都不算难，个人把碰见过的感觉比较好的练手基础题在这里做个汇总，方便查阅。</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/09/02/20200902_c++%E7%AE%97%E6%B3%95%E5%9F%BA%E7%A1%80%E9%A2%98%E7%BB%83%E6%89%8B%E6%B1%87%E6%80%BB/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/31/20200831_2016%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%89%AA%E9%82%AE%E7%A5%A8dfs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/08/31/20200831_2016%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%89%AA%E9%82%AE%E7%A5%A8dfs/" class="post-title-link" itemprop="url">2016 蓝桥杯 剪邮票 dfs</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-31 21:23:21" itemprop="dateCreated datePublished" datetime="2020-08-31T21:23:21+08:00">2020-08-31</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>这是2016年蓝桥杯C语言省赛B组的第七题</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/31/20200831_2016%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%89%AA%E9%82%AE%E7%A5%A8dfs/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">2017 蓝桥杯 日期问题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-28 23:17:42" itemprop="dateCreated datePublished" datetime="2020-08-28T23:17:42+08:00">2020-08-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>这是2017年蓝桥杯C语言省赛B组的第七题</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/28/20200828_2017%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E6%9C%9F%E9%97%AE%E9%A2%98/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/27/20200827_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E5%BF%97%E7%BB%9F%E8%AE%A1%E5%B0%BA%E5%8F%96%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/08/27/20200827_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E5%BF%97%E7%BB%9F%E8%AE%A1%E5%B0%BA%E5%8F%96%E6%B3%95/" class="post-title-link" itemprop="url">2018 蓝桥杯 日志统计 尺取法</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-27 11:09:37" itemprop="dateCreated datePublished" datetime="2020-08-27T11:09:37+08:00">2020-08-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>这是2018年蓝桥杯C语言省赛B组的第八题</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/27/20200827_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E6%97%A5%E5%BF%97%E7%BB%9F%E8%AE%A1%E5%B0%BA%E5%8F%96%E6%B3%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2020/08/26/20200826_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%85%A8%E7%90%83%E5%8F%98%E6%9A%96(dfs)%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86%E5%86%99%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/hbxxy.jpg">
-      <meta itemprop="name" content="Zgg2001">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="小咸鱼的自留地">
-      <meta itemprop="description" content="河边小咸鱼">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 小咸鱼的自留地">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2020/08/26/20200826_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%85%A8%E7%90%83%E5%8F%98%E6%9A%96(dfs)%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86%E5%86%99%E6%B3%95/" class="post-title-link" itemprop="url">2018 蓝桥杯 全球变暖(dfs) 深度优先遍历写法</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-08-26 10:44:25" itemprop="dateCreated datePublished" datetime="2020-08-26T10:44:25+08:00">2020-08-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p><strong>这是2018年蓝桥杯C语言省赛B组的第九题</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/08/26/20200826_2018%E8%93%9D%E6%A1%A5%E6%9D%AF%E5%85%A8%E7%90%83%E5%8F%98%E6%9A%96(dfs)%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E9%81%8D%E5%8E%86%E5%86%99%E6%B3%95/#more" rel="contents">
+              <a class="btn" href="/2021/03/29/20210329_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E6%89%A9%E5%B1%95/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1040,7 +1083,7 @@
 
 
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>

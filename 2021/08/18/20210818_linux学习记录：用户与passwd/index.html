@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这部分内容也是在实习中接触到的，其中关于各个伪用户关联的内容，我都一一进行了查询，于是记录一下相关内容，方便日后查看。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux学习记录：用户与&#x2F;etc&#x2F;passwd与&#x2F;etc&#x2F;shadow">
+<meta property="og:url" content="https://zgg2001.github.io/2021/08/18/20210818_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%94%A8%E6%88%B7%E4%B8%8Epasswd/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="这部分内容也是在实习中接触到的，其中关于各个伪用户关联的内容，我都一一进行了查询，于是记录一下相关内容，方便日后查看。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-08-18/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-08-18/2.jpg">
+<meta property="article:published_time" content="2021-08-18T15:05:56.000Z">
+<meta property="article:modified_time" content="2021-08-18T15:05:56.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-08-18/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/08/18/20210818_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%94%A8%E6%88%B7%E4%B8%8Epasswd/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/08/18/20210818_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%94%A8%E6%88%B7%E4%B8%8Epasswd/","path":"2021/08/18/20210818_linux学习记录：用户与passwd/","title":"linux学习记录：用户与/etc/passwd与/etc/shadow"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>linux学习记录：用户与/etc/passwd与/etc/shadow | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81-etc-passwd"><span class="nav-text">一、&#x2F;etc&#x2F;passwd</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81-etc-shadow"><span class="nav-text">二、&#x2F;etc&#x2F;shadow</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%A6%82%E4%BD%95%E7%A6%81%E7%94%A8%E4%B8%80%E4%B8%AA%E7%94%A8%E6%88%B7%EF%BC%9F"><span class="nav-text">三、如何禁用一个用户？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BF%AE%E6%94%B9-etc-passwd"><span class="nav-text">1. 修改&#x2F;etc&#x2F;passwd</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BF%AE%E6%94%B9-etc-shadow"><span class="nav-text">2. 修改&#x2F;etc&#x2F;shadow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BD%BF%E7%94%A8usermod%E5%91%BD%E4%BB%A4"><span class="nav-text">3. 使用usermod命令</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/18/20210818_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%94%A8%E6%88%B7%E4%B8%8Epasswd/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="linux学习记录：用户与/etc/passwd与/etc/shadow | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux学习记录：用户与/etc/passwd与/etc/shadow
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-18 23:05:56" itemprop="dateCreated datePublished" datetime="2021-08-18T23:05:56+08:00">2021-08-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>这部分内容也是在实习中接触到的，其中关于各个伪用户关联的内容，我都一一进行了查询，于是记录一下相关内容，方便日后查看。</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、-etc-passwd"><a href="#一、-etc-passwd" class="headerlink" title="一、&#x2F;etc&#x2F;passwd"></a>一、&#x2F;etc&#x2F;passwd</h1><p>&emsp;&emsp;这个文件中储存了系统中的各个用户，它记录了用户的一些基本属性。如下图，其中每一行都是一个用户。<br><img src="/images/2021-08-18/1.jpg" alt="图1"><br>&emsp;&emsp;可以很明显的看出来每一行的开头都是一个用户名，而各个字段直接之间是由<code>:</code>来进行分隔的。其中字段格式与含义如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注册名：口令：用户标识号：组标识号：用户名：用户主目录：命令解释器</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>注册名</strong><br>&emsp;&emsp;用于区分不同的用户。在同一系统中注册名是惟一的，且用户名是区分大小写的。</p>
+</li>
+<li><p><strong>口令</strong><br>&emsp;&emsp;通俗来讲就是密码，用来验证用户的合法性。但是目前来看，现在的口令不再直接保存在passwd文件中，通常将passwd文件中的口令字段使用一个<code>x</code>来代替，而真正的口令储存在<code>/etc/shadow</code>中。所以可以看到上图中，第二个字段的内容均为 <code>x</code> 。</p>
+</li>
+<li><p><strong>用户标识号</strong><br>&emsp;&emsp;英文缩写叫做UID，它是一个数值，是Linux系统中惟一的用户标识，用于区别不同的用户。在系统内部管理进程和文件保护时使用 UID字段。在Linux系统中，注册名和UID都可以用于标识用户，只不过对于系统来说UID更为重要。而对于用户来说注册名使用起来更方便。在某些特定目的下，系统中可以存在多个拥有不同注册名、但UID相同的用户，事实上，这些使用不同注册名的用户实际上是同一个用户。<br>&emsp;&emsp;在find命令中可以使用<code>-uid</code>来对用户标识号进行检索，例如<code>-uid +0</code>即为检索所有UID大于0的内容。<br>&emsp;&emsp;<strong>在linux系统中(linux7及以上)，UID为0的即为管理员用户，UID在1~999的为系统用户，UID在1000及往上的为普通用户。所以一个很简单的给普通用户管理员权限的方法就是把他的UID改为0。</strong></p>
+</li>
+<li><p><strong>组标识号</strong><br>&emsp;&emsp;英文缩写叫做GID，是用户的工作组标识，而每个用户可以同时属于多个组。在<code>/etc/passwd</code>文件中指定一个用户归属的基本组，而在<code>/etc/group</code>文件中指明一个组所包含的用户。 </p>
+</li>
+<li><p><strong>描述性信息</strong><br>&emsp;&emsp;这个字段包含用户的一些信息，可以算作一个小备注。就我的体验来看没有什么。</p>
+</li>
+<li><p><strong>用户主目录</strong><br>&emsp;&emsp;这个字段标明了各个用户的个人主目录。在shell中可以通过<code>cd ~</code>来进入自己的个人主目录。<br>&emsp;&emsp;就一般的规则来看，root用户的个人主目录为<code>/root</code>，而普通用户的个人主目录为<code>/home</code>下的同用户名目录。</p>
+</li>
+<li><p><strong>命令解释器</strong><br>&emsp;&emsp;这个字段的内容是指定用户的shell程序，可以看到上图中root的shell为<code>/bin/bash</code>。通过命令<code>cat /etc/shells</code>可以查看本系统下支持的shell。</p>
+</li>
+</ul>
+<h1 id="二、-etc-shadow"><a href="#二、-etc-shadow" class="headerlink" title="二、&#x2F;etc&#x2F;shadow"></a>二、&#x2F;etc&#x2F;shadow</h1><p>&emsp;&emsp;这个文件中储存了系统中的各个用户的密码信息，被称为”影子文件”。<br><img src="/images/2021-08-18/2.jpg" alt="2"><br>&emsp;&emsp;可以很明显的看出来每一行的开头都是一个用户名，而各个字段直接之间也是由<code>:</code>来进行分隔的。其中字段格式与含义如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用户名 : 加密密码 : 最后一次修改时间 : 最小修改时间间隔 : 密码有效期 : \</span><br><span class="line">密码需要变更前的警告天数 : 密码过期后的宽限时间 : 账号失效时间 : 保留字段</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>用户名</strong><br>&emsp;&emsp;和上文中passwd文件中的用户名含义一样，也是用于区分不同的账户。</p>
+</li>
+<li><p><strong>加密密码</strong><br>&emsp;&emsp;这里保存的是真正加密的密码。目前 Linux 的密码采用的是 SHA512 散列加密算法，原来采用的是 MD5 或 DES 加密算法。SHA512 散列加密算法的加密等级更高，也更加安全。<br>&emsp;&emsp;而且这部分加密后的密码是不能更改的，更改后会无法登录。当使用<code>usermod -L</code>命令禁用账户时，也是在这部分最前面加上了<code>!</code>来达到使账户无法登录的目的。<br>&emsp;&emsp;所有伪用户的密码都是 “!!” 或 “*”，代表没有密码是不能登录的。当然，新创建的用户如果不设定密码，那么它的密码项也是 “!!”，代表这个用户没有密码，不能登录。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">星号代表帐号被锁定，将无法登录；双叹号表示这个密码已经过期了， </span><br><span class="line">如果是\$x\$xxxxxxxx\$的形式，则代表密码正常。</span><br><span class="line"></span><br><span class="line">$<span class="number">6</span>$ 表明是用SHA<span class="number">-512</span>加密的，密文长度<span class="number">86</span></span><br><span class="line">$<span class="number">1</span>$ 表明是用MD5加密的，密文长度<span class="number">22</span>个字符</span><br><span class="line">$<span class="number">2</span>$ 是用Blowfish加密的，</span><br><span class="line">$<span class="number">5</span>$ 是用 SHA<span class="number">-256</span>加密的，密文长度<span class="number">43</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>最后一次修改时间</strong><br>&emsp;&emsp;此字段表示最后一次修改密码的时间，在1970 年 1 月 1 日的基准上，加上该字段显示的天数，即为最后修改的时间。通过命令<code>date -d &quot;1970-01-01 18818 days&quot;</code>可以获取具体是哪一天。</p>
+</li>
+<li><p><strong>最小修改时间</strong><br>&emsp;&emsp;最小修改间隔时间，也就是说，该字段规定了从第 3 字段（最后一次修改密码的日期）起，多长时间之内不能修改密码。如果是 0，则密码可以随时修改；如果是 10，则代表密码修改后 10 天之内不能再次修改密码。</p>
+</li>
+<li><p><strong>密码有效期</strong><br>&emsp;&emsp;这个字段可以指定距离第 3 字段（最后一次更改密码）多长时间内需要再次变更密码，否则该账户密码进行过期阶段。<br>&emsp;&emsp;该字段的默认值为 99999，也就是 273 年，可认为是永久生效。如果改为 90，则表示密码被修改 90 天之后必须再次修改，否则该用户即将过期。管理服务器时，通过这个字段强制用户定期修改密码。</p>
+</li>
+<li><p><strong>密码需要变更前的警告天数</strong><br>&emsp;&emsp;与第 5 字段相比较，当账户密码有效期快到时，系统会发出警告信息给此账户，提醒用户密码需要变更。<br>&emsp;&emsp;该字段的默认值是 7，也就是说，距离密码有效期的第 7 天开始，每次登录系统都会向该账户发出 “修改密码” 的警告信息。</p>
+</li>
+<li><p><strong>密码过期后的宽限时间</strong><br>&emsp;&emsp;也称为“口令失效日”，简单理解就是，在密码过期后，用户如果还是没有修改密码，则在此字段规定的宽限天数内，用户还是可以登录系统的；如果过了宽限天数，系统将不再让此账户登陆，也不会提示账户过期，是完全禁用。<br>&emsp;&emsp;比如说，此字段规定的宽限天数是 10，则代表密码过期 10 天后失效；如果是 0，则代表密码过期后立即失效；如果是 -1，则代表密码永远不会失效。</p>
+</li>
+<li><p><strong>账号失效时间</strong><br>&emsp;&emsp;同第 3 个字段一样，使用自  1970 年 1 月 1 日以来的总天数作为账户的失效时间。该字段表示，账号在此字段规定的时间之外，不论你的密码是否过期，都将无法使用。</p>
+</li>
+<li><p><strong>保留字段</strong><br>&emsp;&emsp;目前没有功能，保留。</p>
+</li>
+</ul>
+<h1 id="三、如何禁用一个用户？"><a href="#三、如何禁用一个用户？" class="headerlink" title="三、如何禁用一个用户？"></a>三、如何禁用一个用户？</h1><p>&emsp;&emsp;从结果来看，只要让这个用户没办法登录，就可以说是禁用这个用户了。所以可以通过以下方式来实现禁用。</p>
+<h2 id="1-修改-etc-passwd"><a href="#1-修改-etc-passwd" class="headerlink" title="1. 修改&#x2F;etc&#x2F;passwd"></a>1. 修改&#x2F;etc&#x2F;passwd</h2><p>&emsp;&emsp;把想要禁用的用户的解释器选项配置为<code>/sbin/nologin</code>即可。</p>
+<h2 id="2-修改-etc-shadow"><a href="#2-修改-etc-shadow" class="headerlink" title="2. 修改&#x2F;etc&#x2F;shadow"></a>2. 修改&#x2F;etc&#x2F;shadow</h2><p>&emsp;&emsp;改动一下第二个密码字段即可，可以在该字段<strong>添加一些字符</strong>或者更改为<code>*</code>或<code>!</code>或<code>!!</code>即可使得该账户无法登录。</p>
+<h2 id="3-使用usermod命令"><a href="#3-使用usermod命令" class="headerlink" title="3. 使用usermod命令"></a>3. 使用usermod命令</h2><p>&emsp;&emsp;<code>usermod -L user</code>禁用用户， <code>usermod -U user</code>解禁用户。经过执行可以发现，其实这个命令的原理其实就是在<code>/etc/shadow</code>中的密码字段前添加<code>!</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/12/20210812_Linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Asudo%E7%9B%B8%E5%85%B3/" rel="prev" title="Linux学习记录：sudo相关">
+                  <i class="fa fa-angle-left"></i> Linux学习记录：sudo相关
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/23/20210823_C_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B8%89%E7%A7%8D%E4%BC%A0%E5%8F%82%E6%96%B9%E5%BC%8F/" rel="next" title="C/C++学习记录：深入理解三种传参方式">
+                  C/C++学习记录：深入理解三种传参方式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇笔记汇总了C++14中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。 主要参考地址：cppreference C++14主要是在C++11标准之上的一些补充，所以相对的内容较少一些。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++14学习记录：新语言功能特性">
+<meta property="og:url" content="https://zgg2001.github.io/2021/12/08/20211208_C++14%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="本篇笔记汇总了C++14中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。 主要参考地址：cppreference C++14主要是在C++11标准之上的一些补充，所以相对的内容较少一些。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-12-08T15:44:20.000Z">
+<meta property="article:modified_time" content="2021-12-08T15:44:20.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++标准库学习">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/12/08/20211208_C++14%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/12/08/20211208_C++14%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/","path":"2021/12/08/20211208_C++14学习记录：新语言功能特性/","title":"C++14学习记录：新语言功能特性"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++14学习记录：新语言功能特性 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%8F%98%E9%87%8F%E6%A8%A1%E6%9D%BF"><span class="nav-text">· 变量模板</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E6%B3%9B%E5%9E%8B-lambda"><span class="nav-text">· 泛型 lambda</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-lambda-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8D%95%E8%8E%B7"><span class="nav-text">· lambda 初始化捕获</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-new-delete-%E6%B6%88%E9%99%A4"><span class="nav-text">· new&#x2F;delete 消除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-constexpr-%E5%87%BD%E6%95%B0%E4%B8%8A%E6%94%BE%E6%9D%BE%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-text">· constexpr 函数上放松的限制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AD%97%E9%9D%A2%E9%87%8F"><span class="nav-text">· 二进制字面量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E6%95%B0%E4%BD%8D%E5%88%86%E9%9A%94%E7%AC%A6"><span class="nav-text">· 数位分隔符</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%87%BD%E6%95%B0%E7%9A%84%E8%BF%94%E5%9B%9E%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC"><span class="nav-text">· 函数的返回类型推导</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%B8%A6%E9%BB%98%E8%AE%A4%E6%88%90%E5%91%98%E5%88%9D%E5%A7%8B%E5%8C%96%E5%99%A8%E7%9A%84%E8%81%9A%E5%90%88%E7%B1%BB%E3%80%82"><span class="nav-text">· 带默认成员初始化器的聚合类。</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/12/08/20211208_C++14%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++14学习记录：新语言功能特性 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++14学习记录：新语言功能特性
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-12-08 23:44:20" itemprop="dateCreated datePublished" datetime="2021-12-08T23:44:20+08:00">2021-12-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>本篇笔记汇总了C++14中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。</li>
+<li>主要参考地址：<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/11">cppreference</a></li>
+<li>C++14主要是在C++11标准之上的一些补充，所以相对的内容较少一些。</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="·-变量模板"><a href="#·-变量模板" class="headerlink" title="· 变量模板"></a>· 变量模板</h1><p>&emsp;&emsp;在之前的版本中，模板均为函数模板或者类模板，而从C++14起，变量也可以使用模板了。变量模板的语法为 <code>template &lt; 形参列表 &gt; 变量声明</code>，通常模板的规则都适用于变量模板，比如说特化什么的。下面是几个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt;</span><br><span class="line"><span class="keyword">constexpr</span> T pi = <span class="built_in">T</span>(<span class="number">3.1415926535897932385L</span>);<span class="comment">// 变量模板</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</span></span><br><span class="line"><span class="function">T <span class="title">circular_area</span><span class="params">(T r)</span><span class="comment">//函数模板</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> pi&lt;T&gt; * r * r; <span class="comment">//pi&lt;T&gt; 是变量模板实例化</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">double</span> a = <span class="number">3</span>;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">circular_area</span>(a) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">circular_area</span>&lt;<span class="type">double</span>&gt;(<span class="number">2</span>) &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">28.2743</span></span><br><span class="line"><span class="number">12.5664</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;与其他静态成员一样，静态数据成员模板的需要一个定义。这种定义可以在类定义外提供。处于命名空间作用域的静态数据成员的模板声明也可以是类模板的非模板数据成员的定义：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">limits</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line">    <span class="type">static</span> <span class="type">const</span> T min;<span class="comment">//静态数据成员模板的声明</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="type">const</span> T limits::min = &#123; &#125;;<span class="comment">//静态数据成员模板的定义</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">X</span> </span><br><span class="line">&#123;</span><br><span class="line">   <span class="type">static</span> T s;<span class="comment">//类模板的非模板静态数据成员的声明</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt;</span><br><span class="line">T X&lt;T&gt;::s = <span class="number">0</span>;<span class="comment">//类模板的非模板静态数据成员的定义</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在C++14引入变量模板前，参数化变量通常实现为类模板的静态数据成员，或返回所需值的 constexpr 函数模板，这点在STL源码里可以经常看见。<strong>但是说实话可能变量模板这个新特性比较新或者说非他不可的场景比较少，暂时我还没有用到过或者说在源码里见到过这个东西。</strong></p>
+<p>&emsp;</p>
+<h1 id="·-泛型-lambda"><a href="#·-泛型-lambda" class="headerlink" title="· 泛型 lambda"></a>· 泛型 lambda</h1><p>&emsp;&emsp;在C++11中，<code>lambda</code> 表达式的形参需要被声明为具体的类型。而在C++14中其放宽了这一要求，这就使得 <code>lambda</code> 表达式的形参声明中可以使用类型说明符 <code>auto</code>，从而达成<strong>泛型lambda</strong>的目的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> lambda = [](<span class="keyword">auto</span> x, <span class="keyword">auto</span> y)</span><br><span class="line">    &#123;</span><br><span class="line">    	<span class="keyword">return</span> x + y;</span><br><span class="line">    &#125;;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">lambda</span>(<span class="number">1.1</span>, <span class="number">2</span>) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">lambda</span>(<span class="number">1</span>, <span class="number">2</span>) &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">lambda</span>(<span class="string">&#x27;a&#x27;</span>, <span class="string">&#x27;b&#x27;</span>) &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">3.1</span></span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">195</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;泛型 <code>lambda</code> 表达式遵循模板参数推导的规则。上面这段代码中的泛型 <code>lambda</code> 表达式的作用与下面的代码相同:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">unnamed_lambda</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> U&gt;</span></span><br><span class="line"><span class="function">	<span class="keyword">auto</span> <span class="title">operator</span><span class="params">()</span><span class="params">(T x, U y)</span> <span class="type">const</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> x + y;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">auto</span> lambda = <span class="built_in">unnamed_lambda</span>();</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这东西我感觉使用起来还是挺方便的，毕竟某些场景泛型 <code>lambda</code> 会节省很多功夫。不过就我而言需求也没那么强，因为我个人用到 <code>lambda</code> 的场景一般对于 <code>lambda</code> 的传参都已经有明确的定义了，这时就没什么泛型编程的需求。</p>
+<p>&emsp;</p>
+<h1 id="·-lambda-初始化捕获"><a href="#·-lambda-初始化捕获" class="headerlink" title="· lambda 初始化捕获"></a>· lambda 初始化捕获</h1><p>&emsp;&emsp;C++11的 <code>lambda</code> 表达式通过<strong>值拷贝</strong>和<strong>引用</strong>来捕获在外层作用域声明的变量。这就意味着 <code>lambda</code> 的值成员不可以是 <code>move-only</code> 类型，比如说智能指针 <code>std::unique_ptr</code>，它就是个<strong>仅移动</strong>的类型。而在C++14中，<code>lambda</code> 表达式放开限制，允许对被捕获的成员用任意的表达式初始化。</p>
+<p>&emsp;&emsp;这样放开限制的第一个好处就是可以通过 <code>std::move</code> 来初始化捕获一个 <code>move-only</code> 类型的变量，如下例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    unique_ptr&lt;<span class="type">int</span>&gt;p1 = <span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">10</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;1. main() p1:&quot;</span> &lt;&lt; *p1 &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">auto</span> lambda = [p1 = <span class="built_in">move</span>(p1)]()<span class="comment">//此处的第一个p1声明了新的变量，而第二个p1则表示在lambda之外声明的变量</span></span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;2. lambda() p1:&quot;</span> &lt;&lt; *p1 &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">lambda</span>();</span><br><span class="line">    <span class="keyword">if</span>(!p1)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;3. main() p1 is empty&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">1.</span> <span class="built_in">main</span>() p1:<span class="number">10</span></span><br><span class="line"><span class="number">2.</span> <span class="built_in">lambda</span>() p1:<span class="number">10</span></span><br><span class="line"><span class="number">3.</span> <span class="built_in">main</span>() p1 is empty</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;而第二个好处就是可以任意声明 <code>lambda</code> 的值成员，而不需要外层作用域有一个具有相应名字的变量，如下例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> lambda = [a = <span class="number">12345</span>]()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;lambda() a:&quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">lambda</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="built_in">lambda</span>() a:<span class="number">12345</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这个新特性我觉得挺有用的，让 <code>lambda</code> 更加的灵活和方便，<del>虽然我还没用过</del>。但是有一点需要注意，声明 <code>lambda</code> 的时候会直接执行里面的捕获语句，所以被捕获的 <code>move-only</code> 类型变量会直接失效…比如下面这个，即使不执行 <code>lambda</code> 函数也会失效。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    unique_ptr&lt;<span class="type">int</span>&gt;p1 = <span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">10</span>);</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;1. main() p1:&quot;</span> &lt;&lt; *p1 &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">auto</span> lambda = [p1 = <span class="built_in">move</span>(p1)]()<span class="comment">//此处的第一个p1声明了新的变量，而第二个p1则表示在lambda之外声明的变量</span></span><br><span class="line">    &#123;</span><br><span class="line">    ┊   cout &lt;&lt; <span class="string">&quot;2. lambda() p1:&quot;</span> &lt;&lt; *p1 &lt;&lt; endl;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="comment">//lambda();</span></span><br><span class="line">    <span class="keyword">if</span>(!p1)</span><br><span class="line">    &#123;</span><br><span class="line">    ┊   cout &lt;&lt; <span class="string">&quot;3. main() p1 is empty&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">1.</span> <span class="built_in">main</span>() p1:<span class="number">10</span></span><br><span class="line"><span class="number">3.</span> <span class="built_in">main</span>() p1 is empty</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;</p>
+<h1 id="·-new-delete-消除"><a href="#·-new-delete-消除" class="headerlink" title="· new&#x2F;delete 消除"></a>· new&#x2F;delete 消除</h1><p>&emsp;&emsp;贴一个stackoverflow上的相关回答(渣翻)： <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/30762994/are-new-and-delete-still-useful-in-c14">点我跳转</a></p>
+<ul>
+<li><p>问：<br>&emsp;&emsp;鉴于 <code>make_unique</code> 和 <code>make_shared</code> 的可用性，以及 <code>unique_ptr</code> 和 <code>shared_ptr</code> 的自动析构函数，在C++14中使用 <code>new</code> 和 <code>delete</code> 的情况是什么(除了支持遗留代码)？</p>
+</li>
+<li><p>答：<br>&emsp;&emsp;虽然在许多情况下智能指针比原始指针更可取，但 <code>new/delete</code> 在 C++14 中仍然有很多用例。<br>&emsp;&emsp;如果您需要编写任何需要就地构建的内容，例如:<br>&emsp;&emsp;&emsp;1.一个内存池<br>&emsp;&emsp;&emsp;2.一个分配器<br>&emsp;&emsp;&emsp;3.标记变体<br>&emsp;&emsp;&emsp;4.到缓冲区的二进制消息<br>&emsp;&emsp;您将需要使用 <code>new</code> 和 <code>delete</code>。<br>&emsp;&emsp;以及对于一些需要编写的容器，您可能希望使用原始指针进行存储。<br>&emsp;&emsp;即使对于标准的智能指针，如果您想使用自定义删除器，您仍然需要 <code>new</code>，因为 <code>make_unique</code> 和 <code>make_shared</code> 不允许这样做。<br>&emsp;</p>
+</li>
+</ul>
+<h1 id="·-constexpr-函数上放松的限制"><a href="#·-constexpr-函数上放松的限制" class="headerlink" title="· constexpr 函数上放松的限制"></a>· constexpr 函数上放松的限制</h1><p>&emsp;&emsp;C++11引入了声明为 <code>constexpr</code> 的函数的概念。声明为 <code>constexpr</code> 函数的意义是：如果其参数均为合适的编译期常量，则对这个 <code>constexpr</code> 函数的调用就可用于期望常量表达式的场合(如模板的非类型参数，或枚举常量的值)。如果参数的值在运行期才能确定，或者虽然参数的值是编译期常量，但不符合这个函数的要求，则对这个函数调用的求值只能在运行期进行。然而C++11要求 <code>constexpr</code> 函数只含有一个将被返回的表达式(也可以还含有 <code>static_assert</code> 声明等其它语句，但允许的语句类型很少)。</p>
+<p>&emsp;&emsp;在C++14中将放松这些限制，但 <code>goto</code> 仍然不允许在 <code>constexpr</code> 函数中出现，其中可以含有以下内容：</p>
+<ul>
+<li>任何声明，除了：<br>1.<code>static</code> 或 <code>thread_local</code> 变量。<br>2.没有初始化的变量声明。</li>
+<li>条件分支语句 <code>if</code> 和 <code>switch</code>。</li>
+<li>所有的循环语句，包括基于范围的<code>for</code>循环。</li>
+<li>表达式可以改变一个对象的值，只需该对象的生命期在声明为 <code>constexpr</code> 的函数内部开始。包括对有 <code>constexpr</code> 声明的任何非 <code>const</code> 非静态成员函数的调用。</li>
+</ul>
+<p>&emsp;&emsp;此外，C++11指出，所有被声明为 <code>constexpr</code> 的非静态成员函数也隐含声明为 <code>const</code>(即函数不能修改*this的值)。这点已经被删除，非静态成员函数可以为非 <code>const</code>。</p>
+<p>&emsp;&emsp;怎么说呢，这东西在标准库里挺常见的，因为标准库要进行泛型编程，用模板和 <code>constexpr</code> 关键字的频率很高。但是在我个人的编程中，感觉用 <code>constexpr</code> 修饰的函数比较少吧…所以还没咋用过这种复杂点的 <code>constexpr</code> 函数。</p>
+<p>&emsp;</p>
+<h1 id="·-二进制字面量"><a href="#·-二进制字面量" class="headerlink" title="· 二进制字面量"></a>· 二进制字面量</h1><p>&emsp;&emsp;C++14的数字可以使用二进制形式指定，其格式使用前缀 <code>0b</code> 或 <code>0B</code>，类似之前的十六进制前缀 <code>0x</code>。没啥好说的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">0x666</span>;</span><br><span class="line">    <span class="type">int</span> y = <span class="number">0b101</span>;</span><br><span class="line">    cout &lt;&lt; x &lt;&lt; endl &lt;&lt; y &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">1638</span></span><br><span class="line"><span class="number">5</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;</p>
+<h1 id="·-数位分隔符"><a href="#·-数位分隔符" class="headerlink" title="· 数位分隔符"></a>· 数位分隔符</h1><p>&emsp;&emsp;C++14引入单引号 <code>&#39;</code> 作为数字分位符号，使得数值型的字面量可以具有更好的可读性。</p>
+<p>&emsp;&emsp;Ada、D语言、Java、Perl、Ruby等程序设计语言使用下划线 <code>_</code> 作为数字分位符号，C++之所以不和它们保持一致，是因为下划线已被用在用户自定义字面量的语法中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> integer_literal = <span class="number">100&#x27;0000</span>;</span><br><span class="line">    <span class="keyword">auto</span> floating_point_literal = <span class="number">1.797&#x27;693&#x27;134&#x27;862&#x27;315&#x27;7E+308</span>;</span><br><span class="line">    <span class="keyword">auto</span> binary_literal = <span class="number">0b0100&#x27;1100&#x27;0110</span>;</span><br><span class="line">    <span class="keyword">auto</span> silly_example = <span class="number">1&#x27;0&#x27;0&#x27;000&#x27;00</span>;</span><br><span class="line">    cout &lt;&lt; integer_literal &lt;&lt; endl &lt;&lt; floating_point_literal &lt;&lt; endl;</span><br><span class="line">    cout &lt;&lt; binary_literal &lt;&lt; endl &lt;&lt; silly_example &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">1000000</span></span><br><span class="line"><span class="number">1.79769e+308</span></span><br><span class="line"><span class="number">1222</span></span><br><span class="line"><span class="number">10000000</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这东西我觉得挺有用的，由上面的例子可以看出来这个 <code>&#39;</code> 是随意加的，编译器会忽略它，所以可以按自己的喜好或者约定来添加分隔符。</p>
+<p>&emsp;</p>
+<h1 id="·-函数的返回类型推导"><a href="#·-函数的返回类型推导" class="headerlink" title="· 函数的返回类型推导"></a>· 函数的返回类型推导</h1><p>&emsp;&emsp;C++11允许 <code>lambda</code> 表达式根据 <code>return</code> 语句的表达式类型推断返回类型。C++14为一般的函数也提供了这个能力，此外C++14还拓展了原有的规则，使得函数体并不是 <code>&#123;return expression;&#125;</code> 形式的函数也可以使用返回类型推导。</p>
+<p>&emsp;&emsp;为了启用返回类型推导，函数声明必须将 <code>auto</code> 作为返回类型，但没有C++11的后置返回类型说明符：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">DeduceReturnType</span><span class="params">()</span></span>;   <span class="comment">//返回类型由编译器推断</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如果函数实现中含有多个 <code>return</code> 语句，这些表达式必须可以推断为相同的类型。使用返回类型推导的函数可以前向声明，但在定义之前不可以使用。它们的定义在使用它们的翻译单元(translation unit)之中必须是可用的。这样的函数中可以存在递归，但递归调用必须在函数定义中的至少一个 <code>return</code> 语句之后：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">Correct</span><span class="params">(<span class="type">int</span> i)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (i == <span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> i;<span class="comment">//返回类型被推断为int</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">    	<span class="keyword">return</span> <span class="built_in">Correct</span>(i<span class="number">-1</span>)+i;<span class="comment">//正确，可以调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">Wrong</span><span class="params">(<span class="type">int</span> i)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  	<span class="keyword">if</span>(i != <span class="number">1</span>)</span><br><span class="line">    	<span class="keyword">return</span> <span class="built_in">Wrong</span>(i<span class="number">-1</span>)+i;<span class="comment">//不能调用，之前没有return语句</span></span><br><span class="line">  	<span class="keyword">else</span></span><br><span class="line">    	<span class="keyword">return</span> i;<span class="comment">//返回类型被推断为int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这是我个人认为此次更新最有用的一个内容了，<code>auto</code> 返回值可以节省很多功夫。不过坏处就是不太明了，类型比较复杂的时候可读性比较差，但是我觉得一般的小场景用用还是很舒服的。</p>
+<p>&emsp;</p>
+<h1 id="·-带默认成员初始化器的聚合类。"><a href="#·-带默认成员初始化器的聚合类。" class="headerlink" title="· 带默认成员初始化器的聚合类。"></a>· 带默认成员初始化器的聚合类。</h1><p>&emsp;&emsp;C++11新增 <code>member initializer</code>，这是一个表达式，被应用到类作用域的成员上，如果构造函数没有初始化这个成员。聚合体的定义被改为明确排除任何含有 <code>member initializer</code> 的类，因此，他们不允许使用聚合初始化。</p>
+<p>&emsp;&emsp;C++14将放松这一限制，这种类型也允许聚合初始化。如果花括号初始化列表不提供该参数的值，<code>member initializer</code> 会初始化它。<br>&emsp;</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C-%E6%A0%87%E5%87%86%E5%BA%93%E5%AD%A6%E4%B9%A0/" rel="tag"># C++标准库学习</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/02/20211202_C++11%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/" rel="prev" title="C++11学习记录：核心语言功能特性">
+                  <i class="fa fa-angle-left"></i> C++11学习记录：核心语言功能特性
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/" rel="next" title="C++17学习记录：新语言功能特性">
+                  C++17学习记录：新语言功能特性 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

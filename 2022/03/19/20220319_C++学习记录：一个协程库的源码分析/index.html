@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="抽空学习一些感兴趣的源码，这次学习云风大佬的一个协程库源码。 项目地址：https:&#x2F;&#x2F;github.com&#x2F;cloudwu&#x2F;coroutine 个人fork注释后的项目地址：https:&#x2F;&#x2F;github.com&#x2F;zgg2001&#x2F;coroutine">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++学习记录：一个协程库的源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2022/03/19/20220319_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E5%BA%93%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="抽空学习一些感兴趣的源码，这次学习云风大佬的一个协程库源码。 项目地址：https:&#x2F;&#x2F;github.com&#x2F;cloudwu&#x2F;coroutine 个人fork注释后的项目地址：https:&#x2F;&#x2F;github.com&#x2F;zgg2001&#x2F;coroutine">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-19T12:28:51.000Z">
+<meta property="article:modified_time" content="2022-03-19T12:28:51.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2022/03/19/20220319_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E5%BA%93%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2022/03/19/20220319_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E5%BA%93%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2022/03/19/20220319_C++学习记录：一个协程库的源码分析/","title":"C++学习记录：一个协程库的源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++学习记录：一个协程库的源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90"><span class="nav-text">二、实现分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">1. 数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%95%B4%E4%BD%93%E6%80%9D%E8%B7%AF"><span class="nav-text">2. 整体思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%94%A4%E9%86%92-resume"><span class="nav-text">3. 唤醒 resume</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%8C%82%E8%B5%B7-yield"><span class="nav-text">4. 挂起 yield</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%96%B0%E5%BB%BA%E4%B8%8E%E6%89%A9%E5%AE%B9"><span class="nav-text">5. 新建与扩容</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-text">三、小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2022/03/19/20220319_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E5%BA%93%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++学习记录：一个协程库的源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++学习记录：一个协程库的源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-19 20:28:51" itemprop="dateCreated datePublished" datetime="2022-03-19T20:28:51+08:00">2022-03-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>抽空学习一些感兴趣的源码，这次学习云风大佬的一个协程库源码。</li>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/cloudwu/coroutine">https://github.com/cloudwu/coroutine</a></li>
+<li>个人fork注释后的项目地址：<a target="_blank" rel="noopener" href="https://github.com/zgg2001/coroutine">https://github.com/zgg2001/coroutine</a></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;本来是想学习一下鹅厂的 <code>libco</code> 协程库来着，无奈之前没怎么接触过协程的实现，且 <code>libco</code> 源码太厚实了，啃起来太慢，所以打算先学习一个精简点的协程库，由浅入深再去啃 <code>libco</code>。</p>
+<p>&emsp;&emsp;本次笔记记录的是云风大佬在2012年实现的一个短小精悍的协程库，代码总共只有200行左右，但却实现了协程的核心功能。个人感觉很适合用来学习协程的实现方法和执行流程，所以 <code>fork</code> 了一下，过了一遍并加了注释。<br>&emsp;&emsp;</p>
+<h1 id="二、实现分析"><a href="#二、实现分析" class="headerlink" title="二、实现分析"></a>二、实现分析</h1><h2 id="1-数据结构"><a href="#1-数据结构" class="headerlink" title="1. 数据结构"></a>1. 数据结构</h2><p>&emsp;&emsp;首先是协程结构体，每个结构体实例对应着一条协程。可以看到其中定义了协程对应的回调函数与其传参，还有核心内存<strong>协程上下文ctx</strong>，以及每个协程对应的<strong>栈区内容</strong>等。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">coroutine</span> &#123;</span><br><span class="line">	coroutine_func func;<span class="comment">//协程回调函数</span></span><br><span class="line">	<span class="type">void</span> *ud;<span class="comment">//传参</span></span><br><span class="line">	<span class="type">ucontext_t</span> ctx;<span class="comment">//上下文</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">schedule</span> * sch;<span class="comment">//所属管理者</span></span><br><span class="line">	<span class="type">ptrdiff_t</span> cap;<span class="comment">//已经分配的内存大小</span></span><br><span class="line">	<span class="type">ptrdiff_t</span> size;<span class="comment">//协程运行时栈的保存后大小</span></span><br><span class="line">	<span class="type">int</span> status;<span class="comment">//状态</span></span><br><span class="line">	<span class="type">char</span> *stack;<span class="comment">//栈</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;其次是协程调度器结构体，其中储存了若干协程指针以及当前运行协程id等内容，用于进行协程调度等操作。其中最重要的我觉得是共享栈区<strong>stack</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">schedule</span> &#123;</span><br><span class="line">	<span class="type">char</span> stack[STACK_SIZE];<span class="comment">//栈</span></span><br><span class="line">	<span class="type">ucontext_t</span> main;<span class="comment">//主线程上下文</span></span><br><span class="line">	<span class="type">int</span> nco;<span class="comment">//当前协程数量</span></span><br><span class="line">	<span class="type">int</span> cap;<span class="comment">//协程最大数量</span></span><br><span class="line">	<span class="type">int</span> running;<span class="comment">//当前执行中的协程id</span></span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">coroutine</span> **co;<span class="comment">//协程组</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="2-整体思路"><a href="#2-整体思路" class="headerlink" title="2. 整体思路"></a>2. 整体思路</h2><p>&emsp;&emsp;了解了核心数据结构，那么协程的切换是如何实现的呢？我过了一遍源码，大致了解了云风大佬这个协程库的实现原理：</p>
+<p>&emsp;&emsp;简单来讲，调度器结构体 <code>schedule</code> 中有一块栈上的内存，声明为 <code>char stack[STACK_SIZE];</code>，当协程在执行时，会将这块内存当作自己的进程栈来使用。</p>
+<p>&emsp;&emsp;当协程执行挂起操作时，会通过 <code>memcpy</code> 把执行栈上的内容 <code>copy</code> 至协程自己的缓冲区，进行栈区内容的保存；而当协程进行唤醒操作时，只需要把协程缓冲区中的栈内容 <code>copy</code> 至执行栈上，即可实现栈区内容的恢复。因为所有的协程在执行中都需要使用这块栈内存，所以这种协程实现方法被称为共享栈。</p>
+<p>&emsp;&emsp;除了栈区内容的切换外，也需要进行硬件上下文的切换，对此，Linux存在系统调用来进行上下文的切换与保存，其均定义在头文件 <code>ucontext.h</code> 中。此协程库中主要使用的内容有：</p>
+<ul>
+<li><strong>ucontext_t</strong>：上下文结构体，其中储存了上下文的内容。主要需要关注的有<code>uc_link: 下一个要执行的上下文</code>、<code>uc_stack：此上下文所使用的栈信息</code>，其余还有信号掩码、硬件上下文等内容。</li>
+<li><strong>getcontext</strong>：传入一个 <code>ucontext_t</code>，初始化它并获取当前上下文环境存入其中。</li>
+<li><strong>makecontext</strong>：传入一个 <code>ucontext_t</code> 和一个函数指针及其参数，作用是指定该上下文的入口函数。即在此上下文被激活后，执行这个被绑定的函数。</li>
+<li><strong>swapcontext</strong>：传入两个 <code>ucontext_t</code>，作用为切换上下文环境。具体操作是保存当前上下文环境至第一个 <code>ucontext_t</code>，并激活第二个 <code>ucontext_t</code> 的上下文环境。</li>
+</ul>
+<p>&emsp;&emsp;所以可以说这个协程库主要就是通过系统调用切换&#x2F;保存上下文，以及保存每个协程的运行栈来实现的。<br>&emsp;&emsp;</p>
+<h2 id="3-唤醒-resume"><a href="#3-唤醒-resume" class="headerlink" title="3. 唤醒 resume"></a>3. 唤醒 resume</h2><p>&emsp;&emsp;协程的核心操作<strong>唤醒</strong>的实现如下，其中已经加上了我的注释。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> </span></span><br><span class="line"><span class="function"><span class="title">coroutine_resume</span><span class="params">(<span class="keyword">struct</span> schedule * S, <span class="type">int</span> id)</span> </span>&#123;</span><br><span class="line">	<span class="built_in">assert</span>(S-&gt;running == <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">assert</span>(id &gt;=<span class="number">0</span> &amp;&amp; id &lt; S-&gt;cap);</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">coroutine</span> *C = S-&gt;co[id];<span class="comment">//确定唤醒的协程</span></span><br><span class="line">	<span class="keyword">if</span> (C == <span class="literal">NULL</span>)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	<span class="type">int</span> status = C-&gt;status;</span><br><span class="line">	<span class="keyword">switch</span>(status) &#123;</span><br><span class="line">	<span class="keyword">case</span> COROUTINE_READY:<span class="comment">//全新的协程</span></span><br><span class="line">		<span class="built_in">getcontext</span>(&amp;C-&gt;ctx);<span class="comment">//初始化并获取当前上下文环境：信号掩码/具体硬件上下文</span></span><br><span class="line">		C-&gt;ctx.uc_stack.ss_sp = S-&gt;stack;<span class="comment">//共享栈</span></span><br><span class="line">		C-&gt;ctx.uc_stack.ss_size = STACK_SIZE;<span class="comment">//共享栈大小</span></span><br><span class="line">		C-&gt;ctx.uc_link = &amp;S-&gt;main;<span class="comment">//当前context执行结束之后要执行的下一个context</span></span><br><span class="line">		S-&gt;running = id;<span class="comment">//当前执行协程id</span></span><br><span class="line">		C-&gt;status = COROUTINE_RUNNING;</span><br><span class="line">		<span class="type">uintptr_t</span> ptr = (<span class="type">uintptr_t</span>)S;</span><br><span class="line">		<span class="comment">//makecontext修改上下文结构体，设定栈空间为C-&gt;ctx-&gt;uc_stack，激活后执行mainfunc</span></span><br><span class="line">		<span class="built_in">makecontext</span>(&amp;C-&gt;ctx, (<span class="built_in">void</span> (*)(<span class="type">void</span>)) mainfunc, <span class="number">2</span>, (<span class="type">uint32_t</span>)ptr, (<span class="type">uint32_t</span>)(ptr&gt;&gt;<span class="number">32</span>));</span><br><span class="line">		<span class="built_in">swapcontext</span>(&amp;S-&gt;main, &amp;C-&gt;ctx);<span class="comment">//保存当前上下文至S-&gt;main，并激活C-&gt;ctx上下文</span></span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> COROUTINE_SUSPEND:<span class="comment">//之前已挂起</span></span><br><span class="line">		<span class="built_in">memcpy</span>(S-&gt;stack + STACK_SIZE - C-&gt;size, C-&gt;stack, C-&gt;size);<span class="comment">//把协程栈的内存copy至调度器中</span></span><br><span class="line">		S-&gt;running = id;</span><br><span class="line">		C-&gt;status = COROUTINE_RUNNING;</span><br><span class="line">		<span class="built_in">swapcontext</span>(&amp;S-&gt;main, &amp;C-&gt;ctx);<span class="comment">//保存当前上下文至S-&gt;main，并激活C-&gt;ctx上下文</span></span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="built_in">assert</span>(<span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在新建一条协程后，其状态为 <code>COROUTINE_READY</code>。在上面的源码中，可以看到对于刚创建的协程和被挂起后的协程操作是不一致的。主要原因是因为刚创建的协程并没有初始化上下文，而且也没有指定运行栈为调度器中的共享栈，所以新的协程需要指定上下文相关的内容并绑定入口函数。</p>
+<p>&emsp;&emsp;此外，<code>makecontext</code> 中的入口函数传参被拆成两部分来传入，我感觉是因为传参类型为 <code>uint</code> 而在64位环境下指针大小为8B，为了避免这部分的差异，所以把指针分为前32位和后32位来进行传入。而在随后入口函数的定义中对指针进行拼合操作，来获取正确的指针。</p>
+<p>&emsp;&emsp;另外值得一提的是在对已挂起协程的恢复时，需要恢复执行栈，所以使用 <code>memcpy</code> 进行内存拷贝。由于栈地址是由高向低发展，所以这里是从后倒着找栈顶 <code>S-&gt;stack + STACK_SIZE - C-&gt;size</code>。</p>
+<p>&emsp;&emsp;入口函数 <code>mainfunc</code> 定义如下，主要就是传入协程调度器，从而获取正在执行的协程，从而执行对应的回调函数。并在回调函数执行完毕后删除协程，从而宣布此协程执行完毕。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span></span></span><br><span class="line"><span class="function"><span class="title">mainfunc</span><span class="params">(<span class="type">uint32_t</span> low32, <span class="type">uint32_t</span> hi32)</span> </span>&#123;</span><br><span class="line">	<span class="comment">//上32位和下32位组成一个指针，这里我觉得是为了避免64位与32位系统下long类型大小差异造成的影响</span></span><br><span class="line">	<span class="type">uintptr_t</span> ptr = (<span class="type">uintptr_t</span>)low32 | ((<span class="type">uintptr_t</span>)hi32 &lt;&lt; <span class="number">32</span>);</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">schedule</span> *S = (<span class="keyword">struct</span> schedule *)ptr;</span><br><span class="line">	<span class="type">int</span> id = S-&gt;running;</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">coroutine</span> *C = S-&gt;co[id];</span><br><span class="line">	C-&gt;<span class="built_in">func</span>(S,C-&gt;ud);<span class="comment">//执行协程的回调函数</span></span><br><span class="line">	_co_delete(C);<span class="comment">//执行完毕删除协程</span></span><br><span class="line">	S-&gt;co[id] = <span class="literal">NULL</span>;</span><br><span class="line">	--S-&gt;nco;</span><br><span class="line">	S-&gt;running = <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;</p>
+<h2 id="4-挂起-yield"><a href="#4-挂起-yield" class="headerlink" title="4. 挂起 yield"></a>4. 挂起 yield</h2><p>&emsp;&emsp;协程的核心操作<strong>挂起</strong>的实现如下，其中已经加上了我的注释。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span></span></span><br><span class="line"><span class="function"><span class="title">coroutine_yield</span><span class="params">(<span class="keyword">struct</span> schedule * S)</span> </span>&#123;</span><br><span class="line">	<span class="type">int</span> id = S-&gt;running;</span><br><span class="line">	<span class="built_in">assert</span>(id &gt;= <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">coroutine</span> * C = S-&gt;co[id];</span><br><span class="line">	<span class="built_in">assert</span>((<span class="type">char</span> *)&amp;C &gt; S-&gt;stack);</span><br><span class="line">	_save_stack(C,S-&gt;stack + STACK_SIZE);<span class="comment">//保存协程栈</span></span><br><span class="line">	C-&gt;status = COROUTINE_SUSPEND;</span><br><span class="line">	S-&gt;running = <span class="number">-1</span>;</span><br><span class="line">	<span class="built_in">swapcontext</span>(&amp;C-&gt;ctx , &amp;S-&gt;main);<span class="comment">//保存当前上下文至C-&gt;ctx，并激活S-&gt;main上下文</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line">_save_stack(<span class="keyword">struct</span> coroutine *C, <span class="type">char</span> *top) &#123;</span><br><span class="line">	<span class="type">char</span> dummy = <span class="number">0</span>;<span class="comment">//获取当前的栈顶地址</span></span><br><span class="line">	<span class="built_in">assert</span>(top - &amp;dummy &lt;= STACK_SIZE);</span><br><span class="line">	<span class="comment">//此时栈大小就是 top - &amp;dummy</span></span><br><span class="line">	<span class="keyword">if</span> (C-&gt;cap &lt; top - &amp;dummy) &#123;<span class="comment">//协程栈大小不足时，需要重新分配内存，用于保存当前协程栈</span></span><br><span class="line">		<span class="built_in">free</span>(C-&gt;stack);</span><br><span class="line">		C-&gt;cap = top-&amp;dummy;</span><br><span class="line">		C-&gt;stack = <span class="built_in">malloc</span>(C-&gt;cap);</span><br><span class="line">	&#125;</span><br><span class="line">	C-&gt;size = top - &amp;dummy;</span><br><span class="line">	<span class="built_in">memcpy</span>(C-&gt;stack, &amp;dummy, C-&gt;size);<span class="comment">//将栈顶至栈底的内存拷贝至C-&gt;stack保存</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;挂起操作相对就比较简单了，主要就是<strong>保存执行栈</strong> + <strong>切换上下文</strong>。其中主要的篇幅是在<strong>保存执行栈</strong>这一环节上，主要的逻辑是协程栈内存不足时释放并申请足够的内存，随后 <code>copy</code> 执行栈。<br>&emsp;&emsp;</p>
+<h2 id="5-新建与扩容"><a href="#5-新建与扩容" class="headerlink" title="5. 新建与扩容"></a>5. 新建与扩容</h2><p>&emsp;&emsp;值得一提的是协程调度结构体中是通过一个<strong>协程指针数组</strong>来储存所管理的协程的，所以涉及到扩容问题。此协程库中采用了经典的二倍扩容法，通过 <code>realloc</code> 进行扩容，具体实现如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> </span></span><br><span class="line"><span class="function"><span class="title">coroutine_new</span><span class="params">(<span class="keyword">struct</span> schedule *S, coroutine_func func, <span class="type">void</span> *ud)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">struct</span> <span class="title class_">coroutine</span> *co = _co_new(S, func , ud);</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	* 此处主要是判定管理者管理数量是否达到最大</span></span><br><span class="line"><span class="comment">	* 当达到最大时，会使用realloc对协程组空间进行扩容，扩容后大小为两倍当前大小（经典的两倍扩容），随后插入在最后端</span></span><br><span class="line"><span class="comment">	* 没达到最大时，则遍历协程组找到空闲位置插入</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="keyword">if</span> (S-&gt;nco &gt;= S-&gt;cap) &#123;<span class="comment">//扩容后，将新的协程插入到扩容后的第一个空闲处</span></span><br><span class="line">		<span class="type">int</span> id = S-&gt;cap;</span><br><span class="line">		S-&gt;co = <span class="built_in">realloc</span>(S-&gt;co, S-&gt;cap * <span class="number">2</span> * <span class="built_in">sizeof</span>(<span class="keyword">struct</span> coroutine *));</span><br><span class="line">		<span class="built_in">memset</span>(S-&gt;co + S-&gt;cap , <span class="number">0</span> , <span class="built_in">sizeof</span>(<span class="keyword">struct</span> coroutine *) * S-&gt;cap);</span><br><span class="line">		S-&gt;co[S-&gt;cap] = co;</span><br><span class="line">		S-&gt;cap *= <span class="number">2</span>;</span><br><span class="line">		++S-&gt;nco;</span><br><span class="line">		<span class="keyword">return</span> id;</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;<span class="comment">//遍历整个协程组找到位置插入新协程</span></span><br><span class="line">		<span class="type">int</span> i;</span><br><span class="line">		<span class="keyword">for</span> (i=<span class="number">0</span>;i&lt;S-&gt;cap;i++) &#123;</span><br><span class="line">			<span class="type">int</span> id = (i+S-&gt;nco) % S-&gt;cap;</span><br><span class="line">			<span class="keyword">if</span> (S-&gt;co[id] == <span class="literal">NULL</span>) &#123;</span><br><span class="line">				S-&gt;co[id] = co;</span><br><span class="line">				++S-&gt;nco;</span><br><span class="line">				<span class="keyword">return</span> id;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">assert</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;</p>
+<h1 id="三、小结"><a href="#三、小结" class="headerlink" title="三、小结"></a>三、小结</h1><p>&emsp;&emsp;这个协程库的实现比较简单明了，但是仍有很多学习的地方。通过这个协程库，我也初步了解了协程的实现原理。但是不得不说，虽然源码仅仅200行，但是其中很多思路可能是一时半会想不出来的。这种思路包括数据结构的定义&#x2F;函数的实现，我觉得都需要大量的积累，只能说我还有很多需要学习和接触的。</p>
+<p>&emsp;&emsp;在之后对鹅厂 <code>libco</code> 的源码学习中，我应该会着重去了解相比此协程库其多出内容的作用和意义，希望可以让我接触到更多新的东西。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="C++学习记录：一个小线程池的源码分析">
+                  <i class="fa fa-angle-left"></i> C++学习记录：一个小线程池的源码分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/06/03/20220603_redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E5%AD%97%E5%85%B8(dict)%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="redis学习记录：字典(dict)源码分析">
+                  redis学习记录：字典(dict)源码分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

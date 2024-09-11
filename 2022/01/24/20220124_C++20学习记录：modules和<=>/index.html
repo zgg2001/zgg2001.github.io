@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇笔记记录了对于 C++20 新特性中模块和三路比较运算符的一些尝试。 主要参考地址：cppreference">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++20学习记录：modules 和 ＜&#x3D;＞">
+<meta property="og:url" content="https://zgg2001.github.io/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="本篇笔记记录了对于 C++20 新特性中模块和三路比较运算符的一些尝试。 主要参考地址：cppreference">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/3.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/4.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/5.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/6.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-01-24/7.jpg">
+<meta property="article:published_time" content="2022-01-24T12:28:33.000Z">
+<meta property="article:modified_time" content="2022-01-24T12:28:33.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++标准库学习">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2022-01-24/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/","path":"2022/01/24/20220124_C++20学习记录：modules和\u003c=>/","title":"C++20学习记录：modules 和 ＜=＞"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++20学习记录：modules 和 ＜=＞ | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A8%A1%E5%9D%97"><span class="nav-text">二、模块</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A6%82%E5%BF%B5"><span class="nav-text">1. 概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95"><span class="nav-text">2. 代码测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B0%8F%E7%BB%93"><span class="nav-text">3. 小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%B8%89%E8%B7%AF%E6%AF%94%E8%BE%83%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-text">三、三路比较运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A6%82%E5%BF%B5-1"><span class="nav-text">1. 概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BB%A3%E7%A0%81%E6%B5%8B%E8%AF%95-1"><span class="nav-text">2. 代码测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B0%8F%E7%BB%93-1"><span class="nav-text">3. 小结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++20学习记录：modules 和 ＜=＞ | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++20学习记录：modules 和 ＜=＞
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-01-24 20:28:33" itemprop="dateCreated datePublished" datetime="2022-01-24T20:28:33+08:00">2022-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>本篇笔记记录了对于 <strong>C++20</strong> 新特性中<strong>模块</strong>和<strong>三路比较运算符</strong>的一些尝试。</li>
+<li>主要参考地址：<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/20">cppreference</a></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;这次抽空对 <strong>C++20</strong> 的新特性进行一点尝试，首先目标定为我比较感兴趣的模块部分和一个新的运算符 <code>&lt;=&gt;</code>。</p>
+<p>&emsp;&emsp;我的环境上的 <strong>gcc</strong> 版本为 <code>8.4.1</code>，我查了一下编译器支持，发现这个版本对于 <strong>C++20</strong> 的好多新特性无法完全支持，所以首先是手动编译安装了一下 <code>11.2.0</code> 的 <strong>gcc</strong> (真的慢…编了一个多小时)，所以本文使用的测试编译器为 <code>gcc 11.2.0</code>。<br>&emsp;&emsp;</p>
+<h1 id="二、模块"><a href="#二、模块" class="headerlink" title="二、模块"></a>二、模块</h1><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1. 概念"></a>1. 概念</h2><p>&emsp;&emsp;模块是 <strong>C++20</strong> 中我个人比较感兴趣的一部分，它的功能为支持代码的模块化，其作用根据设计思路而言主要是<strong>显著地提高与宏地隔离并大大优化编译时间</strong>，而且它也可以使得代码更加”卫生”。</p>
+<p>对于C++传统的头文件系统，主要的问题如下：</p>
+<ul>
+<li>不够卫生：一个头文件中的代码可能会影响同一翻译单元中包含的另一个 <code>#include</code> 中的代码的含义，因此 <code>#include</code> 并非顺序无关。宏是这里的一个主要问题，尽管不是唯一的问题。</li>
+<li>分离编译的不一致性：两个翻译单元中同一实体的声明可能不一致，但并非所有此类错误都被编译器或链接器捕获。</li>
+<li>编译次数过多：从源代码文本编译接口比较慢。从源代码文本反复地编译同一份接口非常慢。</li>
+</ul>
+<p>&emsp;&emsp;由此，标准委员会推出了模块这一新特性。这一特性说实话并不算新，现在很火的py和java都是很早就使用上了模块。但是对于C++而言我觉得这一新特性挑战还是很大，因为和以往的风格有很大不同。</p>
+<p>对于模块，其关键思想如下：</p>
+<ul>
+<li><code>export</code> 指令使实体可以被 <code>import</code> 到另一个模块中。</li>
+<li><code>import</code> 指令使从另一个模块 <code>export</code> 出来的的实体能够被使用。</li>
+<li><code>import</code> 的实体不会被隐式地再 <code>export</code> 出去。</li>
+<li><code>import</code> 不会将实体添加到上下文中，它只会使实体能被使用（因此，未使用的 <code>import</code> 基本上是无开销的）。</li>
+</ul>
+<h2 id="2-代码测试"><a href="#2-代码测试" class="headerlink" title="2. 代码测试"></a>2. 代码测试</h2><p>&emsp;&emsp;由此开始记录我的测试过程。首先创建模块文件 <code>test.cpp</code> 和主文件 <code>main.cpp</code> 如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//test.cpp 模块文件</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">module</span> helloworld;</span><br><span class="line"><span class="function"><span class="keyword">export</span> <span class="keyword">auto</span> <span class="title">hello</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Hello C++ 20!&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//main.cpp 主文件</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">import</span> helloworld;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="built_in">hello</span>() &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;可以看到在 <code>test.cpp</code> 中<strong>导出</strong>了 <code>helloworld</code> 模块和其中的函数 <code>hello()</code>，并在 <code>main.cpp</code> 中<strong>导入</strong>了 <code>helloworld</code> 模块。随后尝试进行编译，编译和执行过程如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">g++ -std=c++20 -fmodules-ts -c test.cpp 	#编译模块</span><br><span class="line">g++ -std=c++20 -fmodules-ts -c main.cpp 	#编译主文件</span><br><span class="line">g++ -std=c++20 test.o main.o -o App 		#编译可执行文件</span><br><span class="line"></span><br><span class="line">需要注意的是:</span><br><span class="line">模块必须优先被编译，否则会报错。</span><br><span class="line">g++ -std=c++20 -fmodules-ts test.cpp main.cpp -o App 	#正确</span><br><span class="line">g++ -std=c++20 -fmodules-ts main.cpp test.cpp -o App 	#错误</span><br><span class="line"></span><br><span class="line">执行:</span><br><span class="line">./App</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line">Hello C++ 20!</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;编译完以后，可以看到目录下相比平常的编译，多了一个名叫 <code>gcm.cache</code> 的目录，如下图：<br><img src="/images/2022-01-24/1.jpg" alt="1"><br>&emsp;&emsp;进入其中，发现有一个以模块名命名的 <code>.gcm</code> 格式文件，这个就是编译好的模块文件。<br><img src="/images/2022-01-24/2.jpg" alt="2"><br>&emsp;&emsp;我看 <strong>cppreference</strong> 上说 <strong>C++20</strong> 按理是支持导入以往的标准库的，例如 <code>import &lt;iostream&gt;;</code>，但是经过我的测试，<strong>gcc</strong> 无法实现，查了一下发现 <strong>gcc</strong> 确实是没有完全支持。<br><img src="/images/2022-01-24/3.jpg" alt="3"></p>
+<h2 id="3-小结"><a href="#3-小结" class="headerlink" title="3. 小结"></a>3. 小结</h2><p>&emsp;&emsp;目前来看可能这个新特性并没有被完全的支持，而且其相较以往的头文件格式改变比较大，受限于老代码和稳定性、支持性之类的考量，可能不会被太快的接受。但是它在编译速度上的优势我觉得还是很有前途的，现阶段主要的问题应该是老代码的模块化重构，比如说<strong>当前无法导入标准库的主要原因就是标准库还没有重构完成</strong>，也许在 <strong>C++23</strong> 会重构完成吧，到时候可能模块化就会用的更加方便、更容易被人接受。<br>&emsp;&emsp;</p>
+<h1 id="三、三路比较运算符"><a href="#三、三路比较运算符" class="headerlink" title="三、三路比较运算符"></a>三、三路比较运算符</h1><h2 id="1-概念-1"><a href="#1-概念-1" class="headerlink" title="1. 概念"></a>1. 概念</h2><p>&emsp;&emsp;简单说就是一个新的运算符，功能是比较左右操作数的大小，格式为 <code>左操作数 &lt;=&gt; 右操作数		 </code>。 其逻辑如下：</p>
+<ul>
+<li>若 <code>左操作数 &lt; 右操作数</code> 则 <code>(a &lt;=&gt; b) &lt; 0</code></li>
+<li>若 <code>左操作数 &gt; 右操作数</code> 则 <code>(a &lt;=&gt; b) &gt; 0</code></li>
+<li>若 <code>左操作数 和 右操作数</code> 相等&#x2F;等价则 <code>(a &lt;=&gt; b) == 0</code></li>
+</ul>
+<p>&emsp;&emsp;总体而言使用还是挺简单的，一个运算符就可以进行大小的比较。下面是截的一点描述，简单来讲就是这个运算符的返回值是一个<strong>被封装了很多层的类型的右值</strong>。<br><img src="/images/2022-01-24/4.jpg" alt="4"><br>&emsp;&emsp;简单看一下源码，相关定义位于 <code>/usr/local/include/c++/11.2.0/compare</code>，最底层的枚举值为 <code>小于：-1</code>、<code>等于：0</code>、<code>大于：1</code>。<br><img src="/images/2022-01-24/5.jpg" alt="5"><br>&emsp;&emsp;然后就是各种封装内联对象，可以看到下图的定义和初始化。联系上图可以得知最底层储存类型为 <code>signed char</code>，所以十六进制下的值就是如下图一注释一样，<code>less=0xff...</code>。<br><img src="/images/2022-01-24/6.jpg" alt="6"><img src="/images/2022-01-24/7.jpg" alt="7"></p>
+<h2 id="2-代码测试-1"><a href="#2-代码测试-1" class="headerlink" title="2. 代码测试"></a>2. 代码测试</h2><p>&emsp;&emsp;测试代码如下，使用起来也非常简单，没有什么好说的，但是需要注意比较结果是无法直接 <code>cout</code> 的，原因应该是作用域枚举没有重载 <code>&lt;&lt;</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;compare&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">double</span> foo = <span class="number">-0.0</span>;</span><br><span class="line">    <span class="type">double</span> bar = <span class="number">0.0</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">auto</span> res = foo &lt;=&gt; bar;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> (res &lt; <span class="number">0</span>)</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;-0 小于 0&quot;</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (res &gt; <span class="number">0</span>)</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;-0 大于 0&quot;</span>;</span><br><span class="line">    <span class="keyword">else</span> <span class="comment">// (res == 0)</span></span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;-0 与 0 相等&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">编译:</span><br><span class="line">g++ -std=c+<span class="number">+20</span> main.cpp -o App</span><br><span class="line"></span><br><span class="line">执行:</span><br><span class="line">./App</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">-0</span> 与 <span class="number">0</span> 相等</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-小结-1"><a href="#3-小结-1" class="headerlink" title="3. 小结"></a>3. 小结</h2><p>&emsp;&emsp;这算是一个小更新，但是说实话让 <strong>C++</strong> 有了更多的看起来很秀的操作。在实际判断中这个运算符可以省去一些变量名的重复编写，我觉得可以避免一些低级的失误，比如说写错变量名之类的。总之还是挺有意思的一个小更新。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C-%E6%A0%87%E5%87%86%E5%BA%93%E5%AD%A6%E4%B9%A0/" rel="tag"># C++标准库学习</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/" rel="prev" title="C++17学习记录：新语言功能特性">
+                  <i class="fa fa-angle-left"></i> C++17学习记录：新语言功能特性
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="C/C++学习记录：智能指针 std::unique_ptr 源码分析">
+                  C/C++学习记录：智能指针 std::unique_ptr 源码分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

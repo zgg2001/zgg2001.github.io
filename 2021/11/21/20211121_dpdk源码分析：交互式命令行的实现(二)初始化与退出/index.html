@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本文中使用的dpdk库版本为：16.04 此文为分析的第二篇，接上文 dpdk源码分析：交互式命令行的实现(一) 命令添加 上一篇中已经分析了命令添加相关的实现和写法，接下来目标为交互式命令行初始化和退出相关内容的分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dpdk源码分析：交互式命令行的实现(二) 初始化与退出">
+<meta property="og:url" content="https://zgg2001.github.io/2021/11/21/20211121_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%BA%8C)%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%80%80%E5%87%BA/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="本文中使用的dpdk库版本为：16.04 此文为分析的第二篇，接上文 dpdk源码分析：交互式命令行的实现(一) 命令添加 上一篇中已经分析了命令添加相关的实现和写法，接下来目标为交互式命令行初始化和退出相关内容的分析。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/3.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/4.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/5.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/6.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/7.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/8.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/9.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/10.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-11-21/11.jpg">
+<meta property="article:published_time" content="2021-11-21T05:04:51.000Z">
+<meta property="article:modified_time" content="2021-11-21T05:04:51.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta property="article:tag" content="dpdk">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-11-21/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/11/21/20211121_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%BA%8C)%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%80%80%E5%87%BA/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/11/21/20211121_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%BA%8C)%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%80%80%E5%87%BA/","path":"2021/11/21/20211121_dpdk源码分析：交互式命令行的实现(二)初始化与退出/","title":"dpdk源码分析：交互式命令行的实现(二) 初始化与退出"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>dpdk源码分析：交互式命令行的实现(二) 初始化与退出 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%8E%E4%B8%80%E6%AE%B5%E4%BB%A3%E7%A0%81%E5%85%A5%E6%89%8B"><span class="nav-text">一、从一段代码入手</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E5%87%BD%E6%95%B0-cmdline-stdin-new"><span class="nav-text">二、初始化函数 cmdline_stdin_new()</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%BB%88%E7%AB%AF%E8%AE%BE%E7%BD%AE"><span class="nav-text">1. 终端设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-cmdline-new"><span class="nav-text">2. cmdline_new()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-rdline-init"><span class="nav-text">2.1 rdline_init()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1-cmdline-write-char"><span class="nav-text">2.1.1  cmdline_write_char()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-2-cmdline-valid-buffer"><span class="nav-text">2.1.2  cmdline_valid_buffer()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-3-cmdline-complete-buffer"><span class="nav-text">2.1.3  cmdline_complete_buffer()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-4-cirbuf-init"><span class="nav-text">2.1.4  cirbuf_init()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-cmdline-set-prompt"><span class="nav-text">2.2 cmdline_set_prompt()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-rdline-newline"><span class="nav-text">2.3 rdline_newline()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BA%A4%E4%BA%92%E5%87%BD%E6%95%B0-cmdline-interact-%E7%95%A5%E8%BF%87"><span class="nav-text">三、交互函数 cmdline_interact() (略过)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%80%80%E5%87%BA%E5%87%BD%E6%95%B0-cmdline-stdin-exit"><span class="nav-text">四、退出函数 cmdline_stdin_exit()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">五、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/11/21/20211121_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%BA%8C)%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%80%80%E5%87%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="dpdk源码分析：交互式命令行的实现(二) 初始化与退出 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          dpdk源码分析：交互式命令行的实现(二) 初始化与退出
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-21 13:04:51" itemprop="dateCreated datePublished" datetime="2021-11-21T13:04:51+08:00">2021-11-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>本文中使用的dpdk库版本为：<strong>16.04</strong></li>
+<li>此文为分析的第二篇，接上文 <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/120766552">dpdk源码分析：交互式命令行的实现(一) 命令添加</a></li>
+<li>上一篇中已经分析了命令添加相关的实现和写法，接下来目标为交互式命令行初始化和退出相关内容的分析。</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、从一段代码入手"><a href="#一、从一段代码入手" class="headerlink" title="一、从一段代码入手"></a>一、从一段代码入手</h1><p>&emsp;&emsp;下面这段代码为dpdk例程 <code>examples/qos_sched/cmdline.c</code> 中的内容，是对封装好的交互式命令行内容进行调用的完整流程。<br><img src="/images/2021-11-21/1.jpg" alt="例程"><br>&emsp;&emsp;可以看到，此段代码总共有两个部分，第一部分为 <code>main_ctx[]</code> 的定义过程，第二部分为一个函数 <code>prompt()</code>。</p>
+<p>&emsp;&emsp;根据上一篇的内容，可以知道 <code>main_ctx[]</code> 中定义的内容为具体的命令。图中代码中一共定义了11组命令，此篇笔记中不再进行赘述。</p>
+<p>&emsp;&emsp;第二部分为函数 <code>prompt()</code>，其中一共调用了三个函数，另外此处的 <code>struct cmdline</code> 即为命令行的结构体。根据传参的内容、函数的返回值以及函数名称，即可简单的猜出这三个函数的作用：</p>
+<ol>
+<li><code>cmdline_stdin_new</code>：传参为命令组以及提示符，返回值为一个 <code>struct cmdline</code>。联系下文中对空值的判定以及函数名，即可推断出此函数作用大致为<strong>传入命令组与提示符生成相对应命令行</strong>。</li>
+<li><code>cmdline_interact</code>：传参为 <code>cmdline_stdin_new</code> 函数生成的命令行，返回值不详。联系函数名可推断出此函数作用大致为<strong>开始与指定命令行的交互(interact)，即开始接收并解析命令</strong>。</li>
+<li><code>cmdline_stdin_exit</code>：传参为 <code>cmdline_stdin_new</code> 函数生成的命令行，返回值不详。联系函数名可推断出此函数作用大致为<strong>退出指定的交互式命令行</strong>。</li>
+</ol>
+<p>&emsp;&emsp;接下来，将对初始化和退出这两个函数的流程和实现进行分析。<br>&emsp;</p>
+<h1 id="二、初始化函数-cmdline-stdin-new"><a href="#二、初始化函数-cmdline-stdin-new" class="headerlink" title="二、初始化函数 cmdline_stdin_new()"></a>二、初始化函数 cmdline_stdin_new()</h1><p>&emsp;&emsp;首选查看其定义，其定义位于<code>lib/librte_cmdline/cmdline_socket.c</code>。<br><img src="/images/2021-11-21/2.jpg" alt="new"><br>&emsp;&emsp;从上图源码中可以发现，此函数有两个传参，传参一为命令组，传参二为提示符。简单来看，函数中大概可以分为两部分，第一部分是对终端设置的操作，第二部分是调用了一个新的函数<code>cmdline_new()</code>。<br>&emsp;</p>
+<h2 id="1-终端设置"><a href="#1-终端设置" class="headerlink" title="1. 终端设置"></a>1. 终端设置</h2><p>&emsp;&emsp;首先看一下第一部分，一共是五行。</p>
+<ol>
+<li>此行调用函数 <code>tcgetattr</code>，作用是获取指定终端的设置并储存至一个 <code>termios</code> 结构体内。此处传参一为0，即文件操作符为0的流，为此进程的<strong>标准输入流</strong>；传参二为获取到的内容储存的位置，为函数中声明的结构体 <code>oldterm</code>。</li>
+<li>此行调用函数 <code>memcpy</code>，将 <code>oldterm</code> 中的内容(即上一行中获取到的设置)copy至 <code>term</code> 中。</li>
+<li>此行为修改 <code>term</code> 中的输入模式标志 <code>c_lflag</code>，此处为<strong>关闭</strong>三个设置：ICANON(使用标准输入模式)、ECHO(显示输入字符)、ISIG(当输入INTR、QUIT、SUSP或DSUSP时，产生相应的信号)。</li>
+<li>此行调用函数 <code>tcsetattr</code>，作用是设置终端参数。此函数的参数一为终端的文件描述符；参数二为用于控制修改起作用的时间；参数三为结构体 <code>struct termios</code>，其中储存了输入输出模式等设置参数。此处传参一为0，即此进程的<strong>标准输入流</strong>；传参二为 <code>TCSANOW</code>，代表不等数据传输完毕就立即改变属性；传参三为结构体 <code>term</code>，即上一行配置后的终端设置。</li>
+<li>此行调用函数 <code>setbuf</code>，作用为设置用于流操作的内部缓冲区。此处传参一为标准输入流 <code>stdin</code>，传参二中缓冲区设置为 <code>NULL</code>，即关闭缓冲区。此处关闭缓冲区的意义我认为是方便后续及时对单个输入字符的处理。<br>&emsp;</li>
+</ol>
+<h2 id="2-cmdline-new"><a href="#2-cmdline-new" class="headerlink" title="2. cmdline_new()"></a>2. cmdline_new()</h2><p>&emsp;&emsp;接着来看一下第二部分，此处调用了函数<code>cmdline_new()</code>。首先查看一下这个函数的定义，其定义位于<code>lib/librte_cmdline/cmdline.c</code>。<br><img src="/images/2021-11-21/3.jpg" alt="cmdline_new"><br>&emsp;&emsp;此函数的传参一共有四个，根据 <code>cmdline_stdin_new</code> 中的调用来看：传参一是命令组；传参二是提示符；传参三是输入描述符(传入fd为0，即本进程输入流)；传参四为输出描述符(传入fd为1，即本进程输出流)。</p>
+<p>&emsp;&emsp;函数中首先是对命令组和提示符的合法性进行了非空判定。随后是 <code>malloc</code> 并 <code>memset</code> 了一块 <code>cmdline</code> 结构体大小的空间，用来储存申请的命令行数据。接着直接对 <code>cmdline</code> 结构体内容进行赋值，输入输出流设为传入的输入输出流，命令组设为传入的命令组。最后就是若干初始化命令行的函数，下面会挨个分析。<br>&emsp;</p>
+<h3 id="2-1-rdline-init"><a href="#2-1-rdline-init" class="headerlink" title="2.1 rdline_init()"></a>2.1 rdline_init()</h3><p>&emsp;&emsp;首先看一下 <code>rdline_init()</code> 其定义位于 <code>lib/librte_cmdline/cmdline_rdline.c</code>。<br><img src="/images/2021-11-21/4.jpg" alt="rdline_init"><br>&emsp;&emsp;注释如下，我也加上了一部分内容方便理解：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Init fields for a struct rdline. Call this only once at the beginning</span></span><br><span class="line"><span class="comment"> * of your program.</span></span><br><span class="line"><span class="comment"> * 只需要在初始化rdline前执行一次</span></span><br><span class="line"><span class="comment"> * \param rdl A pointer to an uninitialized struct rdline </span></span><br><span class="line"><span class="comment"> * 参数一为一个未初始化的rdline，即用户申请的cmdline中包含的rdline</span></span><br><span class="line"><span class="comment"> * \param write_char The function used by the function to write a character</span></span><br><span class="line"><span class="comment"> * 参数二为一个函数指针，指向用来写字符的函数</span></span><br><span class="line"><span class="comment"> * \param validate A pointer to the function to execute when the</span></span><br><span class="line"><span class="comment"> *                 user validates the buffer.</span></span><br><span class="line"><span class="comment"> * 参数三为一个函数指针，指向用户验证缓冲区时要执行的函数</span></span><br><span class="line"><span class="comment"> * \param complete A pointer to the function to execute when the</span></span><br><span class="line"><span class="comment"> *                 user completes the buffer.</span></span><br><span class="line"><span class="comment"> * 参数四为一个函数指针，指向用户完成缓冲区时要执行的函数</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;再次查看 <code>cmdline_new()</code> 中的调用，来确定三个函数的位置。另外可以看到此函数中return语句调用了函数 <code>cirbuf_init()</code>，接下来将对这四个函数进行分析。<br>&emsp;</p>
+<h4 id="2-1-1-cmdline-write-char"><a href="#2-1-1-cmdline-write-char" class="headerlink" title="2.1.1  cmdline_write_char()"></a>2.1.1  cmdline_write_char()</h4><p>&emsp;&emsp;其定义位于<code>lib/librte_cmdline/cmdline.c</code>。<br><img src="/images/2021-11-21/5.jpg" alt="2.1.1"><br>&emsp;&emsp;此函数中，首先是根据 <code>rdline</code> 获取到其所属的 <code>cmdline</code>，随后进行检测，当输出流中存在内容时，使用 <code>write</code> 函数进行单个字符的写入。<br>&emsp;</p>
+<h4 id="2-1-2-cmdline-valid-buffer"><a href="#2-1-2-cmdline-valid-buffer" class="headerlink" title="2.1.2  cmdline_valid_buffer()"></a>2.1.2  cmdline_valid_buffer()</h4><p>&emsp;&emsp;其定义位于<code>lib/librte_cmdline/cmdline.c</code>。<br><img src="/images/2021-11-21/6.jpg" alt="2.1.2"><br>&emsp;&emsp;此函数中，首先是根据 <code>rdline</code> 获取到其所属的 <code>cmdline</code>，随后使用命令行解析函数 <code>cmdline_parse()</code> (此篇笔记中不对此函数进行分析)对传入的字符串进行解析，根据解析的结果进行验证和提示。<br>&emsp;</p>
+<h4 id="2-1-3-cmdline-complete-buffer"><a href="#2-1-3-cmdline-complete-buffer" class="headerlink" title="2.1.3  cmdline_complete_buffer()"></a>2.1.3  cmdline_complete_buffer()</h4><p>&emsp;&emsp;其定义位于<code>lib/librte_cmdline/cmdline.c</code>。<br><img src="/images/2021-11-21/7.jpg" alt="2.1.3"><br>&emsp;&emsp;此函数中，首先是根据 <code>rdline</code> 获取到其所属的 <code>cmdline</code>，随后使用缓冲区操作函数 <code>cmdline_complete_buffer()</code> (此篇笔记中不对此函数进行分析)对缓冲区进行处理。<br>&emsp;</p>
+<h4 id="2-1-4-cirbuf-init"><a href="#2-1-4-cirbuf-init" class="headerlink" title="2.1.4  cirbuf_init()"></a>2.1.4  cirbuf_init()</h4><p>&emsp;&emsp;其定义位于<code>lib/librte_cmdline/cmdline_cirbuf.c</code>。<br><img src="/images/2021-11-21/8.jpg" alt="2.1.4"><br>&emsp;&emsp;此函数的作用是初始化循环缓冲区。此处函数里主要是对 <code>&amp;rdline-&gt;history</code> 这部分初始化，包括大小、起始、缓冲区地址等。<br>&emsp;</p>
+<h3 id="2-2-cmdline-set-prompt"><a href="#2-2-cmdline-set-prompt" class="headerlink" title="2.2 cmdline_set_prompt()"></a>2.2 cmdline_set_prompt()</h3><p>&emsp;&emsp;在执行此函数前，<code>cmdline_new()</code> 中先执行 <code>cl-&gt;rdl.opaque = cl;</code>，作用是将 <code>cmdline cl</code> 中含有的 <code>rdline rdl</code> 与其所属 <code>cmdline cl</code> 绑定。随后来看函数<code>cmdline_set_prompt()</code>，其定义位于<code>lib/librte_cmdline/cmdline.c</code>。<br><img src="/images/2021-11-21/9.jpg" alt="2.2"><br>&emsp;&emsp;此处的传参二为命令行提示符，此处的主要作用就是将提示符设置进 <code>cmdline</code> 中。这里使用格式化写入函数 <code>snprintf</code>，将提示符写入 <code>cmdline-&gt;prompt</code> 部分。<br>&emsp;</p>
+<h3 id="2-3-rdline-newline"><a href="#2-3-rdline-newline" class="headerlink" title="2.3 rdline_newline()"></a>2.3 rdline_newline()</h3><p>&emsp;&emsp;其定义位于<code>lib/librte_cmdline/cmdline_rdline.c</code>。<br><img src="/images/2021-11-21/10.jpg" alt="2.3"><br>&emsp;&emsp;此函数里主要是对 <code>rdline</code> 中的元素进行初始化，包括左右缓冲区(rdline-&gt;left&#x2F;right)和 <code>rdline</code> 对应的提示符相关内容等。<br>&emsp;&emsp;这里值得一提的是 <code>write_char</code> 函数实际是 <code>2.1.1  cmdline_write_char()</code> 传入的函数，所以这里的实际操作是将输出流内的内容存入<code>rdline-&gt;prompt</code>。我思考了一下这部分的逻辑，觉得应该是为了让输出流中的提示符与 <code>rdline</code> 中的提示符相对应，也有可能是为了清除缓冲区。<br>&emsp;<br>&emsp;&emsp;至此，初始化函数 <code>cmdline_stdin_new()</code> 结束，可以看到其中主要流程为：</p>
+<ol>
+<li>对终端之前的设置进行保存，设置三个终端选项。</li>
+<li><code>cmdline</code> 的初始化，设定输入输出流、命令组以及提示符等。</li>
+<li><code>rdline</code> 的初始化，设定三个回调函数(写字符、检测、完成)，对历史命令缓冲区、左右缓冲区进行初始化，以及对提示符的设定等。<br>&emsp;</li>
+</ol>
+<h1 id="三、交互函数-cmdline-interact-略过"><a href="#三、交互函数-cmdline-interact-略过" class="headerlink" title="三、交互函数 cmdline_interact() (略过)"></a>三、交互函数 cmdline_interact() (略过)</h1><p>&emsp;&emsp;本篇笔记主要记录初始化和退出部分，解析部分暂且略过，在之后的笔记中记录分析。<br>&emsp;</p>
+<h1 id="四、退出函数-cmdline-stdin-exit"><a href="#四、退出函数-cmdline-stdin-exit" class="headerlink" title="四、退出函数 cmdline_stdin_exit()"></a>四、退出函数 cmdline_stdin_exit()</h1><p>&emsp;&emsp;首选查看其定义，其定义位于<code>lib/librte_cmdline/cmdline_socket.c</code>。<br><img src="/images/2021-11-21/11.jpg" alt="在这里插入图片描述"><br>&emsp;&emsp;其中函数 <code>tcsetattr</code> 的作用是设置linux下终端参数。此函数的参数一为终端的文件描述符；参数二为用于控制修改起作用的时间；参数三为结构体 <code>struct termios</code>，其中储存了输入输出模式等设置参数。具体含义如下：</p>
+<ul>
+<li>参数一为 <code>fileno(stdin)</code>，其中 <code>fileno()</code> 的作用是获取传参流的文件描述符，此处传入输入流 <code>stdin</code> 并获取到其文件操作符。</li>
+<li>参数二为 <code>TCSANOW</code>，代表不等数据传输完毕就立即改变属性。</li>
+<li>参数三为 <code>&amp;c1-&gt;oldterm</code>，为在调用 <code>cmdline_stdin_new</code> 创建 <code>cmdline</code> 时保存的未修改的终端设置，即交互式命令行创建之前的终端设置。</li>
+</ul>
+<p>&emsp;&emsp;所以，退出函数 <code>cmdline_stdin_exit</code> 的实际操作仅仅是恢复了创建交互式命令行之前的终端设置。<br>&emsp;</p>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><p>&emsp;&emsp;总的来说，dpdk中这部分源码非常严谨，参数、宏非常多。其中一些概念，比如说vt100，我也是搜了一下才知道是什么。<br>&emsp;&emsp;源码中对 <code>cmdline</code> 和 <code>rdline</code> 结构体的定义，都可以说是非常的“庞大”，<strong>本篇笔记中记录的初始化和退出相关的内容，涉及到非常多的函数，但实际上都是为了初始化这两个结构体</strong>。发现了这一点之后，再汇总一下初始化的内容，整体就非常清晰了。<br>&emsp;&emsp;其中一些对流的操作，我还是没有理解透彻，比如说 <code>rdline_newline()</code> 中为何要执行 <code>rdl-&gt;write_char()</code>，在接下来我应该会再去更深入的了解一下linux下流的内容，来理解源码中的意图和意义。当然，这系列中还剩最后也是最重要的一部分——命令解析，在下一篇中会进行分析。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+              <a href="/tags/dpdk/" rel="tag"># dpdk</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/" rel="prev" title="golang学习记录：二进制文件判断实现与思路">
+                  <i class="fa fa-angle-left"></i> golang学习记录：二进制文件判断实现与思路
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/12/02/20211202_C++11%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/" rel="next" title="C++11学习记录：核心语言功能特性">
+                  C++11学习记录：核心语言功能特性 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

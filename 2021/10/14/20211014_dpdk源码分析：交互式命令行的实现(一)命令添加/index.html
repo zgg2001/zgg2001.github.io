@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在实习的时候就对dpdk中 cmdline 的实现方式感兴趣，苦于待干的事情太多，一直没有空记录。 最近抽出时间准备进行一次较为深入的分析，来看一下dpdk是如何使用c语言来实现 cmdline 的. 本文中使用的dpdk库版本为：16.04">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dpdk源码分析：交互式命令行的实现(一) 命令添加">
+<meta property="og:url" content="https://zgg2001.github.io/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="在实习的时候就对dpdk中 cmdline 的实现方式感兴趣，苦于待干的事情太多，一直没有空记录。 最近抽出时间准备进行一次较为深入的分析，来看一下dpdk是如何使用c语言来实现 cmdline 的. 本文中使用的dpdk库版本为：16.04">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/3.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/4.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/5.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/6.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-14/7.jpg">
+<meta property="article:published_time" content="2021-10-14T11:53:28.000Z">
+<meta property="article:modified_time" content="2021-10-14T11:53:28.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta property="article:tag" content="dpdk">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-10-14/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/","path":"2021/10/14/20211014_dpdk源码分析：交互式命令行的实现(一)命令添加/","title":"dpdk源码分析：交互式命令行的实现(一) 命令添加"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>dpdk源码分析：交互式命令行的实现(一) 命令添加 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%88%86%E6%9E%90"><span class="nav-text">一、分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BB%8E%E4%B8%80%E6%AE%B5%E4%BB%A3%E7%A0%81%E5%85%A5%E6%89%8B"><span class="nav-text">1. 从一段代码入手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%91%BD%E4%BB%A4%E7%B1%BB%E5%9E%8B-cmdline-parse-inst-t"><span class="nav-text">2. 命令类型 cmdline_parse_inst_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BB%A4%E7%89%8C%E7%B1%BB%E5%9E%8B-cmdline-parse-token-hdr-t"><span class="nav-text">3. 令牌类型 cmdline_parse_token_hdr_t</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BB%93%E6%9E%84%E4%BD%93-cmdline-token-ops"><span class="nav-text">4.  结构体 cmdline_token_ops</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%AD%90%E4%BB%A4%E7%89%8C%E7%B1%BB%E5%9E%8B-%E4%BB%A5-cmdline-parse-token-num-t-%E4%B8%BA%E4%BE%8B"><span class="nav-text">5.  子令牌类型 以 cmdline_parse_token_num_t 为例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%96%B0%E5%A2%9E%E5%91%BD%E4%BB%A4%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="nav-text">二、新增命令流程总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%96%B0%E5%BB%BA%E5%91%BD%E4%BB%A4%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-text">1. 新建命令结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%96%B0%E5%BB%BA%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0%E7%BB%93%E6%9E%84%E4%BD%93"><span class="nav-text">2. 新建命令参数结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%94%9F%E6%88%90%E7%9B%B8%E5%85%B3%E4%BB%A4%E7%89%8C"><span class="nav-text">3. 生成相关令牌</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BC%96%E5%86%99%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="nav-text">4. 编写回调函数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">三、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="dpdk源码分析：交互式命令行的实现(一) 命令添加 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          dpdk源码分析：交互式命令行的实现(一) 命令添加
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-14 19:53:28" itemprop="dateCreated datePublished" datetime="2021-10-14T19:53:28+08:00">2021-10-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>在实习的时候就对dpdk中 <code>cmdline</code> 的实现方式感兴趣，苦于待干的事情太多，一直没有空记录。</li>
+<li>最近抽出时间准备进行一次较为深入的分析，来看一下dpdk是如何使用c语言来实现 <code>cmdline</code> 的.</li>
+<li>本文中使用的dpdk库版本为：<strong>16.04</strong></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、分析"><a href="#一、分析" class="headerlink" title="一、分析"></a>一、分析</h1><h2 id="1-从一段代码入手"><a href="#1-从一段代码入手" class="headerlink" title="1. 从一段代码入手"></a>1. 从一段代码入手</h2><p>本段代码摘自 <code>app/test-pmd/cmdline.c</code>，这是dpdk例程 <strong>testpmd</strong> 其中的一个命令实现。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* *** SHOW PORT INFO *** */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cmd_showport_result</span> &#123;</span></span><br><span class="line">	<span class="type">cmdline_fixed_string_t</span> show;</span><br><span class="line">	<span class="type">cmdline_fixed_string_t</span> port;</span><br><span class="line">	<span class="type">cmdline_fixed_string_t</span> what;</span><br><span class="line">	<span class="type">uint8_t</span> portnum;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">cmd_showport_parsed</span><span class="params">(<span class="type">void</span> *parsed_result,</span></span><br><span class="line"><span class="params">				__attribute__((unused)) <span class="keyword">struct</span> cmdline *cl,</span></span><br><span class="line"><span class="params">				__attribute__((unused)) <span class="type">void</span> *data)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">cmd_showport_result</span> *<span class="title">res</span> =</span> parsed_result;</span><br><span class="line">	...若干实现</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">cmdline_parse_token_string_t</span> cmd_showport_show =</span><br><span class="line">	TOKEN_STRING_INITIALIZER(<span class="keyword">struct</span> cmd_showport_result, show,</span><br><span class="line">				 <span class="string">&quot;show#clear&quot;</span>);</span><br><span class="line"><span class="type">cmdline_parse_token_string_t</span> cmd_showport_port =</span><br><span class="line">	TOKEN_STRING_INITIALIZER(<span class="keyword">struct</span> cmd_showport_result, port, <span class="string">&quot;port&quot;</span>);</span><br><span class="line"><span class="type">cmdline_parse_token_string_t</span> cmd_showport_what =</span><br><span class="line">	TOKEN_STRING_INITIALIZER(<span class="keyword">struct</span> cmd_showport_result, what,</span><br><span class="line">				 <span class="string">&quot;info#stats#xstats#fdir#stat_qmap#dcb_tc&quot;</span>);</span><br><span class="line"><span class="type">cmdline_parse_token_num_t</span> cmd_showport_portnum =</span><br><span class="line">	TOKEN_NUM_INITIALIZER(<span class="keyword">struct</span> cmd_showport_result, portnum, UINT8);</span><br><span class="line"></span><br><span class="line"><span class="type">cmdline_parse_inst_t</span> cmd_showport = &#123;</span><br><span class="line">	.f = cmd_showport_parsed,</span><br><span class="line">	.data = <span class="literal">NULL</span>,</span><br><span class="line">	.help_str = <span class="string">&quot;show|clear port info|stats|xstats|fdir|stat_qmap|dcb_tc X (X = port number)&quot;</span>,</span><br><span class="line">	.tokens = &#123;</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_showport_show,</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_showport_port,</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_showport_what,</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_showport_portnum,</span><br><span class="line">		<span class="literal">NULL</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这便是 <strong>testpmd</strong> 中一个很关键的命令 <code>show port info X</code> 的实现。其中可以发现上面的实现，从上到下可以分为四个部分：</p>
+<ol>
+<li>一个 <strong>struct</strong> 定义，其中储存着命令行中输入命令的参数。这段源码中即为 <code>struct cmd_showport_result</code>，其中储存着三个 <strong>string</strong>，一个 <strong>int</strong> 成员。这四个成员则依次对应 <code>show port info X</code> 这四个部分。</li>
+<li>一个回调函数，其中对命令输入的内容进行处理，命令功能的实现就在这个函数里。从上面的源码里可以看出此函数的第一个传参为输入命令解析后的结果，其类型是第一部分 <strong>struct</strong> 的结构体指针。</li>
+<li>若干 <code>cmdline_parse_token</code>，与第一部分 <strong>struct</strong> 定义的内容相关。</li>
+<li>一个被封装好的类型 <code>cmdline_parse_inst_t</code>，一共有四个参数，其中第一个参数为第二部分的函数，第二个部分为空，第三部分为帮助信息 <code>help_str</code>，第四部分为第三部分新建的若干令牌 <code>cmdline_parse_token</code>。</li>
+</ol>
+<p>&emsp;&emsp;接下来将从第四部分，最关键的 <code>cmdline_parse_inst_t</code> 来分析。<br>&emsp;</p>
+<h2 id="2-命令类型-cmdline-parse-inst-t"><a href="#2-命令类型-cmdline-parse-inst-t" class="headerlink" title="2. 命令类型 cmdline_parse_inst_t"></a>2. 命令类型 cmdline_parse_inst_t</h2><p><img src="/images/2021-10-14/1.jpg" alt="cmdline_parse_inst_t "><br>&emsp;&emsp;<code>cmdline_parse_inst_t</code> 的定义在 <code>lib/librte_cmdline/cmdline_parse.h</code> 中，内容如上，可以看到其是将结构体 <code>cmdline_inst</code> 封装后的类型。联系上文内容以及此段代码内的注释，<strong>dpdk cmdline</strong> 中命令的类型已经大致清楚。</p>
+<p>&emsp;&emsp;在 <strong>dpdk cmdline</strong> 中，每一个 <code>cmdline_parse_inst_t</code> 都代表一个命令，其包含有四个成员。第一个成员为一个<strong>回调函数</strong>，内容为此条命令需要执行的内容。第三个成员为帮助信息 <code>help_str</code>，在按tab或是help的时候，则会补全或是弹出相关信息。第四个成员即为一个令牌数组，其中储存着命令中的参数，这块内容接下来会进行分析。<br>&emsp;</p>
+<h2 id="3-令牌类型-cmdline-parse-token-hdr-t"><a href="#3-令牌类型-cmdline-parse-token-hdr-t" class="headerlink" title="3. 令牌类型 cmdline_parse_token_hdr_t"></a>3. 令牌类型 cmdline_parse_token_hdr_t</h2><p><img src="/images/2021-10-14/2.jpg" alt="cmdline_parse_token_hdr_t"><br>&emsp;&emsp;<code>cmdline_token_hdr_t</code> 的定义也在 <code>lib/librte_cmdline/cmdline_parse.h</code> 中，内容如上。</p>
+<p>&emsp;&emsp;<code>cmdline_token_hdr_t</code> 是对结构体 <code>cmdline_token_hdr</code> 封装后的类型，其中共有两个成员。其中一个是结构体 <strong>cmdline_token_ops</strong> 的指针，另一个是 <strong>uint</strong> 类型的偏移量。通过注释可以得知，此处的偏移量为解析结果存入结构的位置，但是 <strong>ops</strong> 结构体还是不知道是什么东西。<br>&emsp;</p>
+<h2 id="4-结构体-cmdline-token-ops"><a href="#4-结构体-cmdline-token-ops" class="headerlink" title="4.  结构体 cmdline_token_ops"></a>4.  结构体 cmdline_token_ops</h2><p><img src="/images/2021-10-14/3.jpg" alt="ops"><br>&emsp;&emsp;<code>cmdline_token_ops</code> 的定义仍在 <code>lib/librte_cmdline/cmdline_parse.h</code> 中，内容如上。</p>
+<p>&emsp;&emsp;<strong>ops</strong> 结构体里含义四个回调函数，是比较复杂的…粗略来看，需要自定义一些回调函数来实现不同种类令牌的解析与补全等操作。这四个回调函数的具体内容这里不再赘述，预计会单独开一篇记录来分析 <code>cmdline_token_ops</code> 结构体内的回调函数的功能、流程和思路。</p>
+<p>&emsp;&emsp;从这里以及前文可以得知一个东西，那就是根据令牌类型的不同，某些回调函数的实现也存在差异。比如说最开始摘出的代码，其对 uint8 类型令牌的定义流程如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cmd_showport_result</span> &#123;</span></span><br><span class="line">	...</span><br><span class="line">	<span class="type">uint8_t</span> portnum;</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br><span class="line"><span class="type">cmdline_parse_token_num_t</span> cmd_showport_portnum =</span><br><span class="line">	TOKEN_NUM_INITIALIZER(<span class="keyword">struct</span> cmd_showport_result, portnum, UINT8);</span><br><span class="line">...</span><br><span class="line"><span class="type">cmdline_parse_inst_t</span> cmd_showport = &#123;</span><br><span class="line">	...</span><br><span class="line">	.tokens = &#123;</span><br><span class="line">		...</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_showport_portnum,</span><br><span class="line">		<span class="literal">NULL</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;可以看到，在 uint8 令牌的创建流程中，令牌的类型是 <code>cmdline_parse_token_num_t</code>，而不是 <code>cmdline_parse_token_hdr_t</code>，且在构造中使用了宏函数 <code>TOKEN_NUM_INITIALIZER</code>。在向命令结构体 <code>cmd_showport</code> 中传递上面生成好的令牌时，使用 <code>(void*)</code> 进行强制转换来避免类型上的不匹配。这样可以保证多种类型共用一个 <code>cmdline_parse_token_hdr_t</code> 接口，我感觉这有点C语言多态的感觉。<br>&emsp;<br>目前来看，cmdline 中的令牌类型一共有以下四种，接下来将来简单看一下这四种类型的实现方法。</p>
+<ul>
+<li>字符串令牌：匹配静态字符串，静态字符串列表或任何字符串。</li>
+<li>数字令牌：匹配一个可以签名或无符号的数字，从8位到32位。</li>
+<li>IP地址令牌：匹配IPv4或IPv6地址或网络。</li>
+<li>以太网*地址令牌：匹配MAC地址。<br>&emsp;</li>
+</ul>
+<h2 id="5-子令牌类型-以-cmdline-parse-token-num-t-为例"><a href="#5-子令牌类型-以-cmdline-parse-token-num-t-为例" class="headerlink" title="5.  子令牌类型 以 cmdline_parse_token_num_t 为例"></a>5.  子令牌类型 以 cmdline_parse_token_num_t 为例</h2><p>相关路径为：<code>lib/librte_cmdline/cmdline_parse_num.h</code><br><img src="/images/2021-10-14/4.jpg" alt="num"><br>&emsp;&emsp;可以看到在num类型的令牌结构体中，其中包含有两个成员，第一个为一个 <code>cmdline_token_hdr</code> 结构体(即总令牌结构体，其中包含一个ops结构体和一个偏移量)，第二个则是一个 <code>cmdline_token_num_data</code> 结构体，其定义如下。<br><img src="/images/2021-10-14/5.jpg" alt="结构体"><br>&emsp;&emsp;<code>cmdline_token_num_data</code> 结构体中存储着一个枚举类型 <code>type</code>，即为num的具体类型，可以看到支持8到64位的无符号&#x2F;有符号整型。<br><img src="/images/2021-10-14/6.jpg" alt="定义"><br>&emsp;&emsp;最上面的样例代码中，一个num类型的令牌是按如上的步骤来生成的，此令牌的类型即为 <code>cmdline_parse_token_num_t</code>，然后等号后是一个宏函数，传入参数为命令结果结构体、该令牌对应的结构体中的参数以及该令牌中的 numtype。其中宏函数的定义如下：<br><img src="/images/2021-10-14/7.jpg" alt="宏"><br>&emsp;&emsp;其中hdr相关内容中，ops结构体是已经定义好的 <code>cmdline_token_num_ops</code>，这是依据num类型令牌定制的ops结构体。下面就是offset偏移量，其为一个宏函数，定义为 <code>#define offsetof(type, field)  ((size_t) &amp;( ((type *)0)-&gt;field) )</code>，通过这个宏函数，即可计算出指定成员在其所属结构体内的位置，实现的非常优雅可以说。然后最后则是一个numtype，储存具体类型。</p>
+<p>&emsp;&emsp;等于说子令牌类型，相比于令牌类型 <code>cmdline_parse_token_hdr_t</code> 来讲，在hdr结构体的基础上，增加了一个type。而在传的时候，用一个 <code>(void*)</code> 来进行强制转换，个人感觉算是一种C风格的向上转型吧。</p>
+<p><strong>总结：每个子令牌类型都有其独特的ops结构体，储存在hdr结构体中；hdr结构体中还有一个offset，来储存指定成员的位置，从而可以把处理结果放进成员中。另外还存在一个type来储存类型的具体内容，从而配合ops中定制的回调函数。</strong></p>
+<p>&emsp;</p>
+<h1 id="二、新增命令流程总结"><a href="#二、新增命令流程总结" class="headerlink" title="二、新增命令流程总结"></a>二、新增命令流程总结</h1><h2 id="1-新建命令结构体"><a href="#1-新建命令结构体" class="headerlink" title="1. 新建命令结构体"></a>1. 新建命令结构体</h2><p>&emsp;&emsp;如下新建命令结构体 <code>test</code>，定义其回调函数为 <code>fun_test</code>，其 <strong>token</strong> 令牌仅一个，为 <code>cmd_test</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">cmdline_parse_inst_t</span> test = &#123;</span><br><span class="line">	.f = fun_test,</span><br><span class="line">	.data = <span class="literal">NULL</span>,</span><br><span class="line">	.help_str = <span class="string">&quot;这里是帮助信息&quot;</span>, </span><br><span class="line">	.tokens = &#123;</span><br><span class="line">		(<span class="type">void</span> *)&amp;cmd_test,</span><br><span class="line">		<span class="literal">NULL</span>,</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="2-新建命令参数结构体"><a href="#2-新建命令参数结构体" class="headerlink" title="2. 新建命令参数结构体"></a>2. 新建命令参数结构体</h2><p>&emsp;&emsp;如下新建命令参数结构体 <code>test_result</code>，其中只含一个 <strong>string</strong> 类型的成员 <code>cmd</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test_result</span> &#123;</span></span><br><span class="line">	<span class="type">cmdline_fixed_string_t</span> cmd;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="3-生成相关令牌"><a href="#3-生成相关令牌" class="headerlink" title="3. 生成相关令牌"></a>3. 生成相关令牌</h2><p>&emsp;&emsp;如下生成 <strong>string</strong> 类型令牌 <code>cmd_test</code>，其对应的命令为 test。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">cmdline_parse_token_string_t</span> cmd_test =</span><br><span class="line">	TOKEN_STRING_INITIALIZER(<span class="keyword">struct</span> test_result, cmd, <span class="string">&quot;test&quot;</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="4-编写回调函数"><a href="#4-编写回调函数" class="headerlink" title="4. 编写回调函数"></a>4. 编写回调函数</h2><p>&emsp;&emsp;如下编写回调函数 <code>fun_test</code>，规定当输入命令 <code>test</code> 后的操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">fun_test</span><span class="params">(<span class="type">void</span> *parsed_result,</span></span><br><span class="line"><span class="params">				__attribute__((unused)) <span class="keyword">struct</span> cmdline *cl,</span></span><br><span class="line"><span class="params">				__attribute__((unused)) <span class="type">void</span> *data)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">test_result</span> *<span class="title">res</span> =</span> parsed_result;</span><br><span class="line">	...若干实现</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;由此，一个新的命令就添加完毕了。这就是添加命令的大致流程，只不过例子中的参数较少，所以比较简略，而且省去了最难的回调函数的编写过程。<br>&emsp;</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>&emsp;&emsp;三个月前第一次看dpdk的源码时，可以说是看的非常艰难，其中各式各样的回调函数，以及封装了一层又一层的类型可以说是最大的阻碍。而且其中还包含不少关于硬件的知识点，我当时可以说是一窍不通。但是三个月的实习中，我逐渐是了解一些基础的内容，可以说是逐渐理解了编写的思路和一些知识点。<br>&emsp;&emsp;dpdk的源码中，使用C实现了不少类似于多态、接口的东西，从中我学习到了很多C的写法，可以说令我叹为观止。目前我准备先研究一下cmdline的实现，看一下dpdk中是如何解析和传递命令的，剩下的(大部分)内容应该会简单了解，对有兴趣的点再尝试深入一点分析。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+              <a href="/tags/dpdk/" rel="tag"># dpdk</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/11/20211011_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Astd::forward%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-%E5%AE%8C%E7%BE%8E%E8%BD%AC%E5%8F%91%E7%9A%84%E4%BD%9C%E7%94%A8/" rel="prev" title="C/C++学习记录：std::forward 源码分析 / 完美转发的作用">
+                  <i class="fa fa-angle-left"></i> C/C++学习记录：std::forward 源码分析 / 完美转发的作用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/" rel="next" title="golang学习记录：二进制文件判断实现与思路">
+                  golang学习记录：二进制文件判断实现与思路 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

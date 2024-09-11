@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="go version go1.15.14 linux&#x2F;amd64 相关项目地址为：点我跳转  一、前言&emsp;&emsp;最近在写一个golang实现的字符串搜索与替换程序练手，其中一个很大的问题就是程序不能识别二进制文件与文本文件，导致搜索出来的内容会乱码，非常的不雅观。如果再不小心替换一下的话，就会造成很大的影响，所以这个问题必须解决。 &emsp;&emsp;我简单看了一下相">
+<meta property="og:type" content="article">
+<meta property="og:title" content="golang学习记录：二进制文件判断实现与思路">
+<meta property="og:url" content="https://zgg2001.github.io/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="go version go1.15.14 linux&#x2F;amd64 相关项目地址为：点我跳转  一、前言&emsp;&emsp;最近在写一个golang实现的字符串搜索与替换程序练手，其中一个很大的问题就是程序不能识别二进制文件与文本文件，导致搜索出来的内容会乱码，非常的不雅观。如果再不小心替换一下的话，就会造成很大的影响，所以这个问题必须解决。 &emsp;&emsp;我简单看了一下相">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-24/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-10-24/2.jpg">
+<meta property="article:published_time" content="2021-10-24T03:55:51.000Z">
+<meta property="article:modified_time" content="2021-10-24T03:55:51.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Golang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-10-24/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/","path":"2021/10/24/20211024_golang学习记录：二进制文件判断实现与思路/","title":"golang学习记录：二进制文件判断实现与思路"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>golang学习记录：二进制文件判断实现与思路 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%80%9D%E8%B7%AF"><span class="nav-text">二、思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">三、实现</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/10/24/20211024_golang%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%96%87%E4%BB%B6%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%80%9D%E8%B7%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="golang学习记录：二进制文件判断实现与思路 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          golang学习记录：二进制文件判断实现与思路
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-24 11:55:51" itemprop="dateCreated datePublished" datetime="2021-10-24T11:55:51+08:00">2021-10-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>go version go1.15.14 linux&#x2F;amd64</li>
+<li>相关项目地址为：<a target="_blank" rel="noopener" href="https://github.com/zgg2001/StringFinderZ">点我跳转</a></li>
+</ul>
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;最近在写一个golang实现的字符串搜索与替换程序练手，其中一个很大的问题就是程序不能识别二进制文件与文本文件，导致搜索出来的内容会乱码，非常的不雅观。如果再不小心替换一下的话，就会造成很大的影响，所以这个问题必须解决。</p>
+<p>&emsp;&emsp;我简单看了一下相关的标准库函数，发现golang标准库内并没有提供相关的函数来实现分辨二进制文件的功能。于是学习了一下编码相关的知识来自己实现一个二进制文件判断的功能。</p>
+<span id="more"></span>
+
+<h1 id="二、思路"><a href="#二、思路" class="headerlink" title="二、思路"></a>二、思路</h1><p>&emsp;&emsp;文本文件其实本质也是二进制文件，只不过可以被计算机内置的编码方式来解读为可阅读的文本。所以本文中需要解决的问题实质为如何识别出无法被正常编码的文件。</p>
+<p>&emsp;&emsp;总所周知，ASCII为最初的编码方式，故基础字母数字和操作符都可以按照ASCII标准被编码。但是查看ASCII编码中的内容，可以发现其中一些内容是不可读的，比如编码为0-6的一些状态符。假如文件中出现了这类编码，那么肯定此文件不是正常的可读文本文件，即二进制文件。</p>
+<p>&emsp;&emsp;简单看一下ASCII表的内容，可以总结出正常的可视编码为<code>32~127</code>、<code>\r(13)</code>、<code>\n(10)</code>、<code>\t(9)</code>，那么当文件中所有的字节都属于这个范围时，则此文件必定可以按ASCII编码正常显示，则为文本文件。</p>
+<p>&emsp;&emsp;但是这仅仅是英文，在文件中常常会出现中文等内容。对此，需要将常见的<strong>Unicode</strong>编码、<strong>GBK</strong>编码或者<strong>UTF8</strong>等编码考虑进去。这三种编码方式都是在ASCII编码的基础上实现的，其主要原理就是将ASCII编码中未使用的<code>128~255</code>范围进行使用，再使用多字节来组合出不同的内容。<strong>其均默认一个共识，即低字节(0-127)保持ASCII原本的内容，高字节(128-255)为新编码方式中定义的内容。</strong> 故将白名单编码范围扩展到<code>32~255</code>即可，主要的辨别对象还是<code>0~31</code>中的内容。</p>
+<p>&emsp;&emsp;故，主要的思路即为判定字节的内容，若存在非常规内容，即可进行判定。</p>
+<h1 id="三、实现"><a href="#三、实现" class="headerlink" title="三、实现"></a>三、实现</h1><p>&emsp;&emsp;我本来是直接遍历文件的前100个字节，若属于<code>32~255</code>、<code>\r(13)</code>、<code>\n(10)</code>、<code>\t(9)</code>则continue，否则则说明为二进制文件。但是这样在实际中存在一些问题。比如说100个字节可以不够，即可能文件的前100个字符都是正常的。另外判定方式也有一些参差，比如说<code>\a</code>响铃符也是可能存在的(<del>之前我就写过音乐软件练手</del>)。<br><img src="/images/2021-10-24/1.jpg" alt="初版"><br>&emsp;&emsp;初版写法如上，此种写法可以识别大多数的二进制文件，但是也有部分的漏网之鱼，所以还存在改进的空间。</p>
+<p>&emsp;&emsp;然后今天我抽空上网冲浪了一会，找到了一种更全面的算法(<strong>zlib的算法</strong>)，本文中的最终版本识别二进制文件也是使用的这种算法，算法内容如下：</p>
+<ol>
+<li>将一个字节的内容分为三类，白名单中包括<code>32~255</code>、<code>\r(13)</code>、<code>\n(10)</code>、<code>\t(9)</code>；灰名单中包括<code>\a(7)</code>、<code>\b(8)</code>、<code>\v(11)</code>、<code>\f(12)</code>、 <code>sub(26)</code>、<code>esc(27)</code>；黑名单中包括<code>0~6</code>、<code>14~31</code></li>
+<li>如果文件包含至少一个白名单中的字节，而且不包含黑名单中的字节，其即为文本文件；否则则为二进制文件</li>
+</ol>
+<p>&emsp;&emsp;算法主要就是上面那个，很简单，但是判定了空文件等若干情况。在此次的完善中，我规定的读取范围为前1024个字节，因为之前实现中100个字节有些少，但是全文读取又会影响效率，所以读取1024个字节。核心的判定算法更改为上文中的那个。代码如下：(github地址：<a target="_blank" rel="noopener" href="https://github.com/zgg2001/StringFinderZ/blob/master/src/detect/detect_binary.go">点我跳转</a>)</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> detect</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;os&quot;</span></span><br><span class="line">    <span class="string">&quot;log&quot;</span></span><br><span class="line">    <span class="string">&quot;bufio&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DetectBinary</span><span class="params">(path <span class="type">string</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line"></span><br><span class="line">    file, err := os.Open(path)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    ┊   log.Printf(<span class="string">&quot;\033[31merror : IO error - \033[0m%s&quot;</span>, err)</span><br><span class="line">    ┊   <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> file.Close()</span><br><span class="line"></span><br><span class="line">    r := bufio.NewReader(file)</span><br><span class="line">    buf := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">1024</span>)</span><br><span class="line">    n, err := r.Read(buf)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> white_byte <span class="type">int</span> = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; n; i++ &#123;</span><br><span class="line">    ┊   <span class="keyword">if</span> (buf[i] &gt;= <span class="number">0x20</span> &amp;&amp; buf[i] &lt;= <span class="number">0xff</span>) ||</span><br><span class="line">    ┊   ┊   buf[i] == <span class="number">9</span>  ||</span><br><span class="line">    ┊   ┊   buf[i] == <span class="number">10</span> ||</span><br><span class="line">    ┊   ┊   buf[i] == <span class="number">13</span> &#123;</span><br><span class="line">    ┊   ┊   white_byte++</span><br><span class="line">    ┊   &#125; <span class="keyword">else</span> <span class="keyword">if</span> buf[i] &lt;= <span class="number">6</span> || (buf[i] &gt;= <span class="number">14</span> &amp;&amp; buf[i] &lt;= <span class="number">31</span>) &#123;</span><br><span class="line">    ┊   ┊   <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    ┊   &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> white_byte &gt;= <span class="number">1</span> &#123;</span><br><span class="line">    ┊   <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如上即为实现，返回值为true即为二进制文件。就我进行的测试来看，可以很好的判定二进制文件。<br><img src="/images/2021-10-24/2.jpg" alt="测试"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/Golang/" rel="tag"># Golang</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/14/20211014_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%B8%80)%E5%91%BD%E4%BB%A4%E6%B7%BB%E5%8A%A0/" rel="prev" title="dpdk源码分析：交互式命令行的实现(一) 命令添加">
+                  <i class="fa fa-angle-left"></i> dpdk源码分析：交互式命令行的实现(一) 命令添加
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/11/21/20211121_dpdk%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%9A%E4%BA%A4%E4%BA%92%E5%BC%8F%E5%91%BD%E4%BB%A4%E8%A1%8C%E7%9A%84%E5%AE%9E%E7%8E%B0(%E4%BA%8C)%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%80%80%E5%87%BA/" rel="next" title="dpdk源码分析：交互式命令行的实现(二) 初始化与退出">
+                  dpdk源码分析：交互式命令行的实现(二) 初始化与退出 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

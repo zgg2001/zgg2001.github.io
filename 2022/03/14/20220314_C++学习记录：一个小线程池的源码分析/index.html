@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="抽空学习一些感兴趣的源码，这次学习一个小而美的C++11线程池源码。 项目地址：https:&#x2F;&#x2F;github.com&#x2F;progschj&#x2F;ThreadPool&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++学习记录：一个小线程池的源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="抽空学习一些感兴趣的源码，这次学习一个小而美的C++11线程池源码。 项目地址：https:&#x2F;&#x2F;github.com&#x2F;progschj&#x2F;ThreadPool&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-14T12:28:26.000Z">
+<meta property="article:modified_time" content="2022-03-14T12:28:26.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2022/03/14/20220314_C++学习记录：一个小线程池的源码分析/","title":"C++学习记录：一个小线程池的源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++学习记录：一个小线程池的源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%BA%90%E7%A0%81%E4%B8%80%E8%A7%88"><span class="nav-text">一、源码一览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-text">二、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%9E%84%E9%80%A0%E9%83%A8%E5%88%86"><span class="nav-text">1. 构造部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%9E%90%E6%9E%84%E9%83%A8%E5%88%86"><span class="nav-text">2. 析构部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BB%BB%E5%8A%A1%E5%85%A5%E9%98%9F%E9%83%A8%E5%88%86"><span class="nav-text">3. 任务入队部分</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-text">三、小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++学习记录：一个小线程池的源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++学习记录：一个小线程池的源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-14 20:28:26" itemprop="dateCreated datePublished" datetime="2022-03-14T20:28:26+08:00">2022-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>抽空学习一些感兴趣的源码，这次学习一个小而美的C++11线程池源码。</li>
+<li>项目地址：<a target="_blank" rel="noopener" href="https://github.com/progschj/ThreadPool/">https://github.com/progschj/ThreadPool/</a></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、源码一览"><a href="#一、源码一览" class="headerlink" title="一、源码一览"></a>一、源码一览</h1><p>&emsp;&emsp;核心代码很简单，就是下面这不到一百行。但是其中使用了很多新C++11的新东西，写的非常优雅，有很多可以学习的地方。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> THREAD_POOL_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> THREAD_POOL_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;queue&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mutex&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;condition_variable&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;future&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;functional&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdexcept&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ThreadPool</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">ThreadPool</span>(<span class="type">size_t</span>);</span><br><span class="line">    <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> F, <span class="keyword">class</span>... Args&gt;</span></span><br><span class="line"><span class="function">    <span class="keyword">auto</span> <span class="title">enqueue</span><span class="params">(F&amp;&amp; f, Args&amp;&amp;... args)</span> </span></span><br><span class="line"><span class="function">        -&gt; std::future&lt;<span class="keyword">typename</span> std::result_of&lt;<span class="title">F</span><span class="params">(Args...)</span>&gt;::type&gt;</span>;</span><br><span class="line">    ~<span class="built_in">ThreadPool</span>();</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// need to keep track of threads so we can join them</span></span><br><span class="line">    std::vector&lt; std::thread &gt; workers;</span><br><span class="line">    <span class="comment">// the task queue</span></span><br><span class="line">    std::queue&lt; std::function&lt;<span class="type">void</span>()&gt; &gt; tasks;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// synchronization</span></span><br><span class="line">    std::mutex queue_mutex;</span><br><span class="line">    std::condition_variable condition;</span><br><span class="line">    <span class="type">bool</span> stop;       </span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// the constructor just launches some amount of workers</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="title">ThreadPool::ThreadPool</span><span class="params">(<span class="type">size_t</span> threads)</span></span></span><br><span class="line"><span class="function">    :   stop(false)</span></span><br><span class="line"><span class="function">&#123;</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">size_t</span> i = <span class="number">0</span>;i&lt;threads;++i)</span><br><span class="line">        workers.<span class="built_in">emplace_back</span>(</span><br><span class="line">            [<span class="keyword">this</span>]</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">for</span>(;;)</span><br><span class="line">                &#123;</span><br><span class="line">                    std::function&lt;<span class="built_in">void</span>()&gt; task;</span><br><span class="line"></span><br><span class="line">                    &#123;</span><br><span class="line">                        std::unique_lock&lt;std::mutex&gt; <span class="built_in">lock</span>(<span class="keyword">this</span>-&gt;queue_mutex);</span><br><span class="line">                        <span class="keyword">this</span>-&gt;condition.<span class="built_in">wait</span>(lock,</span><br><span class="line">                            [<span class="keyword">this</span>]&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;stop || !<span class="keyword">this</span>-&gt;tasks.<span class="built_in">empty</span>(); &#125;);</span><br><span class="line">                        <span class="keyword">if</span>(<span class="keyword">this</span>-&gt;stop &amp;&amp; <span class="keyword">this</span>-&gt;tasks.<span class="built_in">empty</span>())</span><br><span class="line">                            <span class="keyword">return</span>;</span><br><span class="line">                        task = std::<span class="built_in">move</span>(<span class="keyword">this</span>-&gt;tasks.<span class="built_in">front</span>());</span><br><span class="line">                        <span class="keyword">this</span>-&gt;tasks.<span class="built_in">pop</span>();</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="built_in">task</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// add new work item to the pool</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> F, <span class="keyword">class</span>... Args&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">ThreadPool::enqueue</span><span class="params">(F&amp;&amp; f, Args&amp;&amp;... args)</span> </span></span><br><span class="line"><span class="function">    -&gt; std::future&lt;<span class="keyword">typename</span> std::result_of&lt;<span class="title">F</span><span class="params">(Args...)</span>&gt;::type&gt;</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">using</span> return_type = <span class="keyword">typename</span> std::result_of&lt;<span class="built_in">F</span>(Args...)&gt;::type;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> task = std::make_shared&lt; std::packaged_task&lt;<span class="built_in">return_type</span>()&gt; &gt;(</span><br><span class="line">            std::<span class="built_in">bind</span>(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...)</span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">    std::future&lt;return_type&gt; res = task-&gt;<span class="built_in">get_future</span>();</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(queue_mutex)</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// don&#x27;t allow enqueueing after stopping the pool</span></span><br><span class="line">        <span class="keyword">if</span>(stop)</span><br><span class="line">            <span class="keyword">throw</span> std::<span class="built_in">runtime_error</span>(<span class="string">&quot;enqueue on stopped ThreadPool&quot;</span>);</span><br><span class="line"></span><br><span class="line">        tasks.<span class="built_in">emplace</span>([task]()&#123; (*task)(); &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    condition.<span class="built_in">notify_one</span>();</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// the destructor joins all threads</span></span><br><span class="line"><span class="keyword">inline</span> ThreadPool::~<span class="built_in">ThreadPool</span>()</span><br><span class="line">&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(queue_mutex)</span></span>;</span><br><span class="line">        stop = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    condition.<span class="built_in">notify_all</span>();</span><br><span class="line">    <span class="keyword">for</span>(std::thread &amp;worker: workers)</span><br><span class="line">        worker.<span class="built_in">join</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;</p>
+<h1 id="二、源码分析"><a href="#二、源码分析" class="headerlink" title="二、源码分析"></a>二、源码分析</h1><h2 id="1-构造部分"><a href="#1-构造部分" class="headerlink" title="1. 构造部分"></a>1. 构造部分</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// the constructor just launches some amount of workers</span></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="title">ThreadPool::ThreadPool</span><span class="params">(<span class="type">size_t</span> threads)</span></span></span><br><span class="line"><span class="function">    :   stop(false)</span></span><br><span class="line"><span class="function">&#123;</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">size_t</span> i = <span class="number">0</span>;i&lt;threads;++i)</span><br><span class="line">        workers.<span class="built_in">emplace_back</span>(</span><br><span class="line">            [<span class="keyword">this</span>]</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">for</span>(;;)</span><br><span class="line">                &#123;</span><br><span class="line">                    std::function&lt;<span class="built_in">void</span>()&gt; task;</span><br><span class="line"></span><br><span class="line">                    &#123;</span><br><span class="line">                        std::unique_lock&lt;std::mutex&gt; <span class="built_in">lock</span>(<span class="keyword">this</span>-&gt;queue_mutex);</span><br><span class="line">                        <span class="keyword">this</span>-&gt;condition.<span class="built_in">wait</span>(lock,</span><br><span class="line">                            [<span class="keyword">this</span>]&#123; <span class="keyword">return</span> <span class="keyword">this</span>-&gt;stop || !<span class="keyword">this</span>-&gt;tasks.<span class="built_in">empty</span>(); &#125;);</span><br><span class="line">                        <span class="keyword">if</span>(<span class="keyword">this</span>-&gt;stop &amp;&amp; <span class="keyword">this</span>-&gt;tasks.<span class="built_in">empty</span>())</span><br><span class="line">                            <span class="keyword">return</span>;</span><br><span class="line">                        task = std::<span class="built_in">move</span>(<span class="keyword">this</span>-&gt;tasks.<span class="built_in">front</span>());</span><br><span class="line">                        <span class="keyword">this</span>-&gt;tasks.<span class="built_in">pop</span>();</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="built_in">task</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如上为线程池的构造函数部分。其中主要是根据构造传参创建对应数量的线程，线程储存在 <code>vector&lt; std::thread &gt;</code> 中，线程通过 <code>emplace_back</code> 加 <code>lambda</code> 函数直接构造进vector里。</p>
+<p>&emsp;&emsp;线程的流程总体也比较简单，就是一个死循环加条件变量阻塞，当被唤醒时进行判定，如果要求线程退出则 <code>return</code> 出去，否则去任务队列 <code>queue&lt; std::function&lt;void()&gt; &gt;</code> 里取任务执行。这块内容的线程安全是通过一个 <code>std::unique_lock</code> 来保证的。</p>
+<p>&emsp;&emsp;值得一提的是这里的条件变量的 <code>wait()</code> 操作中添加了判定条件，从而避免虚假唤醒情况；并且获取 <code>task</code> 也是通过右值引用来进行的。<br>&emsp;&emsp;</p>
+<h2 id="2-析构部分"><a href="#2-析构部分" class="headerlink" title="2. 析构部分"></a>2. 析构部分</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// the destructor joins all threads</span></span><br><span class="line"><span class="keyword">inline</span> ThreadPool::~<span class="built_in">ThreadPool</span>()</span><br><span class="line">&#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(queue_mutex)</span></span>;</span><br><span class="line">        stop = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    condition.<span class="built_in">notify_all</span>();</span><br><span class="line">    <span class="keyword">for</span>(std::thread &amp;worker: workers)</span><br><span class="line">        worker.<span class="built_in">join</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;析构部分总体也比较简单，即通过 <code>notify_all()</code> 唤醒所有条件变量，随后使用 <code>join()</code> 等待所有线程执行完毕，完成线程池的同步退出。</p>
+<p>&emsp;&emsp;另外在这个线程池实现中，是通过一个变量 <code>stop</code> 来标记线程池是否退出的，线程安全也是通过一个 <code>std::unique_lock</code> 来保证的。这个锁逻辑意义上是任务队列锁，确保关于任务队列相关内容操作的线程安全。<br>&emsp;&emsp;</p>
+<h2 id="3-任务入队部分"><a href="#3-任务入队部分" class="headerlink" title="3. 任务入队部分"></a>3. 任务入队部分</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// add new work item to the pool</span></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> F, <span class="keyword">class</span>... Args&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">ThreadPool::enqueue</span><span class="params">(F&amp;&amp; f, Args&amp;&amp;... args)</span> </span></span><br><span class="line"><span class="function">    -&gt; std::future&lt;<span class="keyword">typename</span> std::result_of&lt;<span class="title">F</span><span class="params">(Args...)</span>&gt;::type&gt;</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">using</span> return_type = <span class="keyword">typename</span> std::result_of&lt;<span class="built_in">F</span>(Args...)&gt;::type;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">auto</span> task = std::make_shared&lt; std::packaged_task&lt;<span class="built_in">return_type</span>()&gt; &gt;(</span><br><span class="line">            std::<span class="built_in">bind</span>(std::forward&lt;F&gt;(f), std::forward&lt;Args&gt;(args)...)</span><br><span class="line">        );</span><br><span class="line">        </span><br><span class="line">    std::future&lt;return_type&gt; res = task-&gt;<span class="built_in">get_future</span>();</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">std::unique_lock&lt;std::mutex&gt; <span class="title">lock</span><span class="params">(queue_mutex)</span></span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// don&#x27;t allow enqueueing after stopping the pool</span></span><br><span class="line">        <span class="keyword">if</span>(stop)</span><br><span class="line">            <span class="keyword">throw</span> std::<span class="built_in">runtime_error</span>(<span class="string">&quot;enqueue on stopped ThreadPool&quot;</span>);</span><br><span class="line"></span><br><span class="line">        tasks.<span class="built_in">emplace</span>([task]()&#123; (*task)(); &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    condition.<span class="built_in">notify_one</span>();</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这是我感觉整个线程池中，写的最优雅的部分，其中运用了大量C++11的新东西。首先这个部分完成实现了任务入队操作，并且可以通过 <code>std::future</code> 系列操作来实现异步获取执行结果。</p>
+<p>&emsp;&emsp;其中的实现是通过 <code>std::packaged_task + std::bind</code> 封装了可以异步执行的任务函数，函数返回一个 <code>std::future</code> 对象。通过这个对象即可异步获取线程的执行结果。另外这部分也中也使用了智能指针 <code>std::shared_ptr</code>，来保证task对象部分的智能释放。</p>
+<p>&emsp;&emsp;此外，其中的任务队列通过 <code>std::unique_lock</code> 来保证线程安全，并且也通过大括号来限定临界区域。在任务加入任务队列中，会通过条件变量来唤醒一个已阻塞的线程，从而继续任务处理流程。</p>
+<p>&emsp;&emsp;</p>
+<h1 id="三、小结"><a href="#三、小结" class="headerlink" title="三、小结"></a>三、小结</h1><p>&emsp;&emsp;所以这个线程池的任务处理流程就是：<strong>开辟线程 -&gt; 阻塞线程 -&gt; 任务入队 -&gt; 唤醒线程 -&gt; 执行线程 -&gt; 阻塞线程</strong>.<br>&emsp;&emsp;总体来说思路很简单，关于执行结果的接收直接通过C++11的新库 <code>std::future</code> 来实现了，并且通过 <code>std::unique_lock</code> 和 <code>std::condition_variable</code> 来保证线程安全和线程等待的的最小化消耗。其中很多功能都是直接使用了C++11封装好的库，所以看起来很清晰明了并且写的也很优雅。但是毕竟代码量很少，所以相比很多完善的线程池还有很多优化的空间，不过当一个轻量化的线程池来使用我感觉也是够用了，而且从其中我也学习到了不少C++11的新库用法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="C/C++学习记录：智能指针 std::unique_ptr 源码分析">
+                  <i class="fa fa-angle-left"></i> C/C++学习记录：智能指针 std::unique_ptr 源码分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/03/19/20220319_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%8D%8F%E7%A8%8B%E5%BA%93%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="C++学习记录：一个协程库的源码分析">
+                  C++学习记录：一个协程库的源码分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

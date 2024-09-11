@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="抽空扣一点感兴趣的标准库源码，这里总结一下 std::unique_ptr 相关的分析 本文中 gcc version: 8.4.1 20200928 (Red Hat 8.4.1-1) (GCC) libstdc++:libstdc++-8.4.1-1.el8.x86_64 其中c++库安装路径为 &#x2F;usr&#x2F;include&#x2F;c++&#x2F;8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++学习记录：智能指针 std::unique_ptr 源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="抽空扣一点感兴趣的标准库源码，这里总结一下 std::unique_ptr 相关的分析 本文中 gcc version: 8.4.1 20200928 (Red Hat 8.4.1-1) (GCC) libstdc++:libstdc++-8.4.1-1.el8.x86_64 其中c++库安装路径为 &#x2F;usr&#x2F;include&#x2F;c++&#x2F;8">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/2.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/3.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/4.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/5.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/6.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/7.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/8.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/9.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/10.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/11.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/12.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/13.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/14.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/15.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/16.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/17.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/18.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/19.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/20.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/21.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/22.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2022-02-25/23.jpg">
+<meta property="article:published_time" content="2022-02-25T05:13:56.000Z">
+<meta property="article:modified_time" content="2022-02-25T05:13:56.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++标准库学习">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2022-02-25/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2022/02/25/20220225_C-C++学习记录：智能指针std::unique_ptr源码分析/","title":"C/C++学习记录：智能指针 std::unique_ptr 源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++学习记录：智能指针 std::unique_ptr 源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-text">二、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BB%8E-class-unique-ptr-%E5%85%A5%E6%89%8B"><span class="nav-text">1. 从 class unique_ptr 入手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%82%A8%E5%AD%98%E7%B1%BB-class-uniq-ptr-impl"><span class="nav-text">2. 储存类 class __uniq_ptr_impl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%BB%98%E8%AE%A4%E5%88%A0%E9%99%A4%E5%99%A8-struct-default-delete"><span class="nav-text">3. 默认删除器 struct default_delete</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%9B%9E%E5%BD%92-class-unique-ptr"><span class="nav-text">4. 回归 class unique_ptr</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">三、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2022/02/25/20220225_C-C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88std::unique_ptr%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C/C++学习记录：智能指针 std::unique_ptr 源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++学习记录：智能指针 std::unique_ptr 源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-02-25 13:13:56" itemprop="dateCreated datePublished" datetime="2022-02-25T13:13:56+08:00">2022-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>抽空扣一点感兴趣的标准库源码，这里总结一下 <code>std::unique_ptr</code> 相关的分析</li>
+<li>本文中 gcc version: <strong>8.4.1 20200928 (Red Hat 8.4.1-1) (GCC)</strong></li>
+<li>libstdc++:<code>libstdc++-8.4.1-1.el8.x86_64</code></li>
+<li>其中c++库安装路径为 <code>/usr/include/c++/8</code></li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;在对本篇文章内容的探索之前，我已经是对 <code>std::unique_ptr</code> 有所了解并且尝试实现过，所以本篇分析主要是为了查看标准库里的具体实现和写法，学习一下细节和思路。</p>
+<p>&emsp;&emsp;<del>众所周知啊</del> ，<code>std::unique_ptr</code> 的主要思路就是利用局部变量声明在栈上，会自动释放的特性，在构造函数里绑定指针，在析构函数里释放此指针的内容，从而达到<strong>智能指针</strong>的效果(自动释放)。<strong>这种机制被称为RAII机制，相关类被称为RAII类。</strong></p>
+<p>&emsp;&emsp;本篇笔记中会记录我在学习标准库代码时的思路和想法，此次我看的重点是自动释放的流程和相关数据结构的实现。<br>&emsp;</p>
+<h1 id="二、源码分析"><a href="#二、源码分析" class="headerlink" title="二、源码分析"></a>二、源码分析</h1><h2 id="1-从-class-unique-ptr-入手"><a href="#1-从-class-unique-ptr-入手" class="headerlink" title="1. 从 class unique_ptr 入手"></a>1. 从 class unique_ptr 入手</h2><ul>
+<li><code>class unique_ptr</code> 的定义位于 <code>/usr/include/c++/8/bits/unique_ptr.h</code> 中。</li>
+</ul>
+<p>&emsp;&emsp;首先可以看到，在这个文件中，存在两个 <code>unique_ptr</code> 类的定义，如下两图：</p>
+<ul>
+<li>定义一：<br><img src="/images/2022-02-25/1.jpg" alt="定义1"></li>
+<li>定义二：<br><img src="/images/2022-02-25/2.jpg" alt="定义2"></li>
+</ul>
+<p>&emsp;&emsp;根据注释以及部分来看代码，一百多行开始的定义一部分是针对 <code>single objects</code> 的，而四百多行开始的定义二部分是针对 <code>array objects</code> 的。简单来讲就是定义一是针对单个指针对象的，而特化版本定义二是针对存有多个指针的数组对象的。</p>
+<p>&emsp;&emsp;另外，可以看到模板中有两个参数，<code>_Tp</code> 和 <code>_Dp</code>。根据之前对 <code>std::unique_ptr</code>的使用来看，第一个参数是指针所指向的类型；然后我简单看了一下源码和注释，第二个参数是删除器，即规定指针释放时的操作。</p>
+<p>&emsp;&emsp;在定义一中，删除器被默认指定为 <code>default_delete&lt;_Tp&gt;</code>，在下文中会对其进行分析。而定义二中需要传入两个模板参数，指定类型和删除器，我认为原因是指针对象数组与单个指针对象析构时存在差异，所以需要单独定义删除的方法。</p>
+<p>&emsp;&emsp;接着就是在智能指针中，肯定是存在一个成员变量来储存指针的，所以我决定先看一下这部分内容标准库里是怎么实现的。如下图，是 <code>std::unique_ptr</code> 的一个构造函数，其中传入 <code>pointer</code> 类型的 <code>__p</code> 并将其赋值到成员变量 <code>_M_t</code> 中。<br><img src="/images/2022-02-25/3.jpg" alt="定义"><br>&emsp;&emsp;首先查看 <code>pointer</code> 的定义，为 <code>using pointer	  = typename __uniq_ptr_impl&lt;_Tp, _Dp&gt;::pointer;</code>。可以看到一个新的类型 <code>__uniq_ptr_impl</code> 出现了。了解了 <code>pointer</code> 的定义后再看一下成员变量 <code>_M_t</code>，定义如下：<br><img src="/images/2022-02-25/4.jpg" alt="定义2"><br>&emsp;&emsp;可以看到其类型也为 <code>__uniq_ptr_impl</code>，且模板传参为指针类型与其删除器。由此可以大概了解流程，即 <code>std::unique_ptr</code> 中存在一个 <code>__uniq_ptr_impl</code> 类型的成员变量，其中储存着传入的指针以及其删除器。在传参指针传入后，会将其赋值至成员变量 <code>_M_t</code> 中，并根据传参内容来决定删除器的内容，也储存至 <code>_M_t</code> 中。而接下来，我对这个储存指针的类型 <code>__uniq_ptr_impl</code> 进行了分析和探索。<br>&emsp;</p>
+<h2 id="2-储存类-class-uniq-ptr-impl"><a href="#2-储存类-class-uniq-ptr-impl" class="headerlink" title="2. 储存类 class __uniq_ptr_impl"></a>2. 储存类 class __uniq_ptr_impl</h2><ul>
+<li><code>class __uniq_ptr_impl</code> 的定义位于 <code>/usr/include/c++/8/bits/unique_ptr.h</code> 中。</li>
+</ul>
+<p>&emsp;&emsp;由上文可以得知，在 <code>__uniq_ptr_impl</code> 类中，储存着指针和其删除器。在下文中的分析中，我的重点在于储存这两个东西的实现，以及类中有哪些方法来完善其功能。下图为相关定义的位置：<br><img src="/images/2022-02-25/5.jpg" alt="定义位置"><br>&emsp;&emsp;首先在类 <code>__uniq_ptr_impl</code> 中的最前定义了两个结构体，简单来说其作用就是传入类型 <code>a</code>，使用其内部的 <code>type</code> 即可析取出类型 <code>a</code> 的指针<code>a*</code>。其中用到了 <code>remove_reference</code> 结构体，这个在之前的 <code>std::move</code> 源码分析中有讲解，<strong>它起到去引用的功能</strong>，而在这里使用它即可保证 <code>type</code> <strong>能正确取到不带引用的指针类型</strong>。具体实现如下：<br><img src="/images/2022-02-25/6.jpg" alt="析取器"><br>&emsp;&emsp;然后接下来是对构造函数的声明以及几个定义。首先是删除器的判定类型，可以实现对删除器的正确性的判定。接下来是一个 <code>pointer</code> 类型，就是对上文的 <code>_Ptr</code> 结构体中的 <code>type</code> 类型的使用，来取指针类型。然后是三个构造函数，一个是默认的空参构造，用了 <strong>C++11</strong> 中的default关键字；一个是仅传指针的构造函数，调用 <code>_M_ptr</code> 进行赋值；最后一个是传入指针和删除器的构造函数，赋值至成员变量 <code>_M_t</code> 中，这里用了 <code>std::forward</code> 来<strong>实现完美转发</strong>，也就是说这里的删除器可以是个右值。<br><img src="/images/2022-02-25/7.jpg" alt="定义"><br>&emsp;&emsp;然后是几个取成员变量内容的方法和一个swap函数。一共是4个取成员变量内容的方法，指针和删除器各两个。两个方法中上面一个是取引用，即可以改变内容的；下面一个是const修饰的，是不可改内容的，应该是只用于查看内容。下面那个swap函数里，即为使用 <code>std::swap</code> 交换 <code>__uniq_ptr_impl</code> 类中的内容，<strong>此函数作用于 <code>std::unique_ptr</code> 中的指针所有权转让的情景。</strong><br><img src="/images/2022-02-25/8.jpg" alt="定义"><br>&emsp;&emsp;最后就是 <code>__uniq_ptr_impl</code> 类中的成员变量 <code>_M_t</code>，其使用了 <strong>C++11</strong> 中新增的数据结构 <code>std::tuple</code> 来储存指针和其删除器。所以上文中取其内容是通过 <code>std::get</code> 来取的。<br><img src="/images/2022-02-25/9.jpg" alt="成员变量"></p>
+<h2 id="3-默认删除器-struct-default-delete"><a href="#3-默认删除器-struct-default-delete" class="headerlink" title="3. 默认删除器 struct default_delete"></a>3. 默认删除器 struct default_delete</h2><ul>
+<li><code>struct default_delete</code> 的定义位于 <code>/usr/include/c++/8/bits/unique_ptr.h</code> 中。</li>
+</ul>
+<p>&emsp;&emsp;上文中看了储存类的定义，下面来看一下出现率也很高的删除器。标准库中提供了两个最基础的删除器，来当默认删除器。提供的两个删除器分别为<strong>普通对象删除器</strong>和<strong>特化版的数组对象删除器</strong>。当传入参数为一个数组时，就会走下面那个定义。</p>
+<ul>
+<li>定义一：<br><img src="/images/2022-02-25/10.jpg" alt="定义1"></li>
+<li>定义二：<br><img src="/images/2022-02-25/11.jpg" alt="定义2"><br>&emsp;&emsp;下面两个即为这两个删除器定义不同的最关键的地方。可以看到其中都存在 <strong>C++11</strong> 中的新特性静态断言，来进行合法性判定。<strong>而关键语句一个为 <code>delete __ptr</code>(85行)，另一个为 <code>delete[] __ptr</code>(122行)。这即为默认删除器的核心语句，即单个对象通过delete释放，数组对象通过delete[]来释放</strong>。这里的实现是通过重载操作符 <code>()</code> 来实现的，算是一种仿函数的写法。<br><img src="/images/2022-02-25/12.jpg" alt="定义"><br><img src="/images/2022-02-25/13.jpg" alt="在这里插入图片描述"></li>
+</ul>
+<h2 id="4-回归-class-unique-ptr"><a href="#4-回归-class-unique-ptr" class="headerlink" title="4. 回归 class unique_ptr"></a>4. 回归 class unique_ptr</h2><p>&emsp;&emsp;通过上面对储存类和删除器的实现分析，已经大概了解了 <code>std::unique</code> 中的大部分封装好的内容。接下来就看一下在 <code>class unique_ptr</code> 中都有些什么东西。(此处仅记录重点内容)</p>
+<p>&emsp;&emsp;首先是若干种构造函数：</p>
+<ol>
+<li>空参构造<br><img src="/images/2022-02-25/14.jpg" alt="1"></li>
+<li>带参构造一，参数仅有指针<br><img src="/images/2022-02-25/15.jpg" alt="2"></li>
+<li>带参构造二，参数为指针和其删除器<br><img src="/images/2022-02-25/16.jpg" alt="3"></li>
+<li>带参构造三，传参为指针和删除器，<strong>但是都是右值</strong><br><img src="/images/2022-02-25/17.jpg" alt="4"></li>
+<li>带参构造四，传参为一个空指针<br><img src="/images/2022-02-25/18.jpg" alt="5"></li>
+<li>带参构造五，<strong>传参为一个 <code>std::unique</code> 对象，这里涉及到引用折叠和完美转发，来实现所有权转移的操作</strong><br><img src="/images/2022-02-25/19.jpg" alt="6"></li>
+<li>带参构造六，<strong>传参为一个 <code>std::unique</code> 对象，相比上文那个更加严谨</strong><br><img src="/images/2022-02-25/20.jpg" alt="7"></li>
+</ol>
+<p>&emsp;&emsp;接下来是析构函数，如下图只有一种实现(单对象和数组对象都是这个)。可以看到逻辑很简单就是<strong>在析构的时候调用仿函数删除器</strong>来进行<code>delete</code>操作。这里的 <code>pointer</code> 是获取空指针用的。<br><img src="/images/2022-02-25/21.jpg" alt="1"><br>&emsp;&emsp;剩下的内容中，大部分都是对操作符 <code>=</code>、<code>*</code>、<code>-&gt;</code>等的重载来方便设定智能指针的内容，以及方便使用其内容。另外还封装了几个函数如下，来获取成员变量 <code>_M_t</code> 中的指针和删除器，上面提到的若干重载也是基于下面这几个函数来实现的。另外还有一些基础的函数，例如清空智能指针用的 <code>release()</code> 或者 <code>reset()</code>，还有交换内容的 <code>swap</code> 函数，这几个就不多说了，因为实现都比较简单。<br><img src="/images/2022-02-25/22.jpg" alt="2"><br>&emsp;&emsp;在定义的最后还有两个被禁止的操作，即对 <code>std::unique_ptr</code> 进行左值赋值操作，从而来保证逻辑的正确执行。<br><img src="/images/2022-02-25/23.jpg" alt="3"><br>&emsp;</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>&emsp;&emsp;总而言之，<code>std::unique</code> 的主要思路还是比较简单的。但是在标准库源码中会有很多很细节的操作，所以还是有很大的收获。在源码的最后还有若干对 <code>hash</code> 相关的重载操作，在此文中就不进行记录了。<br>&emsp;&emsp;标准库的代码还是像套娃一样有很多层，前面看着会跳来跳去，但是了解底层以后，上面也就很清晰了。在接下来我应该会去看一下 <code>std::shared_ptr</code> 的实现，相对 <code>std::unique_ptr</code> 其肯定会复杂很多，但是这次搞完以后应该看起来也会轻松一点吧，毕竟思路还是有些相同点的，我的重点应该会放在其内部计数器的实现。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/C-%E6%A0%87%E5%87%86%E5%BA%93%E5%AD%A6%E4%B9%A0/" rel="tag"># C++标准库学习</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/" rel="prev" title="C++20学习记录：modules 和 ＜=＞">
+                  <i class="fa fa-angle-left"></i> C++20学习记录：modules 和 ＜=＞
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/03/14/20220314_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="next" title="C++学习记录：一个小线程池的源码分析">
+                  C++学习记录：一个小线程池的源码分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

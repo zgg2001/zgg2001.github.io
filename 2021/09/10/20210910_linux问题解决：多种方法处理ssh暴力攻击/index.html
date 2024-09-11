@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="linux问题解决：多种方法处理ssh暴力攻击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux问题解决：多种方法处理ssh暴力攻击">
+<meta property="og:url" content="https://zgg2001.github.io/2021/09/10/20210910_linux%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%EF%BC%9A%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%A4%84%E7%90%86ssh%E6%9A%B4%E5%8A%9B%E6%94%BB%E5%87%BB/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="linux问题解决：多种方法处理ssh暴力攻击">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-09-10/1.jpg">
+<meta property="article:published_time" content="2021-09-10T15:16:06.000Z">
+<meta property="article:modified_time" content="2021-09-10T15:16:06.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-09-10/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/09/10/20210910_linux%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%EF%BC%9A%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%A4%84%E7%90%86ssh%E6%9A%B4%E5%8A%9B%E6%94%BB%E5%87%BB/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/09/10/20210910_linux%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%EF%BC%9A%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%A4%84%E7%90%86ssh%E6%9A%B4%E5%8A%9B%E6%94%BB%E5%87%BB/","path":"2021/09/10/20210910_linux问题解决：多种方法处理ssh暴力攻击/","title":"linux问题解决：多种方法处理ssh暴力攻击"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>linux问题解决：多种方法处理ssh暴力攻击 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%A4%84%E7%90%86%E6%96%B9%E5%BC%8F"><span class="nav-text">二、处理方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%9B%B4%E6%94%B9ssh%E7%AB%AF%E5%8F%A3"><span class="nav-text">1. 更改ssh端口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%A6%81%E6%AD%A2root%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="nav-text">2. 禁止root用户登录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-RSA%E5%AF%86%E9%92%A5%E7%99%BB%E5%BD%95"><span class="nav-text">3. RSA密钥登录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">4. 修改配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%BD%BF%E7%94%A8iptables%E5%B7%A5%E5%85%B7"><span class="nav-text">5. 使用iptables工具</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%90%8E%E7%BB%AD%E8%A1%A5%E5%85%85"><span class="nav-text">三、后续补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-iptables-%E6%8C%81%E4%B9%85%E5%8C%96%E6%93%8D%E4%BD%9C"><span class="nav-text">1. iptables 持久化操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%85%B3%E4%BA%8E-etc-hosts-allow%E5%92%8C-etc-hosts-deny%E5%A4%B1%E6%95%88%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">2. 关于&#x2F;etc&#x2F;hosts.allow和&#x2F;etc&#x2F;hosts.deny失效的问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">四、总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/09/10/20210910_linux%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%EF%BC%9A%E5%A4%9A%E7%A7%8D%E6%96%B9%E6%B3%95%E5%A4%84%E7%90%86ssh%E6%9A%B4%E5%8A%9B%E6%94%BB%E5%87%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="linux问题解决：多种方法处理ssh暴力攻击 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          linux问题解决：多种方法处理ssh暴力攻击
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-09-10 23:16:06" itemprop="dateCreated datePublished" datetime="2021-09-10T23:16:06+08:00">2021-09-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>linux问题解决：多种方法处理ssh暴力攻击</strong></p>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>&emsp;&emsp;说实话挺离谱的，昨晚登我云服务器的时候，感觉root登录有点卡，然后登进去阿里云那边提醒说自上次登录至现在有xxx条登录失败结果。我一瞅，这量有点大啊，然后用命令<code>lastb</code>看了眼登录失败的日志。如下图：<br><img src="/images/2021-09-10/1.jpg" alt="1"><br>&emsp;&emsp;可以看出来，这人应该是广撒网瞎捕鱼，因为攻击频率不算高并且IP都源自一个地方<strong>江苏省宿迁市 电信</strong>。说实话我感觉这人没跳代理，应该是真实IP，结合攻击频率不够，应该是个技术不咋地的<code>**</code>。但是说实话，他给我来这么一手，正好让我可以实操相关的内容，感恩就完事了。<br>&emsp;&emsp;昨天因为有点事情没空管他，结果今天一看他还在冲我的服务器，所以把这事办了，下面记录一下我思考与实操的处理方式。</p>
+<h1 id="二、处理方式"><a href="#二、处理方式" class="headerlink" title="二、处理方式"></a>二、处理方式</h1><h2 id="1-更改ssh端口"><a href="#1-更改ssh端口" class="headerlink" title="1. 更改ssh端口"></a>1. 更改ssh端口</h2><p>&emsp;&emsp;这是最简单的方式，因为这种<code>**</code>都是扫一个IP段的<code>22</code>端口暴力破解，所以改一下ssh的端口，换个别的隐藏一下ssh的端口就行。不过如果别人的目标就是我，<code>nmap</code>扫描一下也能把端口扫出来，这样改只是躲了流弹罢了。</p>
+<p><strong>具体操作如下：</strong></p>
+<ol>
+<li><code>vim /etc/ssh/sshd_config</code> 进去ssh的配置文件</li>
+<li>找到配置项 <code>Port 22</code> 改成别的端口</li>
+<li>如果没 Port 配置项或者被注释掉了就自己改一下</li>
+<li><code>service sshd restart</code> 重启ssh服务</li>
+</ol>
+<p>&emsp;&emsp;但是说实话这种处理方式有点怂，我不想这样搞。而且这样搞了的话，以后跳转登录ssh还得带个<code>-p</code>选项，我觉得麻烦，所以我就放弃这么搞了。<br>&emsp;&emsp;</p>
+<h2 id="2-禁止root用户登录"><a href="#2-禁止root用户登录" class="headerlink" title="2. 禁止root用户登录"></a>2. 禁止root用户登录</h2><p>&emsp;&emsp;这是个更怂的方法，就是直接禁止root登录，通过首先登录普通用户再<code>su root</code>来实现root的登录。这玩意流程想想就麻烦，我这又不是什么机密服务器，不至于因噎废食，所以也放弃这么搞。</p>
+<p><strong>禁止root用户登录的方法：</strong> （这部分内容我在笔记<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/119780701?spm=1001.2014.3001.5501">用户与&#x2F;etc&#x2F;passwd与&#x2F;etc&#x2F;shadow</a>中有详细介绍）</p>
+<ol>
+<li>修改<code>/etc/passwd</code>或<code>/etc/shadow</code>文件</li>
+<li>使用命令<code>usermod -L xxx</code><br>&emsp;&emsp;</li>
+</ol>
+<h2 id="3-RSA密钥登录"><a href="#3-RSA密钥登录" class="headerlink" title="3. RSA密钥登录"></a>3. RSA密钥登录</h2><p>&emsp;&emsp;就是通过生成公私钥来通过ssh协议登录，公私钥相关的内容可以看我的这篇笔记<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45698148/article/details/119939529?spm=1001.2014.3001.5501">公钥、私钥与证书 —— 相关内容分析与实践</a>。简单来说就是取消密码登录，改为通过密钥登录。优点是不用登录，缺点是每个机子都需要生成公钥再放到机子里，有点麻烦，所以我也不用这种方法。</p>
+<p><del>因为我也没试过，所以我就不写步骤了</del><br>&emsp;&emsp;</p>
+<h2 id="4-修改配置文件"><a href="#4-修改配置文件" class="headerlink" title="4. 修改配置文件"></a>4. 修改配置文件</h2><p>&emsp;&emsp;在linux中，存在两个文件<code>白名单 /etc/hosts.allow</code>和<code>黑名单 /etc/hosts.deny</code>，二者中可以添加IP或IP段来实现黑白名单的效果。<br>&emsp;&emsp;有一说一啊，这个可能是效果最好的处理方法了，只需要在白名单里加上自己用的IP段，再在黑名单里禁止所有IP段登录即可。因为白名单的优先级比黑名单高，所以这样可以完美的规避ssh暴力攻击。但是缺点也有，就是如果想在一个新的IP段环境下登录，必须得在白名单内添加新内容。</p>
+<p><strong>我更改后的内容如下：</strong></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">root</span>@<span class="type">Zhao_Server</span> ~]<span class="comment"># cat /etc/hosts.allow</span></span><br><span class="line">sshd:xx.xxx.*.*:allow</span><br><span class="line">sshd:xxx.xxx.*.*:allow</span><br><span class="line">[<span class="type">root</span>@<span class="type">Zhao_Server</span> ~]<span class="comment">#</span></span><br><span class="line">[<span class="type">root</span>@<span class="type">Zhao_Server</span> ~]<span class="comment"># cat /etc/hosts.deny</span></span><br><span class="line">sshd:all:deny</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面的白名单IP数字被我用<code>x</code>替换掉了，<code>sshd:xx.xxx.*.*</code>即代表sshd服务允许向IP地址为<code>xx.xxx</code>开头的IP地址提供服务。而黑名单里的<code>sshd:all:deny</code>即代表sshd服务不允许向所有IP地址提供服务。<br>&emsp;&emsp;这样一来，即可避免ssh暴力攻击。</p>
+<p><strong>说明：</strong></p>
+<ol>
+<li>一个IP请求连入，linux的检查策略是先看<code>/etc/hosts.allow</code>中是否允许，如果允许直接放行；如果没有，则再看<code>/etc/hosts.deny</code>中是否禁止，如果禁止那么就禁止连入</li>
+<li>实验发现对<code>/etc/hosts.allow</code>和<code>/etc/hosts.deny</code>的配置不用重启就立即生效，但不管重启不重启当前已有会话都不会受影响；也就是说对之前已经连入的，即便IP已配置为禁止登录会话仍不会强制断开<br>&emsp;&emsp;</li>
+</ol>
+<h2 id="5-使用iptables工具"><a href="#5-使用iptables工具" class="headerlink" title="5. 使用iptables工具"></a>5. 使用iptables工具</h2><p>&emsp;&emsp;这个也是个很好的解决方案，<code>iptables</code>是linux下的一个防火墙工具，可以很好的实现包过滤功能。在这里我们只要能把攻击来源方的IP给ban掉，即可避免ssh暴力攻击。</p>
+<p><strong>这里简单列一下可能会用到的命令：</strong></p>
+<ol>
+<li><code>iptables -I INPUT -s 221.0.0.0/8 -j DROP</code> 封禁整个221开头的网段</li>
+<li><code>iptables -I INPUT -s 221.181.185.159 -j DROP</code> 封禁指定IP</li>
+<li><code>iptables -L --line-numbers</code> 展示iptables策略列表并显示序号</li>
+<li><code>iptables -D INPUT 1</code> 根据上一条显示的序号，删除INPUT链的第一条</li>
+</ol>
+<p>&emsp;&emsp;按照上面的命令对想要封禁的IP段进行封禁即可。</p>
+<p><strong>总结：</strong><br>&emsp;&emsp;这玩意是真的好用，而且功能远不止如此，可能抽空我会在csdn上补充记录一下<code>iptables</code>的使用方法。<br>&emsp;&emsp;这个东西在重启后会失效，所以需要做持久化的措施，具体步骤我会在下面记录。<br>&emsp;&emsp;</p>
+<h1 id="三、后续补充"><a href="#三、后续补充" class="headerlink" title="三、后续补充"></a>三、后续补充</h1><h2 id="1-iptables-持久化操作"><a href="#1-iptables-持久化操作" class="headerlink" title="1. iptables 持久化操作"></a>1. <code>iptables</code> 持久化操作</h2><p>&emsp;&emsp;在系统重启后，<code>iptables</code>的策略并不会保存，所以就会面临着持久化的问题。但是持久化还是相对方便的。</p>
+<p><strong>下面是步骤：</strong></p>
+<ol>
+<li><code>iptables-save &gt; /etc/sysconfig/iptables</code> 使用该命令将 iptables 的配置保存在<code>/etc/sysconfig/iptables</code>中</li>
+<li>在<code>/etc/rc.d/rc.local</code>中添加<code>iptables-restore &lt; /etc/sysconfig/iptables</code> 即在开机后自动导入之前保存的 iptables 策略</li>
+</ol>
+<p>&emsp;&emsp;按如上几步操作，即可完成 iptables 的持久化操作。<br>&emsp;&emsp;</p>
+<h2 id="2-关于-etc-hosts-allow和-etc-hosts-deny失效的问题"><a href="#2-关于-etc-hosts-allow和-etc-hosts-deny失效的问题" class="headerlink" title="2. 关于/etc/hosts.allow和/etc/hosts.deny失效的问题"></a>2. 关于<code>/etc/hosts.allow</code>和<code>/etc/hosts.deny</code>失效的问题</h2><p>&emsp;&emsp;配好这俩文件以后，我发现没有用，还是能被攻击到。就找了哥们测试了一下，发现防火墙策略没有生效。所以就研究了下是怎么回事。</p>
+<p><strong>下面是解决步骤：</strong></p>
+<ol>
+<li>首先是查看是否存在libwarp库，通过命令<code>ll /lib64/libwrap.so.0</code>即可查看这个库是否存在</li>
+<li>如果这个库不存在的话，则使用命令<code>yum install -y tcp_wrappers</code>来安装这个库</li>
+<li><code>ldd /usr/sbin/sshd | grep libwrap</code> 可以查看sshd功能是否支持libwarp库，如果没用结果则说明是不支持的问题</li>
+<li>但是有一点需要注意…<strong>openssh6.7开始默认关闭TCPwrappers支持</strong>，所以想要支持libwarp库，就需要安装6.6及以下的版本，或者重新编译一次openssh。下面我预计会记录一下重新编译openssh的方法。</li>
+</ol>
+<p>&emsp;&emsp;</p>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>&emsp;&emsp;在绿盟实习俩月多了，好歹也是安全公司，而且这段时间的实习内容也和操作系统底层的安全策略有关，所以接触学习到了很多关于系统安全的内容。这次加强我服务器安全配置的经历可以说是让我对相关内容有了更深入的了解，毕竟可以大刀阔斧的在我的系统上大改乱改。<br>&emsp;&emsp;在实习中学习并分析系统上的配置，在自己的服务器上根据自己的理解进行改动查看结果，并尝试各种操作深入理解。我觉得目前我这种学习流程还是蛮好的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/09/03/20210903_linux%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%EF%BC%9AShell%E4%B8%AD%E5%A4%84%E7%90%86%E5%8C%85%E5%90%AB%E7%A9%BA%E6%A0%BC%E7%9A%84%E6%96%87%E4%BB%B6%E5%90%8D/" rel="prev" title="linux问题解决：Shell中处理包含空格的文件名">
+                  <i class="fa fa-angle-left"></i> linux问题解决：Shell中处理包含空格的文件名
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/09/20/20210920_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E8%AE%B0%E4%B8%80%E6%AC%A1%E6%89%8B%E5%8A%A8%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E7%BB%84%E4%BB%B6%E7%9A%84%E8%BF%87%E7%A8%8B/" rel="next" title="linux学习记录：记一次手动编译安装组件的过程">
+                  linux学习记录：记一次手动编译安装组件的过程 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

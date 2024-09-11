@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是我在实习中碰到的一些内容，因为之前对这一块内容一窍不通，所以就抽了几天学习了一下，不得不说收获颇丰。 借着这次的学习，对加密解密这方面的概念有了一定的认识，对信息传输安全相关的内容算是打了个基础，正好之前我也有做网络编程，感觉是可以尝试加入一下加密策略，不让报文裸奔了。然后就是借着证书了解了一下http&#x2F;https，算是对网络有了一点新的个人理解吧。 受组里的影响，我现在所有的总结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="公钥、私钥与证书 —— 相关内容分析与实践">
+<meta property="og:url" content="https://zgg2001.github.io/2021/08/26/20210826_%E5%85%AC%E9%92%A5%E7%A7%81%E9%92%A5%E4%B8%8E%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9%E5%88%86%E6%9E%90%E4%B8%8E%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="这是我在实习中碰到的一些内容，因为之前对这一块内容一窍不通，所以就抽了几天学习了一下，不得不说收获颇丰。 借着这次的学习，对加密解密这方面的概念有了一定的认识，对信息传输安全相关的内容算是打了个基础，正好之前我也有做网络编程，感觉是可以尝试加入一下加密策略，不让报文裸奔了。然后就是借着证书了解了一下http&#x2F;https，算是对网络有了一点新的个人理解吧。 受组里的影响，我现在所有的总结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-08-26/1.jpg">
+<meta property="og:image" content="https://zgg2001.github.io/images/2021-08-26/2.jpg">
+<meta property="article:published_time" content="2021-08-26T13:32:35.000Z">
+<meta property="article:modified_time" content="2021-08-26T13:32:35.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://zgg2001.github.io/images/2021-08-26/1.jpg">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2021/08/26/20210826_%E5%85%AC%E9%92%A5%E7%A7%81%E9%92%A5%E4%B8%8E%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9%E5%88%86%E6%9E%90%E4%B8%8E%E5%AE%9E%E8%B7%B5/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2021/08/26/20210826_%E5%85%AC%E9%92%A5%E7%A7%81%E9%92%A5%E4%B8%8E%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9%E5%88%86%E6%9E%90%E4%B8%8E%E5%AE%9E%E8%B7%B5/","path":"2021/08/26/20210826_公钥私钥与证书相关内容分析与实践/","title":"公钥、私钥与证书 —— 相关内容分析与实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>公钥、私钥与证书 —— 相关内容分析与实践 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A6%82%E5%BF%B5%E7%9B%B8%E5%85%B3"><span class="nav-text">一、概念相关</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%80%E4%BA%9B%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="nav-text">1. 一些关键词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%85%AC%E7%A7%81%E9%92%A5"><span class="nav-text">2. 公私钥</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%85%AC%E7%A7%81%E9%92%A5%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-text">2.1 公私钥的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%85%AC%E7%A7%81%E9%92%A5%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-text">2.2 公私钥的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%85%AC%E7%A7%81%E9%92%A5%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-text">2.3 公私钥的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E5%85%AC%E7%A7%81%E9%92%A5%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">2.4 公私钥的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-%E5%A6%82%E4%BD%95%E7%A1%AE%E4%BF%9D%E6%95%B0%E6%8D%AE%E5%AE%89%E5%85%A8%E4%BC%A0%E8%BE%93"><span class="nav-text">2.5 如何确保数据安全传输</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%AF%81%E4%B9%A6"><span class="nav-text">3. 证书</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E8%AF%81%E4%B9%A6%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">3.1 证书是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BD%95%E6%97%B6%E4%BC%9A%E7%94%A8%E5%88%B0%E8%AF%81%E4%B9%A6"><span class="nav-text">3.2 何时会用到证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%AF%81%E4%B9%A6%E7%9A%84%E4%BD%9C%E7%94%A8%E6%9C%BA%E5%88%B6"><span class="nav-text">3.3 证书的作用机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-CA%E6%9C%BA%E6%9E%84"><span class="nav-text">3.4 CA机构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-CA%E8%AF%81%E4%B9%A6%E4%B8%8E%E8%87%AA%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6"><span class="nav-text">3.5 CA证书与自签名证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-https%E5%8D%8F%E8%AE%AE%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-text">3.6 https协议工作流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81openssl%E5%B7%A5%E5%85%B7"><span class="nav-text">二、openssl工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-openssl-genrsa-%E2%80%93-%E7%94%9F%E6%88%90%E7%A7%81%E9%92%A5"><span class="nav-text">1. openssl genrsa – 生成私钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-openssl-req-%E2%80%93-%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3"><span class="nav-text">2. openssl req – 证书相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-openssl-rsa-%E2%80%93-%E6%8F%90%E5%8F%96%E5%85%AC%E9%92%A5"><span class="nav-text">3. openssl rsa – 提取公钥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-openssl-rsautl-%E2%80%93-%E5%8A%A0%E8%A7%A3%E5%AF%86"><span class="nav-text">4. openssl rsautl – 加解密</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-openssl%E7%A4%BA%E4%BE%8B-%E2%80%93-%E5%85%AC%E7%A7%81%E9%92%A5%E3%80%81%E8%AF%81%E4%B9%A6%E4%B8%8E%E5%8A%A0%E5%AF%86"><span class="nav-text">5. openssl示例 – 公私钥、证书与加密</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9C%A8C%E8%AF%AD%E8%A8%80%E4%B8%AD%E4%BD%BF%E7%94%A8openssl%E5%BA%93"><span class="nav-text">三、在C语言中使用openssl库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%89%8D%E6%9C%9F%E5%87%86%E5%A4%87"><span class="nav-text">1. 前期准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%A8%8B%E5%BA%8F%E5%AE%9E%E4%BE%8B-%E2%80%93-%E5%85%AC%E7%A7%81%E9%92%A5%E5%8A%A0%E5%AF%86%E8%A7%A3%E5%AF%86"><span class="nav-text">2. 程序实例 – 公私钥加密解密</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2021/08/26/20210826_%E5%85%AC%E9%92%A5%E7%A7%81%E9%92%A5%E4%B8%8E%E8%AF%81%E4%B9%A6%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9%E5%88%86%E6%9E%90%E4%B8%8E%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="公钥、私钥与证书 —— 相关内容分析与实践 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          公钥、私钥与证书 —— 相关内容分析与实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-26 21:32:35" itemprop="dateCreated datePublished" datetime="2021-08-26T21:32:35+08:00">2021-08-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>这是我在实习中碰到的一些内容，因为之前对这一块内容一窍不通，所以就抽了几天学习了一下，不得不说收获颇丰。</li>
+<li>借着这次的学习，对加密解密这方面的概念有了一定的认识，对信息传输安全相关的内容算是打了个基础，正好之前我也有做网络编程，感觉是可以尝试加入一下加密策略，不让报文裸奔了。然后就是借着证书了解了一下http&#x2F;https，算是对网络有了一点新的个人理解吧。</li>
+<li>受组里的影响，我现在所有的总结都是在有道云笔记上进行的，但是说实话上面搜索有点操蛋另外markdown不让传图，由此这种长篇大论还是适合发在CSDN上。所以我完善了一下，总结出了这一篇内容。(<del>但是不得不说有道云记小东西是真的方便，生产力upup</del> )</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、概念相关"><a href="#一、概念相关" class="headerlink" title="一、概念相关"></a>一、概念相关</h1><h2 id="1-一些关键词"><a href="#1-一些关键词" class="headerlink" title="1. 一些关键词"></a>1. 一些关键词</h2><ul>
+<li><strong>密钥对</strong> 在非对称加密技术中，有两种密钥，分为私钥和公钥，私钥是密钥对所有者持有，不可公布，公钥是密钥对持有者公布给他人的。</li>
+<li><strong>公钥</strong> 公钥用来给数据加密，用公钥加密的数据只能使用私钥解密。</li>
+<li><strong>私钥</strong> 如上，用来解密公钥加密的数据。</li>
+<li><strong>摘要</strong> 对需要传输的文本，做一个HASH计算，一般采用SHA1，SHA2来获得。</li>
+<li><strong>签名</strong> 使用私钥对需要传输的文本的摘要进行加密，得到的密文即被称为该次传输过程的签名。</li>
+</ul>
+<h2 id="2-公私钥"><a href="#2-公私钥" class="headerlink" title="2. 公私钥"></a>2. 公私钥</h2><h3 id="2-1-公私钥的优点"><a href="#2-1-公私钥的优点" class="headerlink" title="2.1 公私钥的优点"></a>2.1 公私钥的优点</h3><p>&emsp;&emsp;在对称加密中，加密和解密用的是同一个密钥。所以一旦密钥泄露，数据传输可能就会面临风险，由此非对称加密应运而生。  </p>
+<p>&emsp;&emsp;在非对称加密中，存在一个密钥对，即公钥和私钥，两者只能解密对方加密的内容。在私钥不被泄露的前提下对公钥进行散发，即使在散发的过程中公钥泄露也无法解密公钥端加密的数据，相比对称式加密更加安全。</p>
+<h3 id="2-2-公私钥的定义"><a href="#2-2-公私钥的定义" class="headerlink" title="2.2 公私钥的定义"></a>2.2 公私钥的定义</h3><ul>
+<li>公钥：是公布出去给别人用的，可以被很多人获取。用来加密和验签</li>
+<li>私钥：只能自己持有，并且不可以被其他人知道。用来解密和签名</li>
+</ul>
+<h3 id="2-3-公私钥的作用"><a href="#2-3-公私钥的作用" class="headerlink" title="2.3 公私钥的作用"></a>2.3 公私钥的作用</h3><ul>
+<li>公钥加密的数据私钥可以解密</li>
+<li>私钥加密的内容公钥可以解密</li>
+</ul>
+<h3 id="2-4-公私钥的关系"><a href="#2-4-公私钥的关系" class="headerlink" title="2.4 公私钥的关系"></a>2.4 公私钥的关系</h3><ul>
+<li>一个公钥对应一个私钥</li>
+<li>密钥对中，让大家都知道的是公钥，自己知道是私钥</li>
+<li>如果用其中一个密钥加密数据，则只有对应的那个密钥才能解密</li>
+<li>如果用其中一个密钥可以进行解密数据，则该数据必然由对应密钥进行加密</li>
+</ul>
+<h3 id="2-5-如何确保数据安全传输"><a href="#2-5-如何确保数据安全传输" class="headerlink" title="2.5 如何确保数据安全传输"></a>2.5 如何确保数据安全传输</h3><p>&emsp;&emsp;要达到数据安全传输的目的，必须发送方和接收方都持有对方的公钥和自己私钥，即任意一方持有自己的私钥和对方的公钥。  </p>
+<p>&emsp;&emsp;则为了数据的安全性，B需要使用A的公钥来给数据加密，这样只有A的私钥才可以解密数据，这样保证了数据的安全性，这是数字签名。</p>
+<p>&emsp;&emsp;而为了保证数据发送方的真实性，B需要使用自己的私钥来数据加密，这样其他人用B的公钥进行解密，由于只有B私钥加密的数据，B的公钥才能解密，所以他人用B的公钥若能解密此数据，则证实数据是由B发送的，若不能解密，则证明数据不是用B的私钥加密，即不是B发送的，这样保证了发送的真实性。</p>
+<h2 id="3-证书"><a href="#3-证书" class="headerlink" title="3. 证书"></a>3. 证书</h2><h3 id="3-1-证书是什么"><a href="#3-1-证书是什么" class="headerlink" title="3.1 证书是什么"></a>3.1 证书是什么</h3><ul>
+<li>证书可以为公钥做认证，从而可以验证公钥是否真实可信，防止他人伪造公钥</li>
+</ul>
+<h3 id="3-2-何时会用到证书"><a href="#3-2-何时会用到证书" class="headerlink" title="3.2 何时会用到证书"></a>3.2 何时会用到证书</h3><p>&emsp;&emsp;很明显，在一些情况下，不存在像上文中说的那种双方均持有完善密钥对的条件，比如说访问网页。  </p>
+<p>&emsp;&emsp;在申请访问网页时，本机是不存在网页端的公钥的，由此网页端在收到访问申请时，需要把公钥发送给本机。在本机接收到公钥后，便可以通过公钥与网页端进行较为安全的数据传输。但是，在网页端把公钥发送给本机的过程中，公钥可能被他人篡改(比如被替换成另一个公钥)，这样在使用此公钥数据传输时就有可能被解密，从而发生泄露(比如在网页中输入的密码之类的)。此时可以确认公钥是否被篡改的证书就出现了。</p>
+<h3 id="3-3-证书的作用机制"><a href="#3-3-证书的作用机制" class="headerlink" title="3.3 证书的作用机制"></a>3.3 证书的作用机制</h3><p>&emsp;&emsp;证书其实可以看作是加密后的公钥信息，其中有公钥的摘要(<strong>所以在生成证书的时候可以指定hash加密算法</strong>)，可以在发送公钥时带着证书一起发送。在本机接收到内容后，对证书进行解密即可验证随着证书一起发送的公钥是否被篡改，由此即可保证公钥的安全性。</p>
+<h3 id="3-4-CA机构"><a href="#3-4-CA机构" class="headerlink" title="3.4 CA机构"></a>3.4 CA机构</h3><p>&emsp;&emsp;如果按上面说的那个证书流程走，就会出现一个问题：谁来给公钥加密成证书？如何解密证书？此时CA机构出现了。  </p>
+<p>&emsp;&emsp;CA机构即证书颁发机构，它会用自己的私钥对用户的公钥和相关信息进行加密，生成”数字证书”，然后证书中心会公布自己的公钥给所有人，用来让用户使用此公钥验证”数字证书”是否由CA颁发，即是否真实可信。  </p>
+<ul>
+<li>那么CA的公钥怎么获取？就目前来说主流浏览器中均内置了CA的公钥，所以这个问题是不用担心的。  </li>
+<li>如何确保CA的公钥没有被篡改？这套信任链的起点是CA的根证书，其中存有CA的公钥。所以如果你接受了这个根证书，则代表对这个机构的信任，则所有此机构的证书均可通过该根证书来验证。所以只需要确保根证书是真的即可。</li>
+</ul>
+<h3 id="3-5-CA证书与自签名证书"><a href="#3-5-CA证书与自签名证书" class="headerlink" title="3.5 CA证书与自签名证书"></a>3.5 CA证书与自签名证书</h3><p>&emsp;&emsp;CA证书是通过验证的、可以信任的，但是在CA认证过程花费不小。所以在一般的测试或者一些情况下，可以使用自签名证书。  </p>
+<p>&emsp;&emsp;自签名证书相当于自己给自己发证书，所以没有办法被验证(除非你在浏览器里安装了相应的根证书)，由此浏览器可能会提示不安全。之前12306就没有获取CA证书，所以它推荐安装自己的根证书来避免被提示不安全以及确保传输安全，不过后来还是搞了CA的证书(如下图)。<br><img src="/images/2021-08-26/1.jpg" alt="12306"></p>
+<h3 id="3-6-https协议工作流程"><a href="#3-6-https协议工作流程" class="headerlink" title="3.6 https协议工作流程"></a>3.6 https协议工作流程</h3><p>&emsp;&emsp;<strong>我感觉https协议工作流程可以很好的展示公私钥与证书之间的关系，由此记录一下。</strong></p>
+<table>
+<thead>
+<tr>
+<th>客户端</th>
+<th>&emsp;流向&emsp;</th>
+<th>服务端</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求https连接</td>
+<td>&emsp;&gt;&gt;&emsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>&emsp;&lt;&lt;&emsp;</td>
+<td>返回证书公钥</td>
+<td></td>
+</tr>
+<tr>
+<td>使用CA的公钥验证<br>看证书是否有效</td>
+<td>&emsp;×&emsp;</td>
+<td></td>
+<td>如果出现问题<br>提示不安全</td>
+</tr>
+<tr>
+<td>根据CA的验证结果<br>看公钥是否安全</td>
+<td>&emsp;×&emsp;</td>
+<td></td>
+<td>如果出现问题<br>提示不安全</td>
+</tr>
+<tr>
+<td>如果上面验证都正常<br>则生成一个对称密钥</td>
+<td>&emsp;×&emsp;</td>
+<td></td>
+<td>这个密钥作用在<br>之后的密文通信</td>
+</tr>
+<tr>
+<td>使用服务端的公钥<br>加密上一步生成的密钥<br>把加密结果发送给服务端</td>
+<td>&emsp;&gt;&gt;&emsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>&emsp;×&emsp;</td>
+<td>收到加密后的密钥<br>使用私钥进行解密<br>得到对称密钥</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>&emsp;&lt;&lt;&emsp;</td>
+<td>使用对称密钥加密信息<br>发送给客户端</td>
+<td></td>
+</tr>
+<tr>
+<td>使用对称密钥解密信息<br>得到信息</td>
+<td>&emsp;×&emsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>使用对称密钥加密信息<br>发送给服务端</td>
+<td>&emsp;&gt;&gt;&emsp;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>&emsp;×&emsp;</td>
+<td>使用对称密钥解密信息<br>得到信息</td>
+<td></td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>通过对称密钥加密<br>的密文通道</td>
+</tr>
+</tbody></table>
+<h1 id="二、openssl工具"><a href="#二、openssl工具" class="headerlink" title="二、openssl工具"></a>二、openssl工具</h1><h2 id="1-openssl-genrsa-–-生成私钥"><a href="#1-openssl-genrsa-–-生成私钥" class="headerlink" title="1. openssl genrsa – 生成私钥"></a>1. openssl genrsa – 生成私钥</h2><p><strong>用于生成RSA私钥，不会生成公钥，因为公钥提取自私钥。</strong></p>
+<p>openssl genrsa [-out filename] [-passout arg] [-des] [-des3] [-idea] [numbits]</p>
+<ul>
+<li><strong>-out filename</strong> ：将生成的私钥保存至filename文件,若未指定输出文件,则为标准输出。</li>
+<li><strong>numbits</strong> ：指定要生成的私钥的长度,默认为1024。该项必须为命令行的最后一项参数。</li>
+<li><strong>-des</strong> ：生成的密钥使用des方式进行加密。</li>
+<li><strong>-des3</strong> ：生成的密钥使用des3方式进行加密。</li>
+<li><strong>-passout args</strong> ：加密私钥文件时,传递密码的格式,如果要加密私钥文件时单未指定该项,则提示输入密码。传递密码的args的格式,可从密码、环境变量、文件、终端等输入。<br>a. <strong>pass:password</strong> ：password表示传递的明文密码<br>b. <strong>env:var</strong> ：从环境变量var获取密码值<br>c. <strong>file:filename</strong> ：filename文件中的第一行为要传递的密码。若filename同时传递给”-passin”和”-passout”选项，则filename的第一行为”-passin”的值，第二行为”-passout”的值<br>d. <strong>stdin</strong> ：从标准输入中获取要传递的密码</li>
+</ul>
+<h2 id="2-openssl-req-–-证书相关"><a href="#2-openssl-req-–-证书相关" class="headerlink" title="2. openssl req – 证书相关"></a>2. openssl req – 证书相关</h2><p><strong>生成证书请求文件、验证证书请求文件和创建根CA。</strong></p>
+<p> openssl req<br>[-new] [-newkey rsa:bits] [-verify] [-x509] [-in filename] [-out filename]<br>[-key filename] [-passin arg] [-passout arg] [-keyout filename] [-pubkey]<br>[-nodes] [-[dgst]] [-config filename] [-subj arg] [-days n] [-set_serial n]<br>[-extensions section] [-reqexts section] [-utf8] [-nameopt] [-reqopt]<br>[-subject] [-subj arg] [-text] [-noout] [-batch] [-verbose]</p>
+<p><strong>简单说明几个参数：</strong></p>
+<ul>
+<li><p><strong>-new</strong> ：创建一个证书请求文件，会交互式提醒输入一些信息，这些交互选项以及交互选项信息的长度值以及其他一些扩展属性在配置文件(默认为openssl.cnf，还有些辅助配置文件)中指定了默认值。<strong>如果</strong>没有指定”-key”选项，则会自动生成一个RSA私钥，该私钥的生成位置也在openssl.cnf中指定了。<strong>如果</strong>指定了-x509选项，则表示创建的是自签署证书文件，而非证书请求文件</p>
+</li>
+<li><p><strong>-newkey args</strong> ：类似于”-new”选项，创建一个新的证书请求，并创建私钥。args的格式是”rsa:bits”(其他加密算法请查看man)，其中bits是rsa密钥的长度，<strong>如果</strong>bits省略了(即-newkeyrsa)，则长度根据配置文件中default_bits指令的值作为默认长度，默认该值为2048.<strong>如果</strong>指定了-x509选项，则表示创建的是自签署证书文件，而非证书请求文件</p>
+</li>
+<li><p><strong>-nodes</strong>  ：默认情况下，openssl req自动创建私钥时都要求加密并提示输入加密密码，指定该选项后则禁止对私钥文件加密</p>
+</li>
+<li><p><strong>-key filename</strong>  ：指定私钥的输入文件，创建证书请求时需要</p>
+</li>
+<li><p><strong>-keyout filename</strong> ：指定自动创建私钥时私钥的存放位置，若未指定该选项，则使用配置文件中default_keyfile指定的值，默认该值为privkey.pem</p>
+</li>
+<li><p><strong>-x509</strong> ：指定该选项时，将生成一个自签署证书，而不是创建证书请求。一般用于测试或者为根CA创建自签名证书</p>
+</li>
+<li><p><strong>-days n</strong>  ：指定自签名证书的有效期限，默认30天，需要和”-x509”一起使用。</p>
+</li>
+<li><p><strong>-[dgst]</strong>  ：指定对创建请求时提供的申请者信息进行数字签名时的单向加密算法，如-md5&#x2F;-sha1&#x2F;-sha512等.</p>
+</li>
+<li><p><strong>-out filename</strong>  ：证书请求或自签署证书的输出文件，也可以是其他内容的输出文件，不指定时默认stdout</p>
+</li>
+<li><p><strong>-text</strong>  ：以文本格式打印证书请求</p>
+</li>
+<li><p><strong>-noout</strong>  ：不输出部分信息 -subject ：输出证书请求文件中的subject(如果指定了x509，则打印证书中的subject)</p>
+</li>
+<li><p><strong>-pubkey</strong>  ：输出证书请求文件中的公钥</p>
+</li>
+</ul>
+<h2 id="3-openssl-rsa-–-提取公钥"><a href="#3-openssl-rsa-–-提取公钥" class="headerlink" title="3. openssl rsa – 提取公钥"></a>3. openssl rsa – 提取公钥</h2><p><strong>Rsa命令用于处理RSA密钥、格式转换和打印信息。</strong>  </p>
+<p>openssl rsa<br>[-inform PEM|NET|DER] [-outform PEM|NET|DER] [-in filename] [-passin arg]<br>[-out filename] [-passout arg] [-sgckey]<br>[-text] [-noout] [-modulus] [-check] [-pubin] [-pubout]<br>[-engine id] [-des] [-des3] [-idea]</p>
+<p><strong>简单说明几个例子：</strong></p>
+<p>从私钥中提取公钥</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in private.key -pubout -out public.key</span><br></pre></td></tr></table></figure>
+<p>查看公钥信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -pubin -in pubkey.key -text</span><br></pre></td></tr></table></figure>
+<p>查看私钥信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in prikey.key -passin pass:&quot;123456&quot; -text</span><br></pre></td></tr></table></figure>
+<h2 id="4-openssl-rsautl-–-加解密"><a href="#4-openssl-rsautl-–-加解密" class="headerlink" title="4. openssl rsautl – 加解密"></a>4. openssl rsautl – 加解密</h2><p><strong>rsautl命令用于依据公私钥加解密数据。</strong></p>
+<p><strong>下面是几个示例：</strong></p>
+<p>公钥进行加密 (被加密文件为testFile 加密后文件为temp)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -encrypt -in testFile -inkey pub_test.key -pubin -out temp   </span><br></pre></td></tr></table></figure>
+<p>私钥进行解密 (被解密文件为temp 解密后文件为newFile)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -decrypt -in temp -inkey pri_test.key -out newFile   </span><br></pre></td></tr></table></figure>
+<p>私钥进行加密(签名) (被加密文件为testFile 加密后文件为temp)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -sign -in testFile -inkey pri_test.key -out temp </span><br></pre></td></tr></table></figure>
+<p>公钥进行解密 (被解密文件为temp 解密后文件为newFile)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -verify -in temp -inkey pub_test.key -pubin -out newFile </span><br></pre></td></tr></table></figure>
+<h2 id="5-openssl示例-–-公私钥、证书与加密"><a href="#5-openssl示例-–-公私钥、证书与加密" class="headerlink" title="5. openssl示例 – 公私钥、证书与加密"></a>5. openssl示例 – 公私钥、证书与加密</h2><p><strong>下面是一组示例。</strong></p>
+<p>使用des3加密生成一个叫做pri_test.key的私钥，长度为2048</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -des3 -out pri_test.key 2048 </span><br></pre></td></tr></table></figure>
+<p>从私钥中提取出公钥，公钥取名为pub_test.key</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsa -in pri_test.key -pubout -out pub_test.key  </span><br></pre></td></tr></table></figure>
+<p>生成一个叫做req1.csr的证书请求，规定证书签名算法为sha256</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key pri_test.key -out req1.csr -sha256    </span><br></pre></td></tr></table></figure>
+<p>查看证书请求req1.csr的信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -in req1.csr -text </span><br></pre></td></tr></table></figure>
+<p>验证证书请求是否被修改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -verify -in req1.csr    </span><br></pre></td></tr></table></figure>
+<p>依据证书请求文件创建自签名证书CA1.pem，有效期365天</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -x509 -key pri_test.key -in req1.csr -out CA1.pem -days 365</span><br></pre></td></tr></table></figure>
+<p>当然也可以直接通过私钥创建自签名证书CA2.pem</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -key pri_test.key -out CA2.pem -days 365</span><br></pre></td></tr></table></figure>
+
+<p><strong>由此公私钥、自签名证书创建完毕，下面是加密相关。</strong></p>
+<p>创建测试文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim testFile </span><br><span class="line">Hi~</span><br><span class="line">This 1s @ test 文件!</span><br></pre></td></tr></table></figure>
+<p>公钥进行加密 (被加密文件为testFile 加密后文件为temp)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -encrypt -in testFile -inkey pub_test.key -pubin -out temp   </span><br></pre></td></tr></table></figure>
+<p>私钥进行解密 (被解密文件为temp 解密后文件为newFile)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -decrypt -in temp -inkey pri_test.key -out newFile   </span><br></pre></td></tr></table></figure>
+<p>私钥进行加密(签名) (被加密文件为testFile 加密后文件为temp)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -sign -in testFile -inkey pri_test.key -out temp </span><br></pre></td></tr></table></figure>
+<p>公钥进行解密 (被解密文件为temp 解密后文件为newFile)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -verify -in temp -inkey pub_test.key -pubin -out newFile </span><br></pre></td></tr></table></figure>
+<h1 id="三、在C语言中使用openssl库"><a href="#三、在C语言中使用openssl库" class="headerlink" title="三、在C语言中使用openssl库"></a>三、在C语言中使用openssl库</h1><h2 id="1-前期准备"><a href="#1-前期准备" class="headerlink" title="1. 前期准备"></a>1. 前期准备</h2><p>首先得确保当前环境下存在openssl库。官网下载地址:<a target="_blank" rel="noopener" href="https://www.openssl.org/source/">https://www.openssl.org/source/</a></p>
+<p>具体步骤可以去网上搜一下。大致就是下载后解压，然后<code>./config</code>和<code>make</code>命令进行配置与编译，最后<code>make install</code>安装一下就好了。安装好以后就可以使用openssl的库文件了。</p>
+<h2 id="2-程序实例-–-公私钥加密解密"><a href="#2-程序实例-–-公私钥加密解密" class="headerlink" title="2. 程序实例 – 公私钥加密解密"></a>2. 程序实例 – 公私钥加密解密</h2><p>这个例子来自于我在网上找到的代码，我对它进行了一些注释和改动，主要目的是为了看一下openssl在C语言中相关的接口函数。</p>
+<p><strong>注意∶</strong>编译时应加上参数<code>-lcrypto</code>来连接相关的动态库</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;openssl/rsa.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;openssl/pem.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OPENSSLKEY <span class="string">&quot;pri_test.key&quot;</span><span class="comment">//私钥</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PUBLICKEY <span class="string">&quot;pub_test.key&quot;</span><span class="comment">//公钥</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> BUFFSIZE 1024</span></span><br><span class="line"><span class="type">char</span>* <span class="title function_">my_encrypt</span><span class="params">(<span class="type">char</span> *str,<span class="type">char</span> *path_key)</span>;<span class="comment">//加密</span></span><br><span class="line"><span class="type">char</span>* <span class="title function_">my_decrypt</span><span class="params">(<span class="type">char</span> *str,<span class="type">char</span> *path_key)</span>;<span class="comment">//解密</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    <span class="type">char</span> *source=<span class="string">&quot;Hi~ \nThis 1s @ test 文件&quot;</span>;<span class="comment">//要加密的文件</span></span><br><span class="line">    <span class="type">char</span> *ptr_en,*ptr_de;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;source is    :\n%s\n&quot;</span>,source);<span class="comment">//加密前</span></span><br><span class="line">    ptr_en=my_encrypt(source,PUBLICKEY);<span class="comment">//加密</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;after encrypt:\n%s\n&quot;</span>,ptr_en);<span class="comment">//加密后</span></span><br><span class="line">    ptr_de=my_decrypt(ptr_en,OPENSSLKEY);<span class="comment">//解密</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;after decrypt:\n%s\n&quot;</span>,ptr_de);<span class="comment">//解密后</span></span><br><span class="line">    <span class="keyword">if</span>(ptr_en!=<span class="literal">NULL</span>)&#123;</span><br><span class="line">        <span class="built_in">free</span>(ptr_en);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(ptr_de!=<span class="literal">NULL</span>)&#123;</span><br><span class="line">        <span class="built_in">free</span>(ptr_de);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//加密</span></span><br><span class="line"><span class="type">char</span> *<span class="title function_">my_encrypt</span><span class="params">(<span class="type">char</span> *str,<span class="type">char</span> *path_key)</span>&#123;</span><br><span class="line">    <span class="type">char</span> *p_en;</span><br><span class="line">    RSA *p_rsa;</span><br><span class="line">    FILE *file;</span><br><span class="line">    <span class="type">int</span> flen,rsa_len;</span><br><span class="line">    <span class="keyword">if</span>((file=fopen(path_key,<span class="string">&quot;r&quot;</span>))==<span class="literal">NULL</span>)&#123;</span><br><span class="line">        perror(<span class="string">&quot;open key file error&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>((p_rsa=PEM_read_RSA_PUBKEY(file,<span class="literal">NULL</span>,<span class="literal">NULL</span>,<span class="literal">NULL</span>))==<span class="literal">NULL</span>)&#123;<span class="comment">//读公钥</span></span><br><span class="line">        ERR_print_errors_fp(<span class="built_in">stdout</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    flen=<span class="built_in">strlen</span>(str);</span><br><span class="line">    rsa_len=RSA_size(p_rsa);</span><br><span class="line">    p_en=(<span class="type">unsigned</span> <span class="type">char</span> *)<span class="built_in">malloc</span>(rsa_len+<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">memset</span>(p_en,<span class="number">0</span>,rsa_len+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(RSA_public_encrypt(rsa_len,(<span class="type">unsigned</span> <span class="type">char</span> *)str,(<span class="type">unsigned</span> <span class="type">char</span>*)p_en,p_rsa,RSA_NO_PADDING)&lt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;<span class="comment">//这里进行加密</span></span><br><span class="line">    RSA_free(p_rsa);</span><br><span class="line">    fclose(file);</span><br><span class="line">    <span class="keyword">return</span> p_en;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//解密</span></span><br><span class="line"><span class="type">char</span> *<span class="title function_">my_decrypt</span><span class="params">(<span class="type">char</span> *str,<span class="type">char</span> *path_key)</span>&#123;</span><br><span class="line">    <span class="type">char</span> *p_de;</span><br><span class="line">    RSA *p_rsa;</span><br><span class="line">    FILE *file;</span><br><span class="line">    <span class="type">int</span> rsa_len;</span><br><span class="line">    <span class="keyword">if</span>((file=fopen(path_key,<span class="string">&quot;r&quot;</span>))==<span class="literal">NULL</span>)&#123;</span><br><span class="line">        perror(<span class="string">&quot;open key file error&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>((p_rsa=PEM_read_RSAPrivateKey(file,<span class="literal">NULL</span>,<span class="literal">NULL</span>,<span class="literal">NULL</span>))==<span class="literal">NULL</span>)&#123;<span class="comment">//读私钥</span></span><br><span class="line">        ERR_print_errors_fp(<span class="built_in">stdout</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    rsa_len=RSA_size(p_rsa);</span><br><span class="line">    p_de=(<span class="type">unsigned</span> <span class="type">char</span> *)<span class="built_in">malloc</span>(rsa_len+<span class="number">1</span>);</span><br><span class="line">    <span class="built_in">memset</span>(p_de,<span class="number">0</span>,rsa_len+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(RSA_private_decrypt(rsa_len,(<span class="type">unsigned</span> <span class="type">char</span> *)str,(<span class="type">unsigned</span> <span class="type">char</span>*)p_de,p_rsa,RSA_NO_PADDING)&lt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;<span class="comment">//这里进行解密</span></span><br><span class="line">    RSA_free(p_rsa);</span><br><span class="line">    fclose(file);</span><br><span class="line">    <span class="keyword">return</span> p_de;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如下图为执行结果：</strong><br><img src="/images/2021-08-26/2.jpg" alt="在这里插入图片描述"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/23/20210823_C_C++%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B8%89%E7%A7%8D%E4%BC%A0%E5%8F%82%E6%96%B9%E5%BC%8F/" rel="prev" title="C/C++学习记录：深入理解三种传参方式">
+                  <i class="fa fa-angle-left"></i> C/C++学习记录：深入理解三种传参方式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/08/31/20210831_linux%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Ashell%E8%84%9A%E6%9C%AC/" rel="next" title="linux学习记录：shell脚本">
+                  linux学习记录：shell脚本 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>

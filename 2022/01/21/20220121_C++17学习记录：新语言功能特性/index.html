@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="本篇笔记汇总了C++17中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。 主要参考地址：cppreference C++17为继C++11后的第一个大版本更新，东西相较于C++14多了不少，但是基本上都是以往特性的优化与补充，这里简单进行一些主要新特性的记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++17学习记录：新语言功能特性">
+<meta property="og:url" content="https://zgg2001.github.io/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="本篇笔记汇总了C++17中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。 主要参考地址：cppreference C++17为继C++11后的第一个大版本更新，东西相较于C++14多了不少，但是基本上都是以往特性的优化与补充，这里简单进行一些主要新特性的记录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-21T12:08:52.000Z">
+<meta property="article:modified_time" content="2022-01-21T12:08:52.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="C++标准库学习">
+<meta property="article:tag" content="C&#x2F;C++">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/","path":"2022/01/21/20220121_C++17学习记录：新语言功能特性/","title":"C++17学习记录：新语言功能特性"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C++17学习记录：新语言功能特性 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E6%8A%98%E5%8F%A0%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-text">· 折叠表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E7%B1%BB%E6%A8%A1%E6%9D%BF%E5%AE%9E%E5%8F%82%E6%8E%A8%E5%AF%BC"><span class="nav-text">· 类模板实参推导</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-auto-%E5%8D%A0%E4%BD%8D%E7%9A%84%E9%9D%9E%E7%B1%BB%E5%9E%8B%E6%A8%A1%E6%9D%BF%E5%BD%A2%E5%8F%82"><span class="nav-text">· auto 占位的非类型模板形参</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E7%BC%96%E8%AF%91%E6%9C%9F%E7%9A%84-constexpr-if-%E8%AF%AD%E5%8F%A5"><span class="nav-text">· 编译期的 constexpr if 语句</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-inline-%E5%8F%98%E9%87%8F"><span class="nav-text">· inline 变量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E7%BB%93%E6%9E%84%E5%8C%96%E7%BB%91%E5%AE%9A"><span class="nav-text">· 结构化绑定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-if-%E5%92%8C-switch-%E8%AF%AD%E5%8F%A5%E4%B8%AD%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96%E5%99%A8"><span class="nav-text">· if 和 switch 语句中的初始化器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-u8-char"><span class="nav-text">· u8-char</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E7%9B%B8%E5%85%B3"><span class="nav-text">· 命名空间相关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%B0%86-noexcept-%E4%BD%9C%E4%B8%BA%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F%E7%9A%84%E4%B8%80%E9%83%A8%E5%88%86"><span class="nav-text">· 将 noexcept 作为类型系统的一部分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E6%96%B0%E7%9A%84%E6%B1%82%E5%80%BC%E9%A1%BA%E5%BA%8F%E8%A7%84%E5%88%99"><span class="nav-text">· 新的求值顺序规则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%BC%BA%E5%88%B6%E7%9A%84%E5%A4%8D%E5%88%B6%E6%B6%88%E9%99%A4"><span class="nav-text">· 强制的复制消除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%8D%95%E8%8E%B7-this"><span class="nav-text">· lambda 表达式捕获 *this</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-constexpr-%E7%9A%84-lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-text">· constexpr 的 lambda 表达式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E5%B1%9E%E6%80%A7%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E4%B8%8D%E5%BF%85%E9%87%8D%E5%A4%8D"><span class="nav-text">· 属性命名空间不必重复</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-%E6%96%B0%E5%B1%9E%E6%80%A7-fallthrough-nodiscard-%E5%92%8C-maybe-unused"><span class="nav-text">· 新属性 [[fallthrough]] [[nodiscard]] 和 [[maybe_unused]]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%C2%B7-has-include"><span class="nav-text">· __has_include</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2022/01/21/20220121_C++17%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C++17学习记录：新语言功能特性 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++17学习记录：新语言功能特性
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-01-21 20:08:52" itemprop="dateCreated datePublished" datetime="2022-01-21T20:08:52+08:00">2022-01-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li>本篇笔记汇总了C++17中的主要新语言功能特性，根据个人理解与查阅的资料进行记录。</li>
+<li>主要参考地址：<a target="_blank" rel="noopener" href="https://zh.cppreference.com/w/cpp/11">cppreference</a></li>
+<li>C++17为继C++11后的第一个大版本更新，东西相较于C++14多了不少，但是基本上都是以往特性的优化与补充，这里简单进行一些主要新特性的记录。</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="·-折叠表达式"><a href="#·-折叠表达式" class="headerlink" title="· 折叠表达式"></a>· 折叠表达式</h1><p>&emsp;&emsp;在 <strong>C++11</strong> 中，其引入了可变参数模板，但是可变参数模板需要挨个递归处理可变参数。这就导致就算以同一种方式处理可变参数，也需要重复的函数递归，写起来很笨重。</p>
+<p>&emsp;&emsp;比如下面这个例子，仅仅只需要累加求和，但是却需要写两个模板函数使得递归可行，从而遍历每一个参数，写起来相对麻烦且臃肿。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span></span><br><span class="line"><span class="function">T <span class="title">add</span><span class="params">(T&amp;&amp; num)</span><span class="comment">//基础函数</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> num;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> ... Args&gt;</span></span><br><span class="line"><span class="function">T <span class="title">add</span><span class="params">(T&amp;&amp; num, Args&amp;&amp;... a)</span><span class="comment">//递归变参函数</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> num + <span class="built_in">add</span>(forward&lt;Args&gt;(a)...);<span class="comment">//递归调用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">add</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">15</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;折叠表达式是 <strong>C++17</strong> 新引进的语法特性。使用折叠表达式可以简化对 <strong>C++11</strong> 中引入的参数包的处理，从而在某些情况下避免使用递归。</p>
+<p>&emsp;&emsp; 折叠表达式共有四种语法形式。分别为一元的左折叠和右折叠，以及二元的左折叠和右折叠。其支持所有二元运算符的简写，这里仅做简单记录，比如说上文中的例子就可以简化为如下写法(二元左折叠)：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span> ... Args&gt;</span></span><br><span class="line"><span class="function">T <span class="title">add</span><span class="params">(T&amp;&amp; num, Args&amp;&amp;... args)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (num + ... + args);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="built_in">add</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* g++ test.cpp -o test -std=c++17 */</span></span><br><span class="line">输出:</span><br><span class="line"><span class="number">15</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;总体而言，折叠表达式为变参模板写法提供了更多的可能性，可以在不影响原功能和代码可读性的前提下实现简化。</p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-类模板实参推导"><a href="#·-类模板实参推导" class="headerlink" title="· 类模板实参推导"></a>· 类模板实参推导</h1><p>&emsp;&emsp;简单来说，就是在实例化类模板时，可以自动推出模板参数而不需指定。具体限制为：<strong>如果构造函数能够推导出所有模板参数，则可以跳过显式定义模板参数。</strong></p>
+<p>&emsp;&emsp;下面是几个简单但方便的例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">std::pair&lt;<span class="type">int</span>, <span class="type">double</span>&gt; <span class="title">p1</span><span class="params">(<span class="number">2</span>, <span class="number">4.5</span>)</span></span>;		<span class="comment">//ok</span></span><br><span class="line">    <span class="function">std::pair <span class="title">p2</span><span class="params">(<span class="number">2</span>, <span class="number">4.5</span>)</span></span>;					<span class="comment">//-std=c++17 ok</span></span><br><span class="line"></span><br><span class="line">    std::vector&lt;<span class="type">int</span>&gt; v1 = &#123;<span class="number">1</span>&#125;;				<span class="comment">//ok</span></span><br><span class="line">    std::vector v2 = &#123;<span class="number">1</span>&#125;;					<span class="comment">//-std=c++17 ok</span></span><br><span class="line"></span><br><span class="line">    std::mutex mx;</span><br><span class="line">    <span class="function">std::lock_guard&lt;std::mutex&gt; <span class="title">lock1</span><span class="params">(mx)</span></span>;	<span class="comment">//ok</span></span><br><span class="line">    <span class="function">std::lock_guard <span class="title">lock2</span><span class="params">(mx)</span></span>;				<span class="comment">//-std=c++17 ok</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这东西怎么说，我感觉虽然方便但是并不是所有都适合这么搞。因为很容易分不清类型让代码可读性降低，所以我感觉像 <code>pair</code>、<code>tuple</code>、<code>lock_guard</code>这种临时变量用一下还好(因为其中的模板参数往往已经规定，省略一下可读性影响也不大)，如果有作用域比较广的变量最好就不要用了，因为很可能需要费神来思考它的模板参数。</p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-auto-占位的非类型模板形参"><a href="#·-auto-占位的非类型模板形参" class="headerlink" title="· auto 占位的非类型模板形参"></a>· auto 占位的非类型模板形参</h1><p>&emsp;&emsp;从 <strong>C++17</strong> 开始，可以使用 <code>auto</code> 来声明一个非类型模板参数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">auto</span> N&gt; <span class="keyword">class</span> <span class="title class_">S</span> </span><br><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">S&lt;<span class="number">42</span>&gt; s1; <span class="comment">// OK: type of N in S is int</span></span><br><span class="line">S&lt;<span class="string">&#x27;a&#x27;</span>&gt; s2; <span class="comment">// OK: type of N in S is char</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如果非类型模板形参的类型包含占位符类型 <code>auto</code>，被推导类型的占位符 (C++20 起)，或 decltype(auto)，那么它可以被推导。推导会如同在虚设的声明 <code>T x = 模板实参;</code> 中推导变量 x 的类型一样进行，其中 T 是模板形参的声明类型。如果被推导的类型不能用于非类型模板形参，那么程序非良构。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">template&lt;auto n&gt;</span><br><span class="line">struct B &#123; /* ... */ &#125;;</span><br><span class="line"> </span><br><span class="line">B&lt;5&gt; b1;   // OK：非类型模板形参的类型是 int</span><br><span class="line">B&lt;&#x27;a&#x27;&gt; b2; // OK：非类型模板形参的类型是 char</span><br><span class="line">B&lt;2.5&gt; b3; // 错误（C++20 前）：非类型模板形参的类型不能是 double</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;对于类型中使用了占位符类型的非类型模板形参包，每个模板实参的类型会独立进行推导，而且不需要互相匹配：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">template&lt;auto...&gt;</span><br><span class="line">struct C &#123;&#125;;</span><br><span class="line"> </span><br><span class="line">C&lt;&#x27;C&#x27;, 0, 2L, nullptr&gt; x; // OK</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h1 id="·-编译期的-constexpr-if-语句"><a href="#·-编译期的-constexpr-if-语句" class="headerlink" title="· 编译期的 constexpr if 语句"></a>· 编译期的 constexpr if 语句</h1><p>&emsp;&emsp;<code>constexpr if</code> 是 <strong>C++17</strong> 中新特性，可以实现在编译期的条件判断。<br>&emsp;&emsp;这个东西主要是为了实现泛型编译期处理中的条件判定，可以实现根据 <code>constexpr if</code> 来编译合适的代码段，从而可以在编译期干一部分模板类型判断相关的事情，提高代码的执行效率。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">bar</span><span class="params">(T t)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">if</span> <span class="title">constexpr</span> <span class="params">(has_foo_v&lt;T&gt;)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        t.<span class="built_in">foo</span>();</span><br><span class="line">        std::<span class="built_in">puts</span>(<span class="string">&quot;yes&quot;</span>);</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        std::<span class="built_in">puts</span>(<span class="string">&quot;no&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">等价于:</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T, <span class="keyword">typename</span>=std::<span class="type">enable_if_t</span>&lt;has_foo_v&lt;T&gt;&gt;&gt;</span><br><span class="line"><span class="type">void</span> <span class="built_in">bar</span>(T t) </span><br><span class="line">&#123;</span><br><span class="line">    t.<span class="built_in">foo</span>();</span><br><span class="line">    std::<span class="built_in">puts</span>(<span class="string">&quot;yes&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">bar</span><span class="params">(...)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::<span class="built_in">puts</span>(<span class="string">&quot;no&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>&emsp;&emsp;</p>
+<h1 id="·-inline-变量"><a href="#·-inline-变量" class="headerlink" title="· inline 变量"></a>· inline 变量</h1><p>&emsp;&emsp;在 <strong>C++17</strong> 后，可以给变量加上 <code>inline</code> 标签从而使其成为内联变量。<strong>其核心目的就是为了可以在头文件中定义一个全局可用的对象。</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">static</span> <span class="keyword">inline</span> std::string name = <span class="string">&quot;&quot;</span>; <span class="comment">// OK since C++17</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">inline</span> MyClass myGlobalObj; <span class="comment">// OK even if included/defined by multiple CPP files</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;另外声明为 <code>constexpr</code> 的静态成员变量(但不是命名空间作用域变量)是隐式的内联变量，即以下二者等价。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">D</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int</span> n = <span class="number">5</span>; <span class="comment">// C++11/C++14: //声明但未定义</span></span><br><span class="line">                                <span class="comment">// since C++17: 定义</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">inline</span> <span class="type">static</span> <span class="keyword">constexpr</span> <span class="type">int</span> n = <span class="number">5</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>想深入了解可以看一下这位大佬的文章: <a target="_blank" rel="noopener" href="https://blog.csdn.net/janeqi1987/article/details/100108589">点我跳转</a></p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-结构化绑定"><a href="#·-结构化绑定" class="headerlink" title="· 结构化绑定"></a>· 结构化绑定</h1><p>&emsp;&emsp;在我的理解中，这个新特性就是可以对含有多个元素的对象进行一个映射，即绑定指定名称到初始化器的子对象或元素。可能有点类似引用，但不同于引用的是，结构化绑定的类型不必为引用类型。</p>
+<p>&emsp;&emsp;第一个用法，绑定数组：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a[<span class="number">2</span>] = &#123;<span class="number">1</span>,<span class="number">2</span>&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">auto</span> [x,y] = a; <span class="comment">// 创建 e[2]，复制 a 到 e，然后 x 指代 e[0]，y 指代 e[1]</span></span><br><span class="line"><span class="keyword">auto</span>&amp; [xr, yr] = a; <span class="comment">// xr 指代 a[0]，yr 指代 a[1]</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;第二个用法，绑定元组式类型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> x&#123;&#125;;</span><br><span class="line"><span class="type">char</span>  y&#123;&#125;;</span><br><span class="line"><span class="type">int</span>   z&#123;&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="function">std::tuple&lt;<span class="type">float</span>&amp;,<span class="type">char</span>&amp;&amp;,<span class="type">int</span>&gt; <span class="title">tpl</span><span class="params">(x,std::move(y),z)</span></span>;</span><br><span class="line"><span class="type">const</span> <span class="keyword">auto</span>&amp; [a,b,c] = tpl;</span><br><span class="line"><span class="comment">// a 指名指代 x 的结构化绑定；decltype(a) 为 float&amp;</span></span><br><span class="line"><span class="comment">// b 指名指代 y 的结构化绑定；decltype(b) 为 char&amp;&amp;</span></span><br><span class="line"><span class="comment">// c 指名指代 tpl 的第 3 元素的结构化绑定；decltype(c) 为 const int</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;第三个用法，绑定到数据成员：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">S</span> &#123;</span><br><span class="line">    <span class="keyword">mutable</span> <span class="type">int</span> x1 : <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">double</span> y1;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function">S <span class="title">f</span><span class="params">()</span></span>;</span><br><span class="line"> </span><br><span class="line"><span class="type">const</span> <span class="keyword">auto</span> [x, y] = <span class="built_in">f</span>(); <span class="comment">// x 是标识 2 位位域的 int 左值</span></span><br><span class="line">                         <span class="comment">// y 是 const volatile double 左值</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;我感觉，这个新特性的绑定元组部分还是挺有用的，包括接收返回值和范围for的取值等场景用起来都很方便和优雅。比如说下面这个例子，就可以省去取值的部分。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    vector&lt;pair&lt;<span class="type">int</span>, <span class="type">int</span>&gt;&gt; a&#123;&#123;<span class="number">1</span>, <span class="number">2</span>&#125;, &#123;<span class="number">3</span>, <span class="number">4</span>&#125;&#125;;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">auto</span>&amp; [x, y] : a)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; x &lt;&lt; y &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h1 id="·-if-和-switch-语句中的初始化器"><a href="#·-if-和-switch-语句中的初始化器" class="headerlink" title="· if 和 switch 语句中的初始化器"></a>· if 和 switch 语句中的初始化器</h1><p>&emsp;&emsp;简单来说就是在 <code>if</code> 和 <code>switch</code> 语句中也可以初始化变量了，类似于在 <code>for</code> 循环里声明新的变量。但是我感觉在 <code>if/switch</code> 中初始化变量的需求应该是不会太大，产生需求的主要场景应该是为了控制变量的作用域。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> s = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="type">int</span> a = <span class="number">0</span>; a == s)		<span class="comment">//A部分</span></span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(<span class="type">int</span> b = <span class="number">1</span>; b == s)	<span class="comment">//B部分</span></span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">        cout &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>						<span class="comment">//C部分</span></span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">        cout &lt;&lt; b &lt;&lt; endl;</span><br><span class="line">        cout &lt;&lt; <span class="number">222</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span>(<span class="type">int</span> c = <span class="number">2</span>; c) </span><br><span class="line">	&#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        cout &lt;&lt; c &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">        cout &lt;&lt; <span class="number">333</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">输出:</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;如上为在 <code>if/switch</code> 语句中初始化变量。其中在 <code>if</code> 语句部分中，变量 <code>a</code> 的作用域为 <strong>A&#x2F;B&#x2F;C</strong>，变量 <code>b</code> 的作用域为 <strong>B&#x2F;C</strong>。而在 <code>switch</code> 语句部分中，变量 <code>c</code> 的作用域为整个 <code>switch</code>。</p>
+<p>&emsp;&emsp;总体而言这个新特性通过在代码块中添加大括号也可以等价实现，但是看上去可能没那么优雅，所以还是有其独特的优点的。</p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-u8-char"><a href="#·-u8-char" class="headerlink" title="· u8-char"></a>· u8-char</h1><p>&emsp;&emsp;就是一个新的字符字面量，UTF-8字符字面量(每个字符大小为1字节)，格式如下，个人感觉没什么好说的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">u8&#x27;c字符&#x27;</span></span><br><span class="line"></span><br><span class="line">例:</span><br><span class="line"><span class="type">char</span> c = <span class="string">u8&#x27;a&#x27;</span>; <span class="comment">//sizeof(c) = 1</span></span><br><span class="line"><span class="keyword">constexpr</span> <span class="type">char</span> str[] = <span class="string">u8&quot;123456&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h1 id="·-命名空间相关"><a href="#·-命名空间相关" class="headerlink" title="· 命名空间相关"></a>· 命名空间相关</h1><p>&emsp;&emsp;<strong>简化嵌套命名空间定义：</strong> <code>namespace A::B::C &#123; ... &#125;</code> 等价于 <code>namespace A &#123; namespace B &#123; namespace C &#123; ... &#125; &#125; &#125;</code>。<br>&emsp;&emsp;<strong>using 声明多个名称：</strong> 拥有多于一个 <code>using</code> 声明符的 <code>using</code> 声明，等价于对应的单个 <code>using</code> 声明符的 <code>using</code> 声明的序列，人话讲就是可以用逗号连接多个 <code>using</code> 声明。cppreference上的例子如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span></span>;</span><br><span class="line"><span class="keyword">namespace</span> A &#123;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">g</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">namespace</span> X &#123;</span><br><span class="line">    <span class="keyword">using</span> ::f;        <span class="comment">// 全局 f 现在作为 ::X::f 可见</span></span><br><span class="line">    <span class="keyword">using</span> A::g;       <span class="comment">// A::g 现在作为 ::X::g 可见</span></span><br><span class="line">    <span class="keyword">using</span> A::g, ::f; <span class="comment">// (C++17) OK：命名空间作用域允许双重声明</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">h</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    X::<span class="built_in">f</span>(); <span class="comment">// 调用 ::f</span></span><br><span class="line">    X::<span class="built_in">g</span>(); <span class="comment">// 调用 A::g</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;但是经过我自己的测试，<strong>C++17</strong> 我只发现新增了 <code>using</code> 双重定义相关的内容，其余的使用 <strong>C++11</strong> 标准也可以编译通过。</p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-将-noexcept-作为类型系统的一部分"><a href="#·-将-noexcept-作为类型系统的一部分" class="headerlink" title="· 将 noexcept 作为类型系统的一部分"></a>· 将 noexcept 作为类型系统的一部分</h1><p>&emsp;&emsp;在c++ 17异常处理规范成为函数类型的一部分。也就是说，下面两个函数现在有两种不同的类型:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">void f1();</span><br><span class="line">void f2() noexcept; // different type</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在c++ 17之前，这两个函数都具有相同的类型。<br>&emsp;&emsp;因此，编译器现在将检测如果你使用一个函数抛出异常，而一个函数不抛出任何异常的情况:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void (*fp)() noexcept; // pointer to function that doesn’t throw</span><br><span class="line">fp = f2; // OK</span><br><span class="line">fp = f1; // ERROR since C++17</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;当然，在允许抛出函数的地方使用不抛出的函数仍然是有效的:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void (*fp2)(); // pointer to function that might throw</span><br><span class="line">fp2 = f2; // OK</span><br><span class="line">fp2 = f1; // OK</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;因此，这个新特性不会破坏那些还没有使用noexcept函数指针的程序，但是现在可以确保您不再违反函数指针中的noexcept规范。想深入了解可以看一下这位大佬的文章: <a target="_blank" rel="noopener" href="https://blog.csdn.net/janeqi1987/article/details/100184127">点我跳转</a></p>
+<p>&emsp;&emsp;</p>
+<h1 id="·-新的求值顺序规则"><a href="#·-新的求值顺序规则" class="headerlink" title="· 新的求值顺序规则"></a>· 新的求值顺序规则</h1><p>&emsp;&emsp;具体目的和影响可以看一下 <strong>StackOverflow</strong> 上的这个问题：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/38501587/what-are-the-evaluation-order-guarantees-introduced-by-c17">点我跳转</a></p>
+<ul>
+<li>具体新增的顺序规则如下：(摘自cppreference)</li>
+</ul>
+<ol start="14">
+<li>函数调用表达式中，指名函数的表达式按顺序早于每个参数表达式和每个默认实参。</li>
+<li>函数调用表达式中，每个形参的初始化的值计算和副作用相对于任何其他形参的初始化的值计算和副作用是顺序不确定的。</li>
+<li>用运算符写法进行调用时，每个重载的运算符均遵循其所重载的内建运算符的定序规则。</li>
+<li>下标表达式 E1[E2] 中，E1 的每个值计算和副作用均按顺序早于 E2 的每个值计算和副作用。</li>
+<li>成员指针表达式 E1.*E2 或 E1-&gt;*E2 中，E1 的每个值计算和副作用都按顺序早于 E2 的每个值计算和副作用（除非 E1 的动态类型不含 E2 所指的成员）。</li>
+<li>移位运算符表达式 E1&lt;&lt;E2 和 E1&gt;&gt;E2 中，E1 的每个值计算和副作用都按顺序早于 E2 的每个值计算和副作用。</li>
+<li>每个简单赋值表达式 E1&#x3D;E2 和每个复合赋值表达式 E1@&#x3D;E2 中，E2 的每个值计算和副作用均按顺序早于 E1 的每个值计算和副作用。</li>
+<li>带括号的初始化器中的逗号分隔的表达式列表中的每个表达式，如同函数调用一般求值（顺序不确定）。</li>
+</ol>
+<p>&emsp;&emsp;</p>
+<h1 id="·-强制的复制消除"><a href="#·-强制的复制消除" class="headerlink" title="· 强制的复制消除"></a>· 强制的复制消除</h1><p>&emsp;&emsp;简单来讲就是在对象的初始化中，当初始化器表达式是一个与变量类型相同的类类型的纯右值（忽略 cv 限定）时，<code>T x = T(T(f())); //仅调用一次 T 的默认构造函数以初始化 x</code>。比如下面这个例子，关掉g++默认的省略优化后，使用不同的标准编译，可以看出以C++17标准编译的话会进行一次复制消除（返回值优化），优化的位置是 <strong>main</strong> 函数里的无名临时量。</p>
+<ul>
+<li>在对象的初始化中，当源对象是无名临时量且与目标对象具有相同类型（忽略 cv 限定）时。当无名临时量为 return 语句的操作数时，称这种复制消除的变体为 RVO，”返回值优化 (return value optimization)”。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">test</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">test</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;constructor&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    ~<span class="built_in">test</span>()</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;destructor&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">test</span>(<span class="type">const</span> test&amp; other)</span><br><span class="line">    &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;copy constructor&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"><span class="function">test <span class="title">Foo</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   test obj;</span><br><span class="line">   <span class="keyword">return</span> obj;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    test obj = <span class="built_in">Foo</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">编译:</span><br><span class="line">g++ -g -fno-elide-constructors -Wall t.cpp -o t -std=c+<span class="number">+11</span></span><br><span class="line">输出:</span><br><span class="line">constructor</span><br><span class="line">copy constructor</span><br><span class="line">destructor</span><br><span class="line">copy constructor</span><br><span class="line">destructor</span><br><span class="line">destructor</span><br><span class="line"></span><br><span class="line">编译:</span><br><span class="line">g++ -g -fno-elide-constructors -Wall t.cpp -o t -std=c+<span class="number">+17</span></span><br><span class="line">输出:</span><br><span class="line">constructor</span><br><span class="line">copy constructor</span><br><span class="line">destructor</span><br><span class="line">destructor</span><br></pre></td></tr></table></figure>
+&emsp;&emsp;想深入了解可以看一下这位大佬的文章: <a target="_blank" rel="noopener" href="https://blog.csdn.net/janeqi1987/article/details/100146445">点我跳转</a></li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h1 id="·-lambda-表达式捕获-this"><a href="#·-lambda-表达式捕获-this" class="headerlink" title="· lambda 表达式捕获 *this"></a>· lambda 表达式捕获 *this</h1><p>&emsp;&emsp;lambda中可以捕获 <code>*this</code> 辣，可以通过捕获 <code>*this</code> 来将整个当前对象复制一遍。而之前只能捕获 <code>this</code>，即以引用捕获当前对象。我感觉新增这种捕获方式的一个应用场景就是可以避免悬垂引用问题。<br>&emsp;&emsp;</p>
+<h1 id="·-constexpr-的-lambda-表达式"><a href="#·-constexpr-的-lambda-表达式" class="headerlink" title="· constexpr 的 lambda 表达式"></a>· constexpr 的 lambda 表达式</h1><p>&emsp;&emsp;lambda表达式的格式为：<code>[ 捕获 ] ( 形参 ) lambda说明符 约束(可选) &#123; 函数体 &#125;</code>，而在 <strong>C++17</strong> 中其说明符部分新增了一位成员 <code>constexpr</code>。</p>
+<ul>
+<li>constexpr：显式指定函数调用运算符或运算符模板的任意特化为 <code>constexpr</code> 函数。如果没有此说明符但函数调用运算符或任意给定的运算符模板特化恰好满足针对 <code>constexpr</code> 函数的所有要求，那么它也会是 <code>constexpr</code> 的。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h1 id="·-属性命名空间不必重复"><a href="#·-属性命名空间不必重复" class="headerlink" title="· 属性命名空间不必重复"></a>· 属性命名空间不必重复</h1><p>&emsp;&emsp;简单来说就是简化下面这种情况:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">简化前:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    [[rpr::kernel, rpr::<span class="built_in">target</span>(cpu,gpu)]] <span class="comment">// 重复</span></span><br><span class="line">    <span class="built_in">doTask</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">简化后:</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    [[<span class="keyword">using</span> rpr: kernel, <span class="built_in">target</span>(cpu,gpu)]]</span><br><span class="line">    <span class="built_in">doTask</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+<h1 id="·-新属性-fallthrough-nodiscard-和-maybe-unused"><a href="#·-新属性-fallthrough-nodiscard-和-maybe-unused" class="headerlink" title="· 新属性 [[fallthrough]] [[nodiscard]] 和 [[maybe_unused]]"></a>· 新属性 [[fallthrough]] [[nodiscard]] 和 [[maybe_unused]]</h1><ul>
+<li>[[fallthrough]](C++17)：指示从前一 case 标号直落是有意的，而在发生直落时给出警告的编译器不应该为此诊断。</li>
+<li>[[nodiscard]](C++17)：鼓励编译器在返回值被舍弃时发布警告。**(印象里这个比较常用)**</li>
+<li>[[maybe_unused]](C++17)：压制编译器在未使用实体上的警告，若存在。</li>
+</ul>
+<p>&emsp;&emsp;</p>
+<h1 id="·-has-include"><a href="#·-has-include" class="headerlink" title="· __has_include"></a>· __has_include</h1><p>&emsp;&emsp;即一种新的源文件包含语法，其作用为检查一个头或源文件是否可以被包含。cppreference上的例子如下，我感觉适配不同版本头文件时可能有用吧。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> __has_include(<span class="string">&lt;optional&gt;</span>)</span></span><br><span class="line"><span class="meta">#  <span class="keyword">include</span> <span class="string">&lt;optional&gt;</span></span></span><br><span class="line"><span class="meta">#  <span class="keyword">define</span> has_optional 1</span></span><br><span class="line">   <span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="keyword">using</span> <span class="type">optional_t</span> = std::optional&lt;T&gt;;</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> __has_include(<span class="string">&lt;experimental/optional&gt;</span>)</span></span><br><span class="line"><span class="meta">#  <span class="keyword">include</span> <span class="string">&lt;experimental/optional&gt;</span></span></span><br><span class="line"><span class="meta">#  <span class="keyword">define</span> has_optional -1</span></span><br><span class="line">   <span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">T</span>&gt; <span class="keyword">using</span> <span class="type">optional_t</span> = std::experimental::optional&lt;T&gt;;</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#  <span class="keyword">define</span> has_optional 0</span></span><br><span class="line"><span class="meta">#  <span class="keyword">include</span> <span class="string">&lt;utility&gt;</span></span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">class</span> <span class="title class_">V</span>&gt; <span class="keyword">class</span> <span class="title class_">optional_t</span> &#123;</span><br><span class="line">    V v_&#123;&#125;; <span class="type">bool</span> has_&#123;<span class="literal">false</span>&#125;;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">optional_t</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="built_in">optional_t</span>(V&amp;&amp; v) : <span class="built_in">v_</span>(v), has_&#123;<span class="literal">true</span>&#125; &#123;&#125;</span><br><span class="line">    <span class="function">V <span class="title">value_or</span><span class="params">(V&amp;&amp; alt)</span> <span class="type">const</span>&amp; </span>&#123; <span class="keyword">return</span> has_ ? v_ : alt; &#125;</span><br><span class="line">    <span class="comment">/*...*/</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>&emsp;&emsp;</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/C-%E6%A0%87%E5%87%86%E5%BA%93%E5%AD%A6%E4%B9%A0/" rel="tag"># C++标准库学习</a>
+              <a href="/tags/C-C/" rel="tag"># C/C++</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/08/20211208_C++14%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E6%96%B0%E8%AF%AD%E8%A8%80%E5%8A%9F%E8%83%BD%E7%89%B9%E6%80%A7/" rel="prev" title="C++14学习记录：新语言功能特性">
+                  <i class="fa fa-angle-left"></i> C++14学习记录：新语言功能特性
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/01/24/20220124_C++20%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Amodules%E5%92%8C%3C=%3E/" rel="next" title="C++20学习记录：modules 和 ＜=＞">
+                  C++20学习记录：modules 和 ＜=＞ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+
+</body>
+</html>
