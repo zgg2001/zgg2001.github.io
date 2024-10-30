@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近遇到一个问题，用户在用lettuce接入容器化redis时，出现failover后lettuce无法感知导致readonly的问题。  本篇文章简要记录一下排查过程和涉及到的部分源码分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2024/09/22/20240922_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Alettuce%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="最近遇到一个问题，用户在用lettuce接入容器化redis时，出现failover后lettuce无法感知导致readonly的问题。  本篇文章简要记录一下排查过程和涉及到的部分源码分析。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-09-22T04:02:22.000Z">
+<meta property="article:modified_time" content="2024-09-22T04:02:22.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2024/09/22/20240922_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Alettuce%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2024/09/22/20240922_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Alettuce%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2024/09/22/20240922_Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析/","title":"Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="nav-text">一、问题背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0"><span class="nav-text">二、问题原因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%9B%B8%E5%85%B3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-text">三、相关源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%93%A8%E5%85%B5%E6%8F%90%E4%B8%BB%E9%80%BB%E8%BE%91"><span class="nav-text">1. 哨兵提主逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-lettuce%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E9%80%BB%E8%BE%91"><span class="nav-text">2. lettuce拓扑刷新逻辑</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/zgg2001z" title="Weixin → zgg2001z" rel="noopener me"><i class="fab fa-weixin fa-fw"></i>Weixin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2024/09/22/20240922_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Alettuce%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis学习记录：lettuce哨兵模式接入拓扑刷新源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-09-22 12:02:22" itemprop="dateCreated datePublished" datetime="2024-09-22T12:02:22+08:00">2024-09-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><p>最近遇到一个问题，用户在用lettuce接入容器化redis时，出现failover后lettuce无法感知导致readonly的问题。</p>
+</li>
+<li><p>本篇文章简要记录一下排查过程和涉及到的部分源码分析。</p>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、问题背景"><a href="#一、问题背景" class="headerlink" title="一、问题背景"></a>一、问题背景</h1><p>用户使用lettuce以哨兵接入，在手动执行<code>sentinel failover</code>命令后，业务客户端出现持续的<code>readonly</code>报错，且无法自动恢复。</p>
+<p>经过日志排查可以确认，在<code>sentinel failover</code>命令执行后，redis-operator存在自愈操作，将故障转移过程中的双主变为单主，即对新从节点执行了slaveof操作。</p>
+<p>停止redis-operator调谐，再次手动执行<code>sentinel failover</code>命令，业务客户端可以自动感知主从切换，不再出现<code>readonly</code>报错。</p>
+<h1 id="二、问题原因"><a href="#二、问题原因" class="headerlink" title="二、问题原因"></a>二、问题原因</h1><p>经过对比停止redis-operator调谐后的日志差异，发现核心在于哨兵的<code>+convert-to-slave</code>消息。在哨兵发出此消息后，lettuce打印拓扑刷新日志，后续连接指向新的master。</p>
+<p><strong>问题原因和流程大致也可以确认:</strong></p>
+<ol>
+<li><p>当用户手动触发故障转移后，redis提升一个slave为master，此时存在两个master。</p>
+</li>
+<li><p>redis-operator监控到存在两个master，触发自愈流程：将一个master降级为slave并断开此节点的所有连接，最后reset哨兵。</p>
+</li>
+<li><p>lettuce客户端拓扑无感知，连接被operator断开后，触发重连，但重连地址仍为旧master节点。</p>
+</li>
+<li><p>此时lettuce客户端执行写操作会报错<code>readonly</code>，且由于拓扑未刷新，导致后续也无法重连至新master节点。</p>
+</li>
+</ol>
+<p><strong>无operator介入的常规流程为:</strong></p>
+<ol>
+<li><p>当用户手动触发故障转移后，redis提升一个slave为master，此时存在两个master。</p>
+</li>
+<li><p>operator未干预哨兵故障转移，哨兵正常执行故障转移，主从切换相关事件正常推送。</p>
+</li>
+<li><p>lettuce客户端订阅到相关事件，刷新拓扑；但存量连接地址合法，不会主动断开连接。</p>
+</li>
+<li><p>哨兵故障转移结束后，检测到存在多主，触发自愈流程：将一个master降级为slave，断开此节点的所有连接，并推送相关事件。</p>
+</li>
+<li><p>lettuce客户端连接被哨兵断开后，触发重连，重连地址为新master节点。</p>
+</li>
+<li><p>此时lettuce客户端正常读写。</p>
+</li>
+</ol>
+<p>由此可以确认是operator介入且未推送事件，导致lettuce无法感知拓扑刷新导致。</p>
+<p>这个问题解决主要从两个方向入手：</p>
+<ol>
+<li><p>调整operator自愈逻辑</p>
+</li>
+<li><p>客户端捕获异常并适配</p>
+</li>
+</ol>
+<p>经过测试都可以解决这个问题，由此问题最终解决。</p>
+<h1 id="三、相关源码分析"><a href="#三、相关源码分析" class="headerlink" title="三、相关源码分析"></a>三、相关源码分析</h1><blockquote>
+<p>redis源码版本: 6.2.x<br>  lettuce源码版本: 6.x</p>
+</blockquote>
+<h2 id="1-哨兵提主逻辑"><a href="#1-哨兵提主逻辑" class="headerlink" title="1. 哨兵提主逻辑"></a>1. 哨兵提主逻辑</h2><p>以下为<code>sentinel.c</code>中的部分源码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">sentinelRefreshInstanceInfo</span><span class="params">(sentinelRedisInstance *ri, <span class="type">const</span> <span class="type">char</span> *info)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 哨兵视角检测到节点预期状态为slave, 但是实际状态为master</span></span><br><span class="line">    <span class="keyword">if</span> ((ri-&gt;flags &amp; SRI_SLAVE) &amp;&amp; role == SRI_MASTER) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((ri-&gt;flags &amp; SRI_PROMOTED) &amp;&amp;</span><br><span class="line">            (ri-&gt;master-&gt;flags &amp; SRI_FAILOVER_IN_PROGRESS) &amp;&amp;</span><br><span class="line">            (ri-&gt;master-&gt;failover_state ==</span><br><span class="line">                SENTINEL_FAILOVER_STATE_WAIT_PROMOTION))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 故障转移过程中</span></span><br><span class="line">            <span class="comment">// 且此时新master尚未提升完成</span></span><br><span class="line">            <span class="comment">// todo: 提主+更新状态</span></span><br><span class="line">            ...</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 故障转移过程中新master已经稳定 / 非故障转移状态出现多主</span></span><br><span class="line">            <span class="comment">// 实际表现就是存在预期master以外的非预期master</span></span><br><span class="line">            <span class="type">mstime_t</span> wait_time = SENTINEL_PUBLISH_PERIOD*<span class="number">4</span>;</span><br><span class="line">            <span class="keyword">if</span> (!(ri-&gt;flags &amp; SRI_PROMOTED) &amp;&amp;</span><br><span class="line">                 sentinelMasterLooksSane(ri-&gt;master) &amp;&amp;</span><br><span class="line">                 sentinelRedisInstanceNoDownFor(ri,wait_time) &amp;&amp;</span><br><span class="line">                 mstime() - ri-&gt;role_reported_time &gt; wait_time)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// 执行slaveof建立复制关系</span></span><br><span class="line">                <span class="type">int</span> retval = sentinelSendSlaveOf(ri,ri-&gt;master-&gt;addr);</span><br><span class="line">                <span class="comment">// 推送+convert-to-slave事件</span></span><br><span class="line">                <span class="keyword">if</span> (retval == C_OK)</span><br><span class="line">                    sentinelEvent(LL_NOTICE,<span class="string">&quot;+convert-to-slave&quot;</span>,ri,<span class="string">&quot;%@&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>哨兵建立复制关系的大致源码如下。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sentinelSendSlaveOf</span><span class="params">(sentinelRedisInstance *ri, <span class="type">const</span> sentinelAddr *addr)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 这个函数内发起了一个事务, 主要执行流程如下:</span></span><br><span class="line">    <span class="comment">// 1. 对此实例执行slaveof命令 建立复制关系</span></span><br><span class="line">    <span class="comment">// 2. 重写此实例配置 刷到盘上</span></span><br><span class="line">    <span class="comment">// 3. 杀掉此实例所有normal和pubsub类型的连接</span></span><br><span class="line">    retval = redisAsyncCommand(ri-&gt;link-&gt;cc,</span><br><span class="line">        sentinelDiscardReplyCallback, ri, <span class="string">&quot;%s&quot;</span>,</span><br><span class="line">        sentinelInstanceMapCommand(ri,<span class="string">&quot;MULTI&quot;</span>));</span><br><span class="line">    <span class="keyword">if</span> (retval == C_ERR) <span class="keyword">return</span> retval;</span><br><span class="line">    ri-&gt;link-&gt;pending_commands++;</span><br><span class="line"></span><br><span class="line">    retval = redisAsyncCommand(ri-&gt;link-&gt;cc,</span><br><span class="line">        sentinelDiscardReplyCallback, ri, <span class="string">&quot;%s %s %s&quot;</span>,</span><br><span class="line">        sentinelInstanceMapCommand(ri,<span class="string">&quot;SLAVEOF&quot;</span>),</span><br><span class="line">        host, portstr);</span><br><span class="line">    <span class="keyword">if</span> (retval == C_ERR) <span class="keyword">return</span> retval;</span><br><span class="line">    ri-&gt;link-&gt;pending_commands++;</span><br><span class="line"></span><br><span class="line">    retval = redisAsyncCommand(ri-&gt;link-&gt;cc,</span><br><span class="line">        sentinelDiscardReplyCallback, ri, <span class="string">&quot;%s REWRITE&quot;</span>,</span><br><span class="line">        sentinelInstanceMapCommand(ri,<span class="string">&quot;CONFIG&quot;</span>));</span><br><span class="line">    <span class="keyword">if</span> (retval == C_ERR) <span class="keyword">return</span> retval;</span><br><span class="line">    ri-&gt;link-&gt;pending_commands++;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> type = <span class="number">0</span>; type &lt; <span class="number">2</span>; type++) &#123;</span><br><span class="line">        retval = redisAsyncCommand(ri-&gt;link-&gt;cc,</span><br><span class="line">            sentinelDiscardReplyCallback, ri, <span class="string">&quot;%s KILL TYPE %s&quot;</span>,</span><br><span class="line">            sentinelInstanceMapCommand(ri,<span class="string">&quot;CLIENT&quot;</span>),</span><br><span class="line">            type == <span class="number">0</span> ? <span class="string">&quot;normal&quot;</span> : <span class="string">&quot;pubsub&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (retval == C_ERR) <span class="keyword">return</span> retval;</span><br><span class="line">        ri-&gt;link-&gt;pending_commands++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    retval = redisAsyncCommand(ri-&gt;link-&gt;cc,</span><br><span class="line">        sentinelDiscardReplyCallback, ri, <span class="string">&quot;%s&quot;</span>,</span><br><span class="line">        sentinelInstanceMapCommand(ri,<span class="string">&quot;EXEC&quot;</span>));</span><br><span class="line">    <span class="keyword">if</span> (retval == C_ERR) <span class="keyword">return</span> retval;</span><br><span class="line">    ri-&gt;link-&gt;pending_commands++;</span><br><span class="line">    <span class="keyword">return</span> C_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以实际上，当哨兵检测到多主时，会把多余的master降级为slave，并杀掉所有的连接。当这一套操作执行成功后，哨兵会推送<code>+convert-to-slave</code>事件。</p>
+<h2 id="2-lettuce拓扑刷新逻辑"><a href="#2-lettuce拓扑刷新逻辑" class="headerlink" title="2. lettuce拓扑刷新逻辑"></a>2. lettuce拓扑刷新逻辑</h2><p>从拓扑刷新的地方入手，如下为拓扑刷新的地方，可以看到触发拓扑刷新后，最终会执行<code>setKnownNodes()</code>函数更新拓扑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SentinelConnector.java</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SentinelConnector</span>&lt;K, V&gt; <span class="keyword">implements</span> <span class="title class_">MasterReplicaConnector</span>&lt;K, V&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> Runnable <span class="title function_">getTopologyRefreshRunnable</span><span class="params">(MasterReplicaTopologyRefresh refresh,</span></span><br><span class="line"><span class="params">            MasterReplicaConnectionProvider&lt;K, V&gt; connectionProvider)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> () -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">                LOG.debug(<span class="string">&quot;Refreshing topology&quot;</span>);</span><br><span class="line">                refresh.getNodes(redisURI).subscribe(nodes -&gt; &#123;</span><br><span class="line"></span><br><span class="line">                    EventRecorder.getInstance().record(<span class="keyword">new</span> <span class="title class_">MasterReplicaTopologyChangedEvent</span>(redisURI, nodes));</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (nodes.isEmpty()) &#123;</span><br><span class="line">                        LOG.warn(<span class="string">&quot;Topology refresh returned no nodes from &#123;&#125;&quot;</span>, redisURI);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    LOG.debug(<span class="string">&quot;New topology: &#123;&#125;&quot;</span>, nodes);</span><br><span class="line">                    connectionProvider.setKnownNodes(nodes);</span><br><span class="line"></span><br><span class="line">                &#125;, t -&gt; LOG.error(<span class="string">&quot;Error during background refresh&quot;</span>, t));</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                LOG.error(<span class="string">&quot;Error during background refresh&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>setKnownNodes()</code>函数内容如下，主要就是把旧拓扑删除后，把新的拓扑加进去，然后调用<code>closeStaleConnections()</code>函数。</p>
+<p><code>closeStaleConnections()</code>函数内部会调用<code>getStaleConnectionKeys()</code>函数获取过期的连接，然后把过期的连接主动close掉，此段代码逻辑较为简单，跳过代码展示。</p>
+<p>lettuce判定连接过期的标准为：连接的地址不在当前拓扑内。也就是说lettuce在拓扑刷新后并不会主动断开连接，这个操作得由其他人来做。根据上文中对redis源码的分析，可以发现哨兵在执行完<code>slaveof</code>以后会主动断开连接。此时拓扑刷新lettuce就可以连接到最新的master。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MasterReplicaConnectionProvider.java</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MasterReplicaConnectionProvider</span>&lt;K, V&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setKnownNodes</span><span class="params">(Collection&lt;RedisNodeDescription&gt; knownNodes)</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (stateLock) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">this</span>.knownNodes.clear();</span><br><span class="line">            <span class="built_in">this</span>.knownNodes.addAll(knownNodes);</span><br><span class="line"></span><br><span class="line">            closeStaleConnections();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么拓扑刷新如何触发？可以看到在使用<code>connectAsync()</code>创建异步连接时，会获取runnable函数，即拓扑刷新函数。</p>
+<p>这个拓扑刷新函数会通过<code>initializeConnection()</code>函数来绑定到<code>SentinelTopologyRefresh</code>对象上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SentinelConnector.java</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SentinelConnector</span>&lt;K, V&gt; <span class="keyword">implements</span> <span class="title class_">MasterReplicaConnector</span>&lt;K, V&gt; &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">public</span> CompletableFuture&lt;StatefulRedisMasterReplicaConnection&lt;K, V&gt;&gt; <span class="title function_">connectAsync</span><span class="params">()</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="type">SentinelTopologyRefresh</span> <span class="variable">sentinelTopologyRefresh</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SentinelTopologyRefresh</span>(redisClient,</span><br><span class="line">                redisURI.getSentinelMasterId(), redisURI.getSentinels());</span><br><span class="line"></span><br><span class="line">        <span class="type">MasterReplicaTopologyRefresh</span> <span class="variable">refresh</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MasterReplicaTopologyRefresh</span>(redisClient, topologyProvider);</span><br><span class="line">        MasterReplicaConnectionProvider&lt;K, V&gt; connectionProvider = <span class="keyword">new</span> <span class="title class_">MasterReplicaConnectionProvider</span>&lt;&gt;(redisClient, codec,</span><br><span class="line">                redisURI, Collections.emptyMap());</span><br><span class="line"></span><br><span class="line">        <span class="type">Runnable</span> <span class="variable">runnable</span> <span class="operator">=</span> getTopologyRefreshRunnable(refresh, connectionProvider); <span class="comment">// 获取拓扑刷新函数</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> refresh.getNodes(redisURI).flatMap(nodes -&gt; &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (nodes.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">return</span> Mono.error(<span class="keyword">new</span> <span class="title class_">RedisException</span>(String.format(<span class="string">&quot;Cannot determine topology from %s&quot;</span>, redisURI)));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> initializeConnection(codec, sentinelTopologyRefresh, connectionProvider, runnable, nodes);</span><br><span class="line">        &#125;).onErrorMap(ExecutionException.class, Throwable::getCause).toFuture();</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> Mono&lt;StatefulRedisMasterReplicaConnection&lt;K, V&gt;&gt; <span class="title function_">initializeConnection</span><span class="params">(RedisCodec&lt;K, V&gt; codec,</span></span><br><span class="line"><span class="params">            SentinelTopologyRefresh sentinelTopologyRefresh, MasterReplicaConnectionProvider&lt;K, V&gt; connectionProvider,</span></span><br><span class="line"><span class="params">            Runnable runnable, List&lt;RedisNodeDescription&gt; nodes)</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        CompletionStage&lt;Void&gt; bind = sentinelTopologyRefresh.bind(runnable); <span class="comment">// 绑定拓扑刷新函数</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>查看<code>SentinelTopologyRefresh</code>的定义，发现其存在成员<code>topologyRefresh</code>用于触发拓扑刷新。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SentinelTopologyRefresh.java</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SentinelTopologyRefresh</span> <span class="keyword">implements</span> <span class="title class_">AsyncCloseable</span>, Closeable &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PubSubMessageActionScheduler topologyRefresh; </span><br><span class="line">    ...</span><br><span class="line">    SentinelTopologyRefresh(RedisClient redisClient, String masterId, List&lt;RedisURI&gt; sentinels) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="built_in">this</span>.topologyRefresh = <span class="keyword">new</span> <span class="title class_">PubSubMessageActionScheduler</span>(redisClient.getResources().eventExecutorGroup(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">TopologyRefreshMessagePredicate</span>(masterId));</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续深入查找<code>MessagePredicate</code>的实现类<code>TopologyRefreshMessagePredicate</code>，发现内部实现了<code>test()</code>方法用于校验是否需要刷新拓扑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SentinelTopologyRefresh</span> <span class="keyword">implements</span> <span class="title class_">AsyncCloseable</span>, Closeable &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Set&lt;String&gt; PROCESSING_CHANNELS = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;(</span><br><span class="line">            Arrays.asList(<span class="string">&quot;failover-end&quot;</span>, <span class="string">&quot;failover-end-for-timeout&quot;</span>));</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">TopologyRefreshMessagePredicate</span> <span class="keyword">implements</span> <span class="title class_">MessagePredicate</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">private</span> Set&lt;String&gt; TOPOLOGY_CHANGE_CHANNELS = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;(</span><br><span class="line">                Arrays.asList(<span class="string">&quot;+slave&quot;</span>, <span class="string">&quot;+sdown&quot;</span>, <span class="string">&quot;-sdown&quot;</span>, <span class="string">&quot;fix-slave-config&quot;</span>, <span class="string">&quot;+convert-to-slave&quot;</span>, <span class="string">&quot;+role-change&quot;</span>));</span><br><span class="line">        ...</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">test</span><span class="params">(String channel, String message)</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// trailing spaces after the master name are not bugs</span></span><br><span class="line">            <span class="keyword">if</span> (channel.equals(<span class="string">&quot;+elected-leader&quot;</span>) || channel.equals(<span class="string">&quot;+reset-master&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (message.startsWith(String.format(<span class="string">&quot;master %s &quot;</span>, masterId))) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (TOPOLOGY_CHANGE_CHANNELS.contains(channel)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (message.contains(String.format(<span class="string">&quot;@ %s &quot;</span>, masterId))) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (channel.equals(<span class="string">&quot;+switch-master&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (message.startsWith(String.format(<span class="string">&quot;%s &quot;</span>, masterId))) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> PROCESSING_CHANNELS.contains(channel);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此哨兵接入模式的调用链路已经大致完全，lettuce哨兵这边会根据多个哨兵事件来刷新拓扑，但是假如地址仍合法则不会主动断开连接。</p>
+<p>当redis哨兵介入提主后会主动kill掉存量连接，则此时lettuce感知到连接断开，会依据此前刷新的拓扑来重新连接，恢复正常。</p>
+<p>假如operator介入自愈，则可能会主动reset哨兵，哨兵由此无法正常发送事件，导致lettuce拓扑刷新异常，最终无法连接到正确的节点。</p>
+<p>不过lettuce这个逻辑感觉还是很多坑的，比如lettuce不会主动断开连接且为异步连接，则假如连接非正常断开，则lettuce这边可能就无法感知连接断开，导致连接一直异常不会触发重连。不过新版本的好像新增了tcp探活配置来解决这个问题。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/09/09/20240909_golang%E5%AD%A6%E5%8E%86%E8%AE%B0%E5%BD%95%EF%BC%9Ak8soperator%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E6%8E%92%E6%9F%A5/" rel="prev" title="golang学习记录：k8s operator内存泄露排查">
+                  <i class="fa fa-angle-left"></i> golang学习记录：k8s operator内存泄露排查
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">185k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:11</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/zgg2001" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"zgg2001/zgg2001.github.io","issue_term":"pathname","theme":"github-light"}</script>
+<script src="/js/third-party/comments/utterances.js"></script>
+
+</body>
+</html>
