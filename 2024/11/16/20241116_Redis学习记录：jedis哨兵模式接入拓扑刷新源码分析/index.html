@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近在做容器redis宕机自愈优化时遇到一个问题：用户使用jedis接入，若redis进行全量宕机后自愈，jedis可能无法感知主从角色变化导致readonly。  本篇文章简要记录一下排查过程和涉及到的部分源码分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2024/11/16/20241116_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Ajedis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="最近在做容器redis宕机自愈优化时遇到一个问题：用户使用jedis接入，若redis进行全量宕机后自愈，jedis可能无法感知主从角色变化导致readonly。  本篇文章简要记录一下排查过程和涉及到的部分源码分析。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-11-16T10:43:29.000Z">
+<meta property="article:modified_time" content="2024-11-16T10:43:29.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="源码阅读">
+<meta property="article:tag" content="Jedis">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2024/11/16/20241116_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Ajedis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2024/11/16/20241116_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Ajedis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2024/11/16/20241116_Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析/","title":"Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="nav-text">一、问题背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%8E%AF%E5%A2%83%E8%83%8C%E6%99%AF"><span class="nav-text">1.环境背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%A8%A1%E6%8B%9F%E6%95%85%E9%9A%9C"><span class="nav-text">2.模拟故障</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%B8%9A%E5%8A%A1%E5%BC%82%E5%B8%B8"><span class="nav-text">3.业务异常</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E7%9B%B8%E5%85%B3%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-text">二、相关源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-jedis%E6%BA%90%E7%A0%81"><span class="nav-text">1. jedis源码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-redis%E6%BA%90%E7%A0%81"><span class="nav-text">2. redis源码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="nav-text">三、问题原因分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="nav-text">四、问题解决</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/zgg2001z" title="Weixin → zgg2001z" rel="noopener me"><i class="fab fa-weixin fa-fw"></i>Weixin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2024/11/16/20241116_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Ajedis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E5%88%B7%E6%96%B0%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis学习记录：jedis哨兵模式接入拓扑刷新源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-11-16 18:43:29" itemprop="dateCreated datePublished" datetime="2024-11-16T18:43:29+08:00">2024-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><p>最近在做容器redis宕机自愈优化时遇到一个问题：用户使用jedis接入，若redis进行全量宕机后自愈，jedis可能无法感知主从角色变化导致readonly。</p>
+</li>
+<li><p>本篇文章简要记录一下排查过程和涉及到的部分源码分析。</p>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、问题背景"><a href="#一、问题背景" class="headerlink" title="一、问题背景"></a>一、问题背景</h1><h2 id="1-环境背景"><a href="#1-环境背景" class="headerlink" title="1.环境背景"></a>1.环境背景</h2><p>容器化部署一个哨兵集群与多个主从集群，用户通过哨兵对外暴露的地址与<code>&lt;MasterName&gt;</code>获取主从集群地址进行业务操作。</p>
+<p>注：业务端使用jedis的<code>JedisSentinelPool</code>进行接入。</p>
+<h2 id="2-模拟故障"><a href="#2-模拟故障" class="headerlink" title="2.模拟故障"></a>2.模拟故障</h2><p>手动删除一个主从集群中的所有主从实例pod，等待operator介入自愈。</p>
+<p>operator检测到全量宕机，按顺序执行如下操作：</p>
+<ol>
+<li><p>拉起进程</p>
+</li>
+<li><p>进行选主</p>
+</li>
+<li><p>恢复复制关系</p>
+</li>
+<li><p>移除并重新添加哨兵监控配置</p>
+</li>
+</ol>
+<p>等待自愈完成后，pod地址已全部变化，故哨兵中<code>&lt;MasterName&gt;</code>对应的主地址也已经变化。</p>
+<h2 id="3-业务异常"><a href="#3-业务异常" class="headerlink" title="3.业务异常"></a>3.业务异常</h2><p>全量宕机故障注入后，jedis业务操作出现异常，持续重试且失败。</p>
+<p>operator介入自愈完成后，集群状态已恢复正常，但存量的jedis业务客户端并未恢复，扔在重试且失败。</p>
+<p>重启jedis业务客户端或新启动业务客户端，均可以正常操作主从集群。</p>
+<p>使用lettuce客户端接入模拟此流程，可以正常恢复。</p>
+<h1 id="二、相关源码分析"><a href="#二、相关源码分析" class="headerlink" title="二、相关源码分析"></a>二、相关源码分析</h1><blockquote>
+<p>redis源码版本: 6.2.x<br>  jedis源码版本: 5.2.0</p>
+</blockquote>
+<p>这种故障场景，lettuce客户端可以正常自愈，但是jedis客户端不行，说明lettuce没有刷新主从实例拓扑。</p>
+<p>之前看过lettuce源码，可以得知lettuce的主从拓扑刷新是通过订阅哨兵事件来实现的；所以首先推测jedis也是类似思路，猜测这次异常是因为jedis没有收到事件导致的。</p>
+<h2 id="1-jedis源码"><a href="#1-jedis源码" class="headerlink" title="1. jedis源码"></a>1. jedis源码</h2><p>首先先找下<code>JedisSentinelPool</code>相关的源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/main/java/redis/clients/jedis/JedisSentinelPool.java +333</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">class</span> <span class="title class_">MasterListener</span> <span class="keyword">extends</span> <span class="title class_">Thread</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">while</span> (running.get()) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// double check that it is not being shutdown</span></span><br><span class="line">                <span class="keyword">if</span> (!running.get()) &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">final</span> <span class="type">HostAndPort</span> <span class="variable">hostPort</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HostAndPort</span>(host, port);</span><br><span class="line">                j = <span class="keyword">new</span> <span class="title class_">Jedis</span>(hostPort, sentinelClientConfig);</span><br><span class="line">        </span><br><span class="line">                <span class="comment">// 初始化拓扑</span></span><br><span class="line">                <span class="comment">// code for active refresh</span></span><br><span class="line">                List&lt;String&gt; masterAddr = j.sentinelGetMasterAddrByName(masterName);</span><br><span class="line">                <span class="keyword">if</span> (masterAddr == <span class="literal">null</span> || masterAddr.size() != <span class="number">2</span>) &#123;</span><br><span class="line">                    LOG.warn(<span class="string">&quot;Can not get master addr, master name: &#123;&#125;. Sentinel: &#123;&#125;.&quot;</span>, masterName,</span><br><span class="line">                        hostPort);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    initMaster(toHostAndPort(masterAddr));</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 配置拓扑刷新事件</span></span><br><span class="line">                j.subscribe(<span class="keyword">new</span> <span class="title class_">JedisPubSub</span>() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(String channel, String message)</span> &#123;</span><br><span class="line">                    LOG.debug(<span class="string">&quot;Sentinel &#123;&#125; published: &#123;&#125;.&quot;</span>, hostPort, message);</span><br><span class="line"></span><br><span class="line">                    String[] switchMasterMsg = message.split(<span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (switchMasterMsg.length &gt; <span class="number">3</span>) &#123;</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">if</span> (masterName.equals(switchMasterMsg[<span class="number">0</span>])) &#123;</span><br><span class="line">                            <span class="comment">// 刷新拓扑</span></span><br><span class="line">                            initMaster(toHostAndPort(Arrays.asList(switchMasterMsg[<span class="number">3</span>], switchMasterMsg[<span class="number">4</span>])));</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            LOG.debug(</span><br><span class="line">                                <span class="string">&quot;Ignoring message on +switch-master for master name &#123;&#125;, our master name is &#123;&#125;&quot;</span>,</span><br><span class="line">                                switchMasterMsg[<span class="number">0</span>], masterName);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        LOG.error(<span class="string">&quot;Invalid message received on Sentinel &#123;&#125; on channel +switch-master: &#123;&#125;&quot;</span>,</span><br><span class="line">                            hostPort, message);</span><br><span class="line">                    &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;, <span class="string">&quot;+switch-master&quot;</span>); <span class="comment">// 仅订阅switch-master事件</span></span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">catch</span> (JedisException e) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (running.get()) &#123;</span><br><span class="line">                    LOG.error(<span class="string">&quot;Lost connection to Sentinel at &#123;&#125;:&#123;&#125;. Sleeping 5000ms and retrying.&quot;</span>, host,</span><br><span class="line">                        port, e);</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(subscribeRetryWaitTimeMillis);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e1) &#123;</span><br><span class="line">                        LOG.error(<span class="string">&quot;Sleep interrupted: &quot;</span>, e1);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    LOG.debug(<span class="string">&quot;Unsubscribing from Sentinel at &#123;&#125;:&#123;&#125;&quot;</span>, host, port);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (j != <span class="literal">null</span>) &#123;</span><br><span class="line">                    j.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看出来，jedis这边刷新拓扑仅能通过<code>+switch-master</code>事件触发，没有像lettuce一样订阅多种事件。</p>
+<p>而且拓扑刷新的操作也比较简单，就是把哨兵channel的msg拆解后直接更新。</p>
+<h2 id="2-redis源码"><a href="#2-redis源码" class="headerlink" title="2. redis源码"></a>2. redis源码</h2><p>然后再看下<code>+switch-master</code>事件相关的源码。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sentinel.c</span></span><br><span class="line"><span class="comment">// 按协议解析哨兵间hello消息</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">sentinelProcessHelloMessage</span><span class="params">(<span class="type">char</span> *hello, <span class="type">int</span> hello_len)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">if</span> (numtokens == <span class="number">8</span>) &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">/* Update master info if received configuration is newer. */</span></span><br><span class="line">        <span class="keyword">if</span> (si &amp;&amp; master-&gt;config_epoch &lt; master_config_epoch) &#123;</span><br><span class="line">            master-&gt;config_epoch = master_config_epoch;</span><br><span class="line">            <span class="keyword">if</span> (master_port != master-&gt;addr-&gt;port ||</span><br><span class="line">                !sentinelAddrEqualsHostname(master-&gt;addr, token[<span class="number">5</span>]))</span><br><span class="line">            &#123;</span><br><span class="line">                sentinelAddr *old_addr;</span><br><span class="line"></span><br><span class="line">                sentinelEvent(LL_WARNING,<span class="string">&quot;+config-update-from&quot;</span>,si,<span class="string">&quot;%@&quot;</span>);</span><br><span class="line">                sentinelEvent(LL_WARNING,<span class="string">&quot;+switch-master&quot;</span>,</span><br><span class="line">                    master,<span class="string">&quot;%s %s %d %s %d&quot;</span>,</span><br><span class="line">                    master-&gt;name,</span><br><span class="line">                    announceSentinelAddr(master-&gt;addr), master-&gt;addr-&gt;port,</span><br><span class="line">                    token[<span class="number">5</span>], master_port);</span><br><span class="line"></span><br><span class="line">                old_addr = dupSentinelAddr(master-&gt;addr);</span><br><span class="line">                sentinelResetMasterAndChangeAddress(master, token[<span class="number">5</span>], master_port);</span><br><span class="line">                sentinelCallClientReconfScript(master,</span><br><span class="line">                    SENTINEL_OBSERVER,<span class="string">&quot;start&quot;</span>,</span><br><span class="line">                    old_addr,master-&gt;addr);</span><br><span class="line">                releaseSentinelAddr(old_addr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="comment">// sentinel.c</span></span><br><span class="line"><span class="comment">// 用于将从实例提升为主</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">sentinelFailoverSwitchToPromotedSlave</span><span class="params">(sentinelRedisInstance *master)</span> &#123;</span><br><span class="line">    sentinelRedisInstance *ref = master-&gt;promoted_slave ?</span><br><span class="line">                                 master-&gt;promoted_slave : master;</span><br><span class="line"></span><br><span class="line">    sentinelEvent(LL_WARNING,<span class="string">&quot;+switch-master&quot;</span>,master,<span class="string">&quot;%s %s %d %s %d&quot;</span>,</span><br><span class="line">        master-&gt;name, announceSentinelAddr(master-&gt;addr), master-&gt;addr-&gt;port,</span><br><span class="line">        announceSentinelAddr(ref-&gt;addr), ref-&gt;addr-&gt;port);</span><br><span class="line"></span><br><span class="line">    sentinelResetMasterAndChangeAddress(master,ref-&gt;addr-&gt;hostname,ref-&gt;addr-&gt;port);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在redis中，<code>+switch-master</code>事件只会在两种情况下被发出，相关源码如上。</p>
+<ol>
+<li><p>哨兵配置过期，通过其余哨兵同步配置后，会发出<code>+switch-master</code>事件。</p>
+</li>
+<li><p>哨兵触发failover，且走到了需要将从实例提升为主的步骤后，会发出<code>+switch-master</code>事件。</p>
+</li>
+</ol>
+<h1 id="三、问题原因分析"><a href="#三、问题原因分析" class="headerlink" title="三、问题原因分析"></a>三、问题原因分析</h1><p>通过上文，可以较为清晰的汇总出如下信息：</p>
+<ol>
+<li><p>使用jedis作为业务客户端接入哨兵主从，jedis通过<code>+switch-master</code>事件刷新拓扑。</p>
+</li>
+<li><p>当redis哨兵间不存在过期配置时，redis仅在<code>failover</code>流程中发出<code>+switch-master</code>事件。</p>
+</li>
+<li><p>全量宕机场景operator介入自愈时，未触发<code>failover</code>流程。</p>
+</li>
+</ol>
+<p>由此问题已经被发现，即jedis使用哨兵接入时，并未考虑到全量宕机恢复这种场景，jedis仅能通过<code>+switch-master</code>事件来感知拓扑变化。</p>
+<p>lettuce在这方面显然做的更全面一些，会监听多种哨兵事件来刷新拓扑，所以在operator介入自愈后，可以通过感知其他事件来刷新拓扑。</p>
+<h1 id="四、问题解决"><a href="#四、问题解决" class="headerlink" title="四、问题解决"></a>四、问题解决</h1><p>上文已知问题根因为jedis未感知拓扑变化，所以我们手动触发一次<code>failover</code>流程让jedis感知即可。</p>
+<p>经过测试，在手动触发<code>failover</code>流程后，jedis业务客户端恢复，可以正常执行业务操作。</p>
+<p>从operator视角来看，全量宕机自愈之后，自动触发一次<code>failover</code>流程理论上也能解决这个问题，但是<code>failover</code>流程相对不可控因素太多了，不太稳定。</p>
+<p>所以operator这边暂时不进行适配，考虑到这种场景概率还是比较低的，我觉得提供SOP手册即可。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+              <a href="/tags/Jedis/" rel="tag"># Jedis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/11/05/20241105_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9Aspring%E6%A1%86%E6%9E%B6lettuce%E5%93%A8%E5%85%B5%E6%8E%A5%E5%85%A5%E6%8B%93%E6%89%91%E6%9B%B4%E6%96%B0%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" rel="prev" title="Redis学习记录：spring框架lettuce哨兵接入拓扑更新踩坑记录">
+                  <i class="fa fa-angle-left"></i> Redis学习记录：spring框架lettuce哨兵接入拓扑更新踩坑记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/12/02/20241202_Nginx%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9ANginx%E4%BB%A3%E7%90%86S3%E6%9C%8D%E5%8A%A1/" rel="next" title="Nginx学习记录：Nginx代理S3服务">
+                  Nginx学习记录：Nginx代理S3服务 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">188k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:22</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/zgg2001" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"zgg2001/zgg2001.github.io","issue_term":"pathname","theme":"github-light"}</script>
+<script src="/js/third-party/comments/utterances.js"></script>
+
+</body>
+</html>
