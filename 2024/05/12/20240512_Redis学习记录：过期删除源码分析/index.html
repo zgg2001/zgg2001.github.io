@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zgg2001.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="最近工作中修复了一个跟过期删除逻辑相关的bug，在排查的过程中也是看了一下这块的源码。  本篇文章简要记录一下我对这部分源码的分析，方便后续查阅。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习记录：过期删除相关源码分析">
+<meta property="og:url" content="https://zgg2001.github.io/2024/05/12/20240512_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="小咸鱼的自留地">
+<meta property="og:description" content="最近工作中修复了一个跟过期删除逻辑相关的bug，在排查的过程中也是看了一下这块的源码。  本篇文章简要记录一下我对这部分源码的分析，方便后续查阅。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-12T12:21:07.000Z">
+<meta property="article:modified_time" content="2024-05-12T12:21:07.000Z">
+<meta property="article:author" content="Zgg2001">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="源码阅读">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zgg2001.github.io/2024/05/12/20240512_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zgg2001.github.io/2024/05/12/20240512_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/","path":"2024/05/12/20240512_Redis学习记录：过期删除源码分析/","title":"Redis学习记录：过期删除相关源码分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis学习记录：过期删除相关源码分析 | 小咸鱼的自留地</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">小咸鱼的自留地</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%83%B0%E6%80%A7%E8%BF%87%E6%9C%9F"><span class="nav-text">二、惰性过期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81-%E5%AE%9A%E6%9C%9F%E5%88%A0%E9%99%A4"><span class="nav-text">三、 定期删除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%8B%93%E5%B1%95-%E6%83%B0%E6%80%A7%E9%87%8A%E6%94%BE"><span class="nav-text">四、拓展-惰性释放</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zgg2001"
+      src="/images/hbxxy.jpg">
+  <p class="site-author-name" itemprop="name">Zgg2001</p>
+  <div class="site-description" itemprop="description">河边小咸鱼</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/zgg2001" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;zgg2001" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/zgg2001z" title="Weixin → zgg2001z" rel="noopener me"><i class="fab fa-weixin fa-fw"></i>Weixin</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/397606244@qq.com" title="E-Mail → 397606244@qq.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zgg2001.github.io/2024/05/12/20240512_Redis%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%9A%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hbxxy.jpg">
+      <meta itemprop="name" content="Zgg2001">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小咸鱼的自留地">
+      <meta itemprop="description" content="河边小咸鱼">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis学习记录：过期删除相关源码分析 | 小咸鱼的自留地">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis学习记录：过期删除相关源码分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-12 20:21:07" itemprop="dateCreated datePublished" datetime="2024-05-12T20:21:07+08:00">2024-05-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><p>最近工作中修复了一个跟过期删除逻辑相关的bug，在排查的过程中也是看了一下这块的源码。</p>
+</li>
+<li><p>本篇文章简要记录一下我对这部分源码的分析，方便后续查阅。</p>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>Redis实现中，主要支持如下两种过期删除策略：</p>
+<ul>
+<li>惰性过期: 执行命令涉及到的时候才删除</li>
+<li>定期删除: 后台跑cron任务定期遍历过期key删除</li>
+</ul>
+<p>下文中会把二者涉及到的源码和流程进行梳理，正常来讲二者配合可以很好的在CPU使用和内存占用之间取得平衡。</p>
+<p>而最近工作中就是因为错误逻辑，导致二者配合出现了点问题，从而引发读写异常。</p>
+<p><strong>注：以下代码基于redis 6.2.16版本分析</strong></p>
+<h1 id="二、惰性过期"><a href="#二、惰性过期" class="headerlink" title="二、惰性过期"></a>二、惰性过期</h1><p>惰性过期的核心函数<code>expireIfNeeded()</code>内容如下，此函数内会校验key是否过期，随后确保由<strong>主节点</strong>执行实际删除操作。</p>
+<p>这块逻辑在<strong>执行读写key命令前都会被间接触发</strong>，以保证惰性过期的有效性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// db.c</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">expireIfNeeded</span><span class="params">(redisDb *db, robj *key)</span> &#123;</span><br><span class="line">    <span class="comment">// 校验key是否过期</span></span><br><span class="line">    <span class="keyword">if</span> (!keyIsExpired(db,key)) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// slave跳过这个逻辑，仅master执行实际删除</span></span><br><span class="line">    <span class="keyword">if</span> (server.masterhost != <span class="literal">NULL</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (checkClientPauseTimeoutAndReturnIfPaused()) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Delete the key */</span></span><br><span class="line">    deleteExpiredKeyAndPropagate(db,key);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>删除逻辑如下，上文<code>expireIfNeeded()</code>校验key需要删除时，调用此处逻辑按序执行删除、通知、落盘、传播一条龙。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// db.c</span></span><br><span class="line"><span class="comment">/* Delete the specified expired key and propagate expire. */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">deleteExpiredKeyAndPropagate</span><span class="params">(redisDb *db, robj *keyobj)</span> &#123;</span><br><span class="line">    <span class="type">mstime_t</span> expire_latency;</span><br><span class="line">    latencyStartMonitor(expire_latency);</span><br><span class="line">    <span class="keyword">if</span> (server.lazyfree_lazy_expire)</span><br><span class="line">        dbAsyncDelete(db,keyobj); <span class="comment">// 惰性释放</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        dbSyncDelete(db,keyobj); <span class="comment">// 删除</span></span><br><span class="line">    latencyEndMonitor(expire_latency);</span><br><span class="line">    latencyAddSampleIfNeeded(<span class="string">&quot;expire-del&quot;</span>,expire_latency);</span><br><span class="line">    notifyKeyspaceEvent(NOTIFY_EXPIRED,<span class="string">&quot;expired&quot;</span>,keyobj,db-&gt;id);</span><br><span class="line">    signalModifiedKey(<span class="literal">NULL</span>, db, keyobj);</span><br><span class="line">    propagateExpire(db,keyobj,server.lazyfree_lazy_expire); <span class="comment">// 落盘&amp;传播</span></span><br><span class="line">    server.stat_expiredkeys++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、-定期删除"><a href="#三、-定期删除" class="headerlink" title="三、 定期删除"></a>三、 定期删除</h1><p>定期过期的核心函数<code>activeExpireCycle()</code>中的核心流程如下。</p>
+<p>可以看到实际上就是在函数中去遍历每个db的过期key字典执行删除操作，当然里面有很多细节就不展开来讲了。</p>
+<p>其中函数内会维护全局变量来记录每次检查的进度，每次检查的时候，通过检测key的数量、检测的时间等来限制资源的使用量，避免影响redis本身的服务。</p>
+<p><strong>在redis6之前，过期key的遍历是通过随机选择来进行的，可能会导致key长期未被清除</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// expire.c</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">activeExpireCycle</span><span class="params">(<span class="type">int</span> type)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 全局变量用于后续调用</span></span><br><span class="line">    <span class="type">static</span> <span class="type">unsigned</span> <span class="type">int</span> current_db = <span class="number">0</span>; <span class="comment">/* Next DB to test. */</span></span><br><span class="line">    <span class="type">static</span> <span class="type">int</span> timelimit_exit = <span class="number">0</span>;      <span class="comment">/* Time limit hit in previous call? */</span></span><br><span class="line">    <span class="type">static</span> <span class="type">long</span> <span class="type">long</span> last_fast_cycle = <span class="number">0</span>; <span class="comment">/* When last fast cycle ran. */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> j, iteration = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> dbs_per_call = CRON_DBS_PER_CALL;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> start = ustime(), timelimit, elapsed;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 确认要检测的db</span></span><br><span class="line">    <span class="keyword">if</span> (dbs_per_call &gt; server.dbnum || timelimit_exit)</span><br><span class="line">        dbs_per_call = server.dbnum;</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">long</span> total_sampled = <span class="number">0</span>;</span><br><span class="line">    <span class="type">long</span> total_expired = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; dbs_per_call &amp;&amp; timelimit_exit == <span class="number">0</span>; j++) &#123;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> expired, sampled;</span><br><span class="line">        redisDb *db = server.db+(current_db % server.dbnum);</span><br><span class="line">        current_db++;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            ...</span><br><span class="line">            <span class="comment">// db没过期key直接跳过</span></span><br><span class="line">            <span class="keyword">if</span> ((num = dictSize(db-&gt;expires)) == <span class="number">0</span>) &#123;</span><br><span class="line">                db-&gt;avg_ttl = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            ...</span><br><span class="line">            <span class="comment">// 此处会限制检测的key数量(sampled)</span></span><br><span class="line">            <span class="keyword">while</span> (sampled &lt; num &amp;&amp; checked_buckets &lt; max_buckets) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> table = <span class="number">0</span>; table &lt; <span class="number">2</span>; table++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (table == <span class="number">1</span> &amp;&amp; !dictIsRehashing(db-&gt;expires)) <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                    <span class="type">unsigned</span> <span class="type">long</span> idx = db-&gt;expires_cursor;</span><br><span class="line">                    idx &amp;= db-&gt;expires-&gt;ht[table].sizemask;</span><br><span class="line">                    dictEntry *de = db-&gt;expires-&gt;ht[table].table[idx];</span><br><span class="line">                    <span class="type">long</span> <span class="type">long</span> ttl;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 遍历过期字典桶</span></span><br><span class="line">                    checked_buckets++;</span><br><span class="line">                    <span class="keyword">while</span>(de) &#123;</span><br><span class="line">                        <span class="comment">/* Get the next entry now since this entry may get</span></span><br><span class="line"><span class="comment">                         * deleted. */</span></span><br><span class="line">                        dictEntry *e = de;</span><br><span class="line">                        de = de-&gt;next;</span><br><span class="line"></span><br><span class="line">                        ttl = dictGetSignedIntegerVal(e)-now;</span><br><span class="line">                        <span class="comment">// 尝试删除过期key 最终也是调用deleteExpiredKeyAndPropagate()函数</span></span><br><span class="line">                        <span class="keyword">if</span> (activeExpireCycleTryExpire(db,e,now)) expired++;</span><br><span class="line">                        <span class="comment">// 此处后续计算平均ttl用</span></span><br><span class="line">                        <span class="keyword">if</span> (ttl &gt; <span class="number">0</span>) &#123; </span><br><span class="line">                            ttl_sum += ttl;</span><br><span class="line">                            ttl_samples++;</span><br><span class="line">                        &#125;</span><br><span class="line">                        sampled++;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                db-&gt;expires_cursor++;</span><br><span class="line">            &#125;</span><br><span class="line">            total_expired += expired;</span><br><span class="line">            total_sampled += sampled;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 更新平均ttl</span></span><br><span class="line">            <span class="keyword">if</span> (ttl_samples) &#123;</span><br><span class="line">                <span class="type">long</span> <span class="type">long</span> avg_ttl = ttl_sum/ttl_samples;</span><br><span class="line"></span><br><span class="line">                <span class="comment">/* Do a simple running average with a few samples.</span></span><br><span class="line"><span class="comment">                 * We just use the current estimate with a weight of 2%</span></span><br><span class="line"><span class="comment">                 * and the previous estimate with a weight of 98%. */</span></span><br><span class="line">                <span class="keyword">if</span> (db-&gt;avg_ttl == <span class="number">0</span>) db-&gt;avg_ttl = avg_ttl;</span><br><span class="line">                db-&gt;avg_ttl = (db-&gt;avg_ttl/<span class="number">50</span>)*<span class="number">49</span> + (avg_ttl/<span class="number">50</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 计算本轮删除是否到时间</span></span><br><span class="line">            <span class="comment">// 所以这个地方实际上是某个db每个哈希桶校验完成后进行时间校验的</span></span><br><span class="line">            <span class="keyword">if</span> ((iteration &amp; <span class="number">0xf</span>) == <span class="number">0</span>) &#123; <span class="comment">/* check once every 16 iterations. */</span></span><br><span class="line">                elapsed = ustime()-start;</span><br><span class="line">                <span class="keyword">if</span> (elapsed &gt; timelimit) &#123;</span><br><span class="line">                    timelimit_exit = <span class="number">1</span>;</span><br><span class="line">                    server.stat_expired_time_cap_reached_count++;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">while</span> (sampled == <span class="number">0</span> ||</span><br><span class="line">                 (expired*<span class="number">100</span>/sampled) &gt; config_cycle_acceptable_stale);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    elapsed = ustime()-start;</span><br><span class="line">    server.stat_expire_cycle_time_used += elapsed;</span><br><span class="line">    latencyAddSampleIfNeeded(<span class="string">&quot;expire-cycle&quot;</span>,elapsed/<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Update our estimate of keys existing but yet to be expired.</span></span><br><span class="line"><span class="comment">     * Running average with this sample accounting for 5%. */</span></span><br><span class="line">    <span class="type">double</span> current_perc;</span><br><span class="line">    <span class="keyword">if</span> (total_sampled) &#123;</span><br><span class="line">        current_perc = (<span class="type">double</span>)total_expired/total_sampled;</span><br><span class="line">    &#125; <span class="keyword">else</span></span><br><span class="line">        current_perc = <span class="number">0</span>;</span><br><span class="line">    server.stat_expired_stale_perc = (current_perc*<span class="number">0.05</span>)+</span><br><span class="line">                                     (server.stat_expired_stale_perc*<span class="number">0.95</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定期删除逻辑相关调用处如下，实际最终只有master会执行定期删除逻辑，执行频率是每秒HZ次。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.c</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">databasesCron</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="comment">/* Expire keys by random sampling. Not required for slaves</span></span><br><span class="line"><span class="comment">     * as master will synthesize DELs for us. */</span></span><br><span class="line">    <span class="keyword">if</span> (server.active_expire_enabled) &#123;</span><br><span class="line">        <span class="keyword">if</span> (iAmMaster()) &#123;</span><br><span class="line">            activeExpireCycle(ACTIVE_EXPIRE_CYCLE_SLOW);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            expireSlaveKeys();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">serverCron</span><span class="params">(<span class="keyword">struct</span> aeEventLoop *eventLoop, <span class="type">long</span> <span class="type">long</span> id, <span class="type">void</span> *clientData)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">/* Handle background operations on Redis databases. */</span></span><br><span class="line">    databasesCron();</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、拓展-惰性释放"><a href="#四、拓展-惰性释放" class="headerlink" title="四、拓展-惰性释放"></a>四、拓展-惰性释放</h1><p>这个其实跟上面的过期删除策略已经没关系了，这个主要是删除的方式。</p>
+<p>常规来讲Redis的读写是线性的，如果某个key太过巨大，就有可能会导致线程阻塞，影响服务。</p>
+<p>所以在Redis4版本中引入了新特性<code>lazy free</code>并提供了<code>unlink</code>命令。过期key的惰性释放可以通过配置<code>lazyfree-lazy-expire</code>来启用。</p>
+<p>下面是异步删除入口函数<code>dbAsyncDelete()</code>的代码，相比于同步删除入口函数<code>dbSyncDelete()</code>，其实就是多了<code>bioCreateLazyFreeJob()</code>相关的逻辑。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lazyfree.c</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">dbAsyncDelete</span><span class="params">(redisDb *db, robj *key)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dictSize(db-&gt;expires) &gt; <span class="number">0</span>) dictDelete(db-&gt;expires,key-&gt;ptr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取key实体</span></span><br><span class="line">    dictEntry *de = dictUnlink(db-&gt;dict,key-&gt;ptr);</span><br><span class="line">    <span class="keyword">if</span> (de) &#123;</span><br><span class="line">        robj *val = dictGetVal(de);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Tells the module that the key has been unlinked from the database. */</span></span><br><span class="line">        moduleNotifyKeyUnlink(key,val);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计算key的释放权重(其实差不多就是看里面资源数量)</span></span><br><span class="line">        <span class="type">size_t</span> free_effort = lazyfreeGetFreeEffort(key,val);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果要删的value有点多，就塞到bio里异步删</span></span><br><span class="line">        <span class="keyword">if</span> (free_effort &gt; LAZYFREE_THRESHOLD &amp;&amp; val-&gt;refcount == <span class="number">1</span>) &#123;</span><br><span class="line">            atomicIncr(lazyfree_objects,<span class="number">1</span>);</span><br><span class="line">            bioCreateLazyFreeJob(lazyfreeFreeObject,<span class="number">1</span>, val);</span><br><span class="line">            dictSetVal(db-&gt;dict,de,<span class="literal">NULL</span>);<span class="comment">// value置空 等待bio异步删除</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实际删除key和value,</span></span><br><span class="line">    <span class="keyword">if</span> (de) &#123;</span><br><span class="line">        dictFreeUnlinkedEntry(db-&gt;dict,de);</span><br><span class="line">        <span class="keyword">if</span> (server.cluster_enabled) slotToKeyDel(key-&gt;ptr);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>顺便看一下<code>unlink</code>命令和<code>del</code>命令的实现，发现实际上最终也是走的<code>dbAsyncDelete()</code>和<code>dbSyncDelete()</code>函数，豁然开朗。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">delCommand</span><span class="params">(client *c)</span> &#123;</span><br><span class="line">    delGenericCommand(c,server.lazyfree_lazy_user_del);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">unlinkCommand</span><span class="params">(client *c)</span> &#123;</span><br><span class="line">    delGenericCommand(c,<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* This command implements DEL and LAZYDEL. */</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">delGenericCommand</span><span class="params">(client *c, <span class="type">int</span> lazy)</span> &#123;</span><br><span class="line">    <span class="type">int</span> numdel = <span class="number">0</span>, j;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (j = <span class="number">1</span>; j &lt; c-&gt;argc; j++) &#123;</span><br><span class="line">        expireIfNeeded(c-&gt;db,c-&gt;argv[j]);</span><br><span class="line">        <span class="comment">// 此处</span></span><br><span class="line">        <span class="type">int</span> deleted  = lazy ? dbAsyncDelete(c-&gt;db,c-&gt;argv[j]) :</span><br><span class="line">                              dbSyncDelete(c-&gt;db,c-&gt;argv[j]);</span><br><span class="line">        <span class="keyword">if</span> (deleted) &#123;</span><br><span class="line">            signalModifiedKey(c,c-&gt;db,c-&gt;argv[j]);</span><br><span class="line">            notifyKeyspaceEvent(NOTIFY_GENERIC,</span><br><span class="line">                <span class="string">&quot;del&quot;</span>,c-&gt;argv[j],c-&gt;db-&gt;id);</span><br><span class="line">            server.dirty++;</span><br><span class="line">            numdel++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    addReplyLongLong(c,numdel);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>感谢金主</div>
+  <button>
+    赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechat.jpg" alt="Zgg2001 微信">
+        <span>微信</span>
+      </div>
+      <div>
+        <img src="/images/alibaba.jpg" alt="Zgg2001 支付宝">
+        <span>支付宝</span>
+      </div>
+
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" rel="tag"># 源码阅读</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/16/20220916_%E6%A0%A1%E6%8B%9B%E9%9D%A2%E8%AF%95%E8%AE%B0%E5%BD%95%EF%BC%9A%E7%BB%BF%E7%9B%9F%E7%A0%94%E5%8F%91%E4%B8%80%E4%BA%8C%E4%B8%89%E9%9D%A2+%E6%84%8F%E5%90%91/" rel="prev" title="校招面试记录：绿盟研发一二三面+意向">
+                  <i class="fa fa-angle-left"></i> 校招面试记录：绿盟研发一二三面+意向
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/09/09/20240909_golang%E5%AD%A6%E5%8E%86%E8%AE%B0%E5%BD%95%EF%BC%9Ak8soperator%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E6%8E%92%E6%9F%A5/" rel="next" title="golang学习记录：k8s operator内存泄露排查">
+                  golang学习记录：k8s operator内存泄露排查 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 2024 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zgg2001</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">190k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">11:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/zgg2001" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"zgg2001/zgg2001.github.io","issue_term":"pathname","theme":"github-light"}</script>
+<script src="/js/third-party/comments/utterances.js"></script>
+
+</body>
+</html>
